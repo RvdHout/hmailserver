@@ -198,12 +198,12 @@ public class ListViewColumnSorter : IComparer
                     for (var i = 0; i < octets; i++)
                     {
                         compareResult = xBytes[i].CompareTo(yBytes[i]);
+                        
+                        if (OrderOfSort == SortOrder.Descending)
+                            compareResult = -compareResult;
+
                         if (compareResult != 0)
-
-                            if (OrderOfSort == SortOrder.Descending)
-                                compareResult = -compareResult;
-
-                        return compareResult;
+                            return compareResult;
                     }
                     return compareResult;
                 }
