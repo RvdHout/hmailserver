@@ -579,6 +579,9 @@ namespace HM
    {
       cur_no_of_rcptto_ ++;
 
+      if (!CheckStartTlsRequired_())
+         return;
+
       if (!current_message_) 
       {
          EnqueueWrite_("503 must have sender first."); 
@@ -1421,7 +1424,7 @@ namespace HM
          }
       }
 
-      if (GetAuthIsEnabled_())
+      if (GetAuthIsEnabled_() && (IsSSLConnection() || GetConnectionSecurity() != CSSTARTTLSRequired))
       {
          String sAuth = "\r\n250-AUTH LOGIN";
 
@@ -1633,6 +1636,9 @@ namespace HM
    void
    SMTPConnection::ProtocolDATA_()
    {
+      if (!CheckStartTlsRequired_())
+         return;
+
       if (!current_message_)
       {
          // User tried to send a mail without specifying a correct mail from or rcpt to.

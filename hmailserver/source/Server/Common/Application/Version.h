@@ -1,7 +1,7 @@
 #pragma once
 
 #define HMAILSERVER_VERSION "5.6.8"
-#define HMAILSERVER_BUILD "2505.27"
+#define HMAILSERVER_BUILD "2505.28"
 
 /*
 [list=1]
@@ -32,5 +32,6 @@
 [*]Add RMSPF library SpamTestSPF Result to DEBUG logging, see [url=https://www.hmailserver.com/forum/viewtopic.php?p=218710#p218710]this[/url] forum topic
 [*]Ignore SpamTestSPF and SpamTestHeloHost when send thru local IP Address, see [url=https://www.hmailserver.com/forum/viewtopic.php?f=10&t=34865]this[/url] forum topic 
 [*]SPF test to include "HELO/EHLO host" used by DNS macros [url=https://github.com/hmailserver/hmailserver/pull/353]pull 353[/url]
+[*]Fix 'Unencrypted Cleartext Login' vulnerability detection [url=https://github.com/hmailserver/hmailserver/pull/342]pull 242[/url]
 [/list]
 */

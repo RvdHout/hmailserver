@@ -368,11 +368,14 @@ namespace HM
    void
    POP3Connection::ProtocolCAPA_()
    {
-      String capabilities = "USER\r\nUIDL\r\nTOP\r\n";
+      String capabilities = "UIDL\r\nTOP\r\n";
+
+      if (IsSSLConnection() || GetConnectionSecurity() != CSSTARTTLSRequired)
+         capabilities += "USER\r\n";
 
       if (GetConnectionSecurity() == CSSTARTTLSOptional ||
-          GetConnectionSecurity() == CSSTARTTLSRequired)
-         capabilities+="STLS\r\n";
+         GetConnectionSecurity() == CSSTARTTLSRequired)
+         capabilities += "STLS\r\n";
 
       String response = "+OK CAPA list follows\r\n" + capabilities + ".";
       EnqueueWrite_(response);
