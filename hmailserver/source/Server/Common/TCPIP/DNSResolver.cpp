@@ -109,6 +109,10 @@ namespace HM
 
       // We need this if not using system dns servers
       //      fOptions = DNS_QUERY_BYPASS_CACHE;
+      if (!IniFileSettings::Instance()->GetUseDNSCache())
+      {
+         fOptions += DNS_QUERY_BYPASS_CACHE;
+      }
       
       DNS_STATUS nDnsStatus = DnsQuery(sSearchFor, wType, fOptions, NULL, &pDnsRecords,NULL);
 
