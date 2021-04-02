@@ -35,9 +35,34 @@ namespace HM
       queue_randomness_minutes_(0),
       mxtries_factor_(0),
       sqldbtype_(HM::DatabaseSettings::TypeUnknown),
+      sep_svc_logs_(false),
       treat_authenticated_as_local_(false),
-      use_dns_cache_(1),
-      rewrite_envelope_from_when_forwarding_(false)
+      rewrite_envelope_from_when_forwarding_(false),
+      archive_hardlinks_(false),
+      pop3dmin_timeout_(0),
+      pop3dmax_timeout_(0),
+      pop3cmin_timeout_(0),
+      pop3cmax_timeout_(0),
+      smtpdmin_timeout_(0),
+      smtpdmax_timeout_(0),
+      smtpcmin_timeout_(0),
+      smtpcmax_timeout_(0),
+      samin_timeout_(0),
+      samax_timeout_(0),
+      clam_min_timeout_(0),
+      clam_max_timeout_(0),
+      samove_vs_copy_(false),
+      indexer_full_minutes_(0),
+      indexer_full_limit_(0),
+      indexer_quick_limit_(0),
+      load_header_read_size_(0),
+      load_body_read_size_(0),
+      blocked_iphold_seconds_(0),
+      smtpdmax_size_drop_(0),
+      backup_messages_dbonly_(false),
+      add_xauth_user_ip_(false),
+      use_dns_cache_(1)
+
    {
 
    }
