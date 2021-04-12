@@ -1,7 +1,7 @@
 #pragma once
 
 #define HMAILSERVER_VERSION "5.6.8"
-#define HMAILSERVER_BUILD "2538.30"
+#define HMAILSERVER_BUILD "2555.32"
 
 /*
 [list=1]
@@ -35,5 +35,7 @@
 [*]Fix 'Unencrypted Cleartext Login' vulnerability detection [url=https://github.com/hmailserver/hmailserver/pull/342]pull 242[/url]
 [*]Anti-spam; Maximum message to scan (KB) is now limited to 256MB, see [url=https://www.hmailserver.com/forum/viewtopic.php?f=22&p=226989#p226989]this[/url] forum topic
 [*]Added "UseDNSCache" INI setting. 1 = Use cache in DNS Client service (default). 0 = Bypass cache in DNS Client service.
+[*]AWStats::LogDeliveryFailure was called twice for each message in OnDeliveryFailed
+[*]oMessage object was emtpy when called from OnDeliveryFailed in SMTPDeliverer.cpp
 [/list]
 */
