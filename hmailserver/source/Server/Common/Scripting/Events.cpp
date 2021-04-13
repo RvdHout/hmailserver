@@ -80,11 +80,11 @@ namespace HM
          pContainer->AddObject("HMAILSERVER_MESSAGE", pMessage, ScriptObject::OTMessage);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
          String sEventCaller = "OnDeliverMessage(HMAILSERVER_MESSAGE)";
-		 ScriptServer::Instance()->FireEvent(ScriptServer::EventOnDeliverMessage, sEventCaller, pContainer);
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnDeliverMessage, sEventCaller, pContainer);
 
          switch (pResult->GetValue())
          {
-         case 1:
+            case 1:
             {
                String sMessage;
                sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
@@ -93,7 +93,8 @@ namespace HM
 
                LOG_APPLICATION(sMessage);
 
-               PersistentMessage::DeleteObject(pMessage);             
+               //Moved to PreprocessMessage_() in SMTPDeliverer.cpp
+               //PersistentMessage::DeleteObject(pMessage);             
 
                return false;
             }
