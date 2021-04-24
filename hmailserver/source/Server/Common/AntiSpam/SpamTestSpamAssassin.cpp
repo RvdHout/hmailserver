@@ -57,16 +57,11 @@ namespace HM
       std::shared_ptr<Message> pMessage = pTestData->GetMessageData()->GetMessage();
       const String sFilename = PersistentMessage::GetFileName(pMessage);
 
-      // Add Return-Path header if none exist (ExternalAccount download?)
-      if (pTestData->GetMessageData()->GetReturnPath().IsEmpty())
-      {
-	      String sEnvelopeFrom = pTestData->GetEnvelopeFrom();
-
-	      std::vector<std::pair<AnsiString, AnsiString> > fieldsToWrite;
-	      fieldsToWrite.push_back(std::make_pair("Return-Path", sEnvelopeFrom));
-	      TraceHeaderWriter writer;
-	      writer.Write(sFilename, pMessage, fieldsToWrite);
-      }
+      // Add envelope-from header "Envelope-From"
+      std::vector<std::pair<AnsiString, AnsiString> > fieldsToWrite;
+      fieldsToWrite.push_back(std::make_pair("Envelope-From", pTestData->GetEnvelopeFrom()));
+      TraceHeaderWriter writer;
+      writer.Write(sFilename, pMessage, fieldsToWrite);
       
       std::shared_ptr<IOService> pIOService = Application::Instance()->GetIOService();
 
@@ -116,12 +111,7 @@ namespace HM
 
       // Check if the message is tagged as spam.
       std::shared_ptr<MessageData> pMessageData = pTestData->GetMessageData();
-      
       pMessageData->RefreshFromMessage();
-      // The Return-Path header was added above to help SpamAssassin with its SPF checks.
-      // We should remove it again to restore the headers to original state (except for any added by SA).
-      pMessageData->DeleteField("Return-Path");
-      pMessageData->Write(sFilename);
 
       bool bIsSpam = false;
       AnsiString sSpamStatus = pMessageData->GetFieldValue("X-Spam-Status");
