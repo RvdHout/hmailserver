@@ -179,7 +179,9 @@ namespace HM
       // Run the first event in the delivery chain
       if (!Events::FireOnDeliveryStart(pMessage))
       {
+         //PersistentMessage::DeleteObject(pMessage) moved from FireOnDeliveryStart() event to here
          LogAwstatsMessageRejected_(sendersIP, pMessage, "Delivery cancelled by OnDeliveryStart-event");
+         PersistentMessage::DeleteObject(pMessage);
          return false;
       }
 
