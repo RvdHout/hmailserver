@@ -52,13 +52,10 @@ namespace HM
          {
             String sMessage;
             sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
-               _T("Message deleted. Action was taken by script subscribing to OnDeliveryStart."),
+               _T("Message will be deleted. Action was taken by script subscribing to OnDeliveryStart."),
                pMessage->GetID());
 
             LOG_APPLICATION(sMessage);
-
-            //Moved to PreprocessMessage_() in SMTPDeliverer.cpp
-            //PersistentMessage::DeleteObject(pMessage);
 
             return false;
          }
@@ -85,17 +82,14 @@ namespace HM
 
          switch (pResult->GetValue())
          {
-            case 1:
+         	case 1:
             {
                String sMessage;
                sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
-                  _T("Message deleted. Action was taken by script subscribing to OnDeliverMessage."),
+                  _T("Message will be deleted. Action was taken by script subscribing to OnDeliverMessage."),
                   pMessage->GetID());
 
                LOG_APPLICATION(sMessage);
-
-               //Moved to PreprocessMessage_() in SMTPDeliverer.cpp
-               //PersistentMessage::DeleteObject(pMessage);             
 
                return false;
             }
@@ -186,7 +180,7 @@ namespace HM
       }
       else if (sScriptLanguage == _T("JScript"))
       {
-         sRemoteUIDCopy.Replace(_T("'"), _T("\'"));
+         sRemoteUIDCopy.Replace(_T("'"), _T("\\'"));
 
          if (pMessage)
             sEventCaller.Format(_T("OnExternalAccountDownload(HMAILSERVER_FETCHACCOUNT, HMAILSERVER_MESSAGE, '%s')"), sRemoteUIDCopy.c_str());
