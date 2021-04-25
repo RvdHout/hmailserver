@@ -31,7 +31,8 @@ namespace HM
       has_on_external_account_download_(false),
       has_on_smtpdata_(false),
       has_on_helo_(false),
-      has_on_client_logon_(false)
+      has_on_client_logon_(false),
+      has_on_client_validate_password_(false)
    {
       
    }
@@ -101,7 +102,7 @@ namespace HM
          has_on_smtpdata_ = DoesFunctionExist_("OnSMTPData");
          has_on_helo_ = DoesFunctionExist_("OnHELO");
          has_on_client_logon_ = DoesFunctionExist_("OnClientLogon");
-
+         has_on_client_validate_password_ = DoesFunctionExist_("OnClientValidatePassword");
       }
       catch (...)
       {
@@ -199,81 +200,85 @@ namespace HM
       if (!Configuration::Instance()->GetUseScriptServer())
          return;
 
-      // JDR: stores the name of the method that is fired in the script. http://www.hmailserver.com/forum/viewtopic.php?f=2&t=25497
-      String event_name = _T("Unknown");
+	  // JDR: stores the name of the method that is fired in the script. http://www.hmailserver.com/forum/viewtopic.php?f=2&t=25497
+	  String event_name = _T("Unknown");
 
       switch (e)
       {
       case EventOnClientConnect:
-	      if (!has_on_client_connect_)
-		      return;
-	      event_name = _T("OnClientConnect");
-	      break;
-      case EventOnClientLogon:
-	      if (!has_on_client_logon_)
-		      return;
-	      event_name = _T("OnClientLogon");
-	      break;
+         if (!has_on_client_connect_)
+            return;
+         event_name = _T("OnClientConnect");
+         break;
       case EventOnAcceptMessage:
-	      if (!has_on_accept_message_)
-		      return;
-	      event_name = _T("OnAcceptMessage");
-	      break;
+         if (!has_on_accept_message_)
+            return;
+         event_name = _T("OnAcceptMessage");
+         break;
       case EventOnDeliverMessage:
-	      if (!has_on_deliver_message_)
-		      return;
-	      event_name = _T("OnDeliverMessage");
-	      break;
+         if (!has_on_deliver_message_)
+            return;
+         event_name = _T("OnDeliverMessage");
+         break;
       case EventOnBackupCompleted:
-	      if (!has_on_backup_completed_)
-		      return;
-	      event_name = _T("OnBackupCompleted");
-	      break;
+         if (!has_on_backup_completed_)
+            return;
+         event_name = _T("OnBackupCompleted");
+         break;
       case EventOnBackupFailed:
-	      if (!has_on_backup_failed_)
-		      return;
-	      event_name = _T("OnBackupFailed");
-	      break;
+         if (!has_on_backup_failed_)
+            return;
+         event_name = _T("OnBackupFailed");
+         break;
       case EventOnError:
-	      if (!has_on_error_)
-		      return;
-	      event_name = _T("OnError");
-	      break;
+         if (!has_on_error_)
+            return;
+         event_name = _T("OnError");
+         break;
       case EventOnDeliveryStart:
-	      if (!has_on_delivery_start_)
-		      return;
-	      event_name = _T("OnDeliveryStart");
-	      break;
+         if (!has_on_delivery_start_)
+            return;
+         event_name = _T("OnDeliveryStart");
+         break;
       case EventOnDeliveryFailed:
-	      if (!has_on_delivery_failed_)
-		      return;
-	      event_name = _T("OnDeliveryFailed");
-	      break;
+         if (!has_on_delivery_failed_)
+            return;
+         event_name = _T("OnDeliveryFailed");
+         break;
       case EventOnExternalAccountDownload:
-	      if (!has_on_external_account_download_)
-		      return;
-	      event_name = _T("OnExternalAccountDownload");
-	      break;
+         if (!has_on_external_account_download_)
+            return;
+         event_name = _T("OnExternalAccountDownload");
+         break;
       case EventOnSMTPData:
-	      if (!has_on_smtpdata_)
-		      return;
-	      event_name = _T("OnSMTPData");
-	      break;
+         if (!has_on_smtpdata_)
+            return;
+         event_name = _T("OnSMTPData");
+         break;
       case EventOnHELO:
-	      if (!has_on_helo_)
-		      return;
-	      event_name = _T("OnHELO");
-	      break;
+         if (!has_on_helo_)
+            return;
+         event_name = _T("OnHELO");
+         break;
+      case EventOnClientLogon:
+         if (!has_on_client_logon_)
+            return;
+         event_name = _T("OnClientLogon");
+         break;
+      case EventOnClientValidatePassword:
+         if (!has_on_client_validate_password_)
+            return;
+         event_name = _T("OnClientValidatePassword");
+         break;
       case EventCustom:
-	      break;
+         break;
       default:
-	      {
-		      return;
-	      }
+         {
+            return;
+         }
       }
 
-
-	   LOG_DEBUG("Executing event " + event_name );
+	   LOG_DEBUG("Executing event " + event_name);
 
       String sScript;
 
