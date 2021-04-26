@@ -57,11 +57,21 @@ namespace HM
       std::shared_ptr<Message> pMessage = pTestData->GetMessageData()->GetMessage();
       const String sFilename = PersistentMessage::GetFileName(pMessage);
 
-      // Add Return-Path header if none exist (ExternalAccount download?)
+      String sEnvelopeFrom = pTestData->GetEnvelopeFrom();
+
+      // Add "X-hMailServer-Envelope-From" header
+      // Add following to SpamAssassin local.cf: envelope_sender_header X-hMailServer-Envelope-From
+      std::vector<std::pair<AnsiString, AnsiString>> fieldsToWrite;
+      fieldsToWrite.push_back(std::make_pair("X-hMailServer-Envelope-From", sEnvelopeFrom));
+
+      TraceHeaderWriter writer;
+      writer.Write(sFilename, pMessage, fieldsToWrite);
+
+      // Add Return-Path as topmost header if none exist (ExternalAccount download?)
+      // For SpamAssassin default rules and custom rules that rely on Return-Path header being present
+      // We delete this header again after SpamAssassin checking has completed
       if (pTestData->GetMessageData()->GetReturnPath().IsEmpty())
       {
-         String sEnvelopeFrom = pTestData->GetEnvelopeFrom();
-
          std::vector<std::pair<AnsiString, AnsiString>> fieldsToWrite;
          fieldsToWrite.push_back(std::make_pair("Return-Path", sEnvelopeFrom));
 
