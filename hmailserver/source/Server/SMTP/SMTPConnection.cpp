@@ -2170,13 +2170,14 @@ namespace HM
    Returns true if
    - the domain-part of the email matches an active local domain.
    - the sender address matches a route address.
-   - the sender is authenticated and AuthUserIsLocal=1 INI setting
+   - the sender is authenticated, AuthUserIsLocal=1 INI setting and allow empty sender address is true
    */
    bool
    SMTPConnection::GetIsLocalSender_()
    {
-      // the sender is authenticated and AuthUserIsLocal=1 INI setting
-      if (IniFileSettings::Instance()->GetAuthUserIsLocal() && isAuthenticated_)
+      // Workaround for Outlook bug that sends a read-receipt without FromAddress when delivery from external to external e-mail addresses is disallowed 
+      // the sender is authenticated and AuthUserIsLocal=1 INI setting and RFC compliance: allow empty sender address is checked
+      if (IniFileSettings::Instance()->GetAuthUserIsLocal() && isAuthenticated_ && CheckIfValidSenderAddress(current_message_->GetFromAddress()))
          return true;
       
       if (sender_domain_ && sender_domain_->GetIsActive())
