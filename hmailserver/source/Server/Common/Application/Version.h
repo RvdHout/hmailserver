@@ -1,7 +1,7 @@
 #pragma once
 
 #define HMAILSERVER_VERSION "5.6.8"
-#define HMAILSERVER_BUILD "2555.33"
+#define HMAILSERVER_BUILD "2555.34"
 
 /*
 [list=1]
@@ -38,5 +38,6 @@
 [*]AWStats::LogDeliveryFailure was called twice for each message in OnDeliveryFailed
 [*]oMessage object was emtpy when called from OnDeliveryFailed in SMTPDeliverer.cpp
 [*]Added: Experimental events OnRecipientUnknown(oClient, oMessage) and OnTooManyInvalidCommands(oClient, oMessage)
+[*]Added: Auto-Submitted header for auto-generated messages [url=https://github.com/hmailserver/hmailserver/pull/386]pull 386[/url]
 [/list]
 */
