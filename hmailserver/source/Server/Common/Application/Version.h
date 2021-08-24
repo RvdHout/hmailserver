@@ -1,7 +1,7 @@
 #pragma once
 
 #define HMAILSERVER_VERSION "5.6.8"
-#define HMAILSERVER_BUILD "2555.34"
+#define HMAILSERVER_BUILD "2555.35"
 
 /*
 [list=1]
@@ -39,5 +39,6 @@
 [*]oMessage object was emtpy when called from OnDeliveryFailed in SMTPDeliverer.cpp
 [*]Added: Experimental events OnRecipientUnknown(oClient, oMessage) and OnTooManyInvalidCommands(oClient, oMessage)
 [*]Added: Auto-Submitted header for auto-generated messages [url=https://github.com/hmailserver/hmailserver/pull/386]pull 386[/url]
+[*]Added: "DNSServer" INI setting. Single (local) DNS server IPv4 addresses to use within hMailServer instead of default system DNS.
 [/list]
 */

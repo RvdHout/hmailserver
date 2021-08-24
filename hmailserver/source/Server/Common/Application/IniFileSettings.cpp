@@ -197,9 +197,9 @@ namespace HM
       smtpdmax_size_drop_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxSizeDrop",0);
       backup_messages_dbonly_ =  ReadIniSettingInteger_("Settings", "BackupMessagesDBOnly",0) == 1;
       add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP",1) == 1;
-
-      rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding",0) == 1;
       use_dns_cache_ = ReadIniSettingInteger_("Settings", "UseDNSCache",1) == 1;
+      dns_server_ = ReadIniSettingString_("Settings", "DNSServer", "");
+      rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
       m_sDisableAUTHList = ReadIniSettingString_("Settings", "DisableAUTHList", "");
    }
 
