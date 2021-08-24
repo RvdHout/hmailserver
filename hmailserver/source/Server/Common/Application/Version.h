@@ -1,7 +1,7 @@
 #pragma once
 
 #define HMAILSERVER_VERSION "5.6.8"
-#define HMAILSERVER_BUILD "2555.33"
+#define HMAILSERVER_BUILD "2555.32"
 
 /*
 [list=1]
@@ -37,6 +37,5 @@
 [*]Added "UseDNSCache" INI setting. 1 = Use cache in DNS Client service (default). 0 = Bypass cache in DNS Client service.
 [*]AWStats::LogDeliveryFailure was called twice for each message in OnDeliveryFailed
 [*]oMessage object was emtpy when called from OnDeliveryFailed in SMTPDeliverer.cpp
-[*]add OnClientValidatePassword event
 [/list]
 */

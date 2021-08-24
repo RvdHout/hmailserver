@@ -17,8 +17,7 @@ namespace HM
          OTMessage = 1001,
          OTClient = 1002,
          OTEventLog = 1003,
-         OTFetchAccount = 1004,
-         OTAccount = 1005
+         OTFetchAccount = 1004
       };
 
       String sName;
