@@ -2250,7 +2250,6 @@ STDMETHODIMP InterfaceSettings::put_MaxNumberOfMXHosts(long newVal)
    }
 }
 
-
 STDMETHODIMP InterfaceSettings::get_VerifyRemoteSslCertificate(VARIANT_BOOL *pVal)
 {
    try
@@ -2336,7 +2335,6 @@ STDMETHODIMP InterfaceSettings::put_TlsVersion10Enabled(VARIANT_BOOL newVal)
    }
 }
 
-
 STDMETHODIMP InterfaceSettings::get_TlsVersion10Enabled(VARIANT_BOOL *pVal)
 {
    try
@@ -2369,7 +2367,6 @@ STDMETHODIMP InterfaceSettings::put_TlsVersion11Enabled(VARIANT_BOOL newVal)
    }
 }
 
-
 STDMETHODIMP InterfaceSettings::get_TlsVersion11Enabled(VARIANT_BOOL *pVal)
 {
    try
@@ -2385,7 +2382,6 @@ STDMETHODIMP InterfaceSettings::get_TlsVersion11Enabled(VARIANT_BOOL *pVal)
       return COMError::GenerateGenericMessage();
    }
 }
-
 
 STDMETHODIMP InterfaceSettings::put_TlsVersion12Enabled(VARIANT_BOOL newVal)
 {
@@ -2403,7 +2399,6 @@ STDMETHODIMP InterfaceSettings::put_TlsVersion12Enabled(VARIANT_BOOL newVal)
    }
 }
 
-
 STDMETHODIMP InterfaceSettings::get_TlsVersion12Enabled(VARIANT_BOOL *pVal)
 {
    try
@@ -2419,7 +2414,6 @@ STDMETHODIMP InterfaceSettings::get_TlsVersion12Enabled(VARIANT_BOOL *pVal)
       return COMError::GenerateGenericMessage();
    }
 }
-
 
 STDMETHODIMP InterfaceSettings::put_TlsVersion13Enabled(VARIANT_BOOL newVal)
 {
@@ -2437,7 +2431,6 @@ STDMETHODIMP InterfaceSettings::put_TlsVersion13Enabled(VARIANT_BOOL newVal)
    }
 }
 
-
 STDMETHODIMP InterfaceSettings::get_TlsVersion13Enabled(VARIANT_BOOL *pVal)
 {
    try
@@ -2446,6 +2439,70 @@ STDMETHODIMP InterfaceSettings::get_TlsVersion13Enabled(VARIANT_BOOL *pVal)
          return GetAccessDenied();
 
       *pVal = config_->GetSslVersionEnabled(HM::TlsVersion13) ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_TlsOptionPreferServerCiphersEnabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetTlsOptionEnabled(HM::TlsOptionPreferServerCiphers, newVal == VARIANT_TRUE);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::put_TlsOptionPrioritizeChaChaEnabled(VARIANT_BOOL newVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      config_->SetTlsOptionEnabled(HM::TlsOptionPrioritizeChaCha, newVal == VARIANT_TRUE);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_TlsOptionPrioritizeChaChaEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetTlsOptionEnabled(HM::TlsOptionPrioritizeChaCha) ? VARIANT_TRUE : VARIANT_FALSE;
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_TlsOptionPreferServerCiphersEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetTlsOptionEnabled(HM::TlsOptionPreferServerCiphers) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)

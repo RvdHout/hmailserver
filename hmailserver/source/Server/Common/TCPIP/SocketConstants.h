@@ -39,6 +39,12 @@ namespace HM
       TlsVersion10 = 2,
       TlsVersion11 = 4,
       TlsVersion12 = 8,
-      TlsVersion13 = 16
+	  TlsVersion13 = 16
+   };
+
+   enum TlsOption
+   {
+      TlsOptionPreferServerCiphers = 2,
+      TlsOptionPrioritizeChaCha = 4
    };
 }
