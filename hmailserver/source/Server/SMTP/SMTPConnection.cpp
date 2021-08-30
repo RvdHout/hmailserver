@@ -1550,8 +1550,8 @@ namespace HM
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
          pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
 
-	      String sEventCaller = "OnHELO(HMAILSERVER_CLIENT)";
-	      ScriptServer::Instance()->FireEvent(ScriptServer::EventOnHELO, sEventCaller, pContainer);
+         String sEventCaller = "OnHELO(HMAILSERVER_CLIENT)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnHELO, sEventCaller, pContainer);
 
          switch (pResult->GetValue())
          {
