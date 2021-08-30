@@ -1531,13 +1531,13 @@ namespace HM
       //
       if (Configuration::Instance()->GetUseScriptServer())
       {
-	      std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-	      std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
-	      std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
+         std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
 
-	      pClientInfo->SetIPAddress(GetIPAddressString());
-	      pClientInfo->SetPort(GetLocalEndpointPort());
-	      pClientInfo->SetHELO(helo_host_);
+         pClientInfo->SetIPAddress(GetIPAddressString());
+         pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
          if (IsSSLConnection())
          {
@@ -1555,27 +1555,27 @@ namespace HM
 
 	      switch (pResult->GetValue())
 	      {
-	         case 1:
-	         {
-		         String sErrorMessage = "554 Rejected";
-		         EnqueueWrite_(sErrorMessage);
-		         LogAwstatsMessageRejected_();
-		         return;
-	         }
-	         case 2:
-	         {
-		         String sErrorMessage = "554 " + pResult->GetMessage();
-		         EnqueueWrite_(sErrorMessage);
-		         LogAwstatsMessageRejected_();
-		         return;
-	         }
-	         case 3:
-	         {
-		         String sErrorMessage = "453 " + pResult->GetMessage();
-		         EnqueueWrite_(sErrorMessage);
-		         LogAwstatsMessageRejected_();
-		         return;
-	         }
+	      case 1:
+	      {
+		      String sErrorMessage = "554 Rejected";
+		      EnqueueWrite_(sErrorMessage);
+		      LogAwstatsMessageRejected_();
+		      return;
+	      }
+	      case 2:
+	      {
+		      String sErrorMessage = "554 " + pResult->GetMessage();
+		      EnqueueWrite_(sErrorMessage);
+		      LogAwstatsMessageRejected_();
+		      return;
+	      }
+	      case 3:
+	      {
+		      String sErrorMessage = "453 " + pResult->GetMessage();
+		      EnqueueWrite_(sErrorMessage);
+		      LogAwstatsMessageRejected_();
+		      return;
+	      }
 	      }
       }
 
@@ -1584,7 +1584,7 @@ namespace HM
       if (current_state_ == INITIAL)
          current_state_ = HEADER;
    }
-   
+
    void
    SMTPConnection::ProtocolHELO_(const String &sRequest)
    {
@@ -1602,13 +1602,13 @@ namespace HM
       //
       if (Configuration::Instance()->GetUseScriptServer())
       {
-	      std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
-	      std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
-	      std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<Result> pResult = std::shared_ptr<Result>(new Result);
+         std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
 
-	      pClientInfo->SetIPAddress(GetIPAddressString());
-	      pClientInfo->SetPort(GetLocalEndpointPort());
-	      pClientInfo->SetHELO(helo_host_);
+         pClientInfo->SetIPAddress(GetIPAddressString());
+         pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
          if (IsSSLConnection())
          {
@@ -1618,35 +1618,35 @@ namespace HM
             pClientInfo->SetCipherBits(cipher_info.GetBits());
          }
 
-	      pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
-	      pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+         pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
 
-	      String sEventCaller = "OnHELO(HMAILSERVER_CLIENT)";
-	      ScriptServer::Instance()->FireEvent(ScriptServer::EventOnHELO, sEventCaller, pContainer);
+         String sEventCaller = "OnHELO(HMAILSERVER_CLIENT)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnHELO, sEventCaller, pContainer);
 
 	      switch (pResult->GetValue())
 	      {
-	         case 1:
-	         {
-		         String sErrorMessage = "554 Rejected";
-		         EnqueueWrite_(sErrorMessage);
-		         LogAwstatsMessageRejected_();
-		         return;
-	         }
-	         case 2:
-	         {
-		         String sErrorMessage = "554 " + pResult->GetMessage();
-		         EnqueueWrite_(sErrorMessage);
-		         LogAwstatsMessageRejected_();
-		         return;
-	         }
-	         case 3:
-	         {
-		         String sErrorMessage = "453 " + pResult->GetMessage();
-		         EnqueueWrite_(sErrorMessage);
-		         LogAwstatsMessageRejected_();
-		         return;
-	         }
+	      case 1:
+	      {
+		      String sErrorMessage = "554 Rejected";
+		      EnqueueWrite_(sErrorMessage);
+		      LogAwstatsMessageRejected_();
+		      return;
+	      }
+	      case 2:
+	      {
+		      String sErrorMessage = "554 " + pResult->GetMessage();
+		      EnqueueWrite_(sErrorMessage);
+		      LogAwstatsMessageRejected_();
+		      return;
+	      }
+	      case 3:
+	      {
+		      String sErrorMessage = "453 " + pResult->GetMessage();
+		      EnqueueWrite_(sErrorMessage);
+		      LogAwstatsMessageRejected_();
+		      return;
+	      }
 	      }
       }
 
