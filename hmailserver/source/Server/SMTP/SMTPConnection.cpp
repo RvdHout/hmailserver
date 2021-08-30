@@ -67,7 +67,7 @@
 #include "SMTPDeliveryManager.h"
 #include "SMTPMessageHeaderCreator.h"
 
-
+#include "../Common/TCPIP/CipherInfo.h"
 
 using namespace std;
 
@@ -1221,6 +1221,14 @@ namespace HM
          pClientInfo->SetPort(GetLocalEndpointPort());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
          pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -1530,6 +1538,14 @@ namespace HM
 	      pClientInfo->SetIPAddress(GetIPAddressString());
 	      pClientInfo->SetPort(GetLocalEndpointPort());
 	      pClientInfo->SetHELO(helo_host_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
 	      pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
 	      pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
@@ -1593,6 +1609,14 @@ namespace HM
 	      pClientInfo->SetIPAddress(GetIPAddressString());
 	      pClientInfo->SetPort(GetLocalEndpointPort());
 	      pClientInfo->SetHELO(helo_host_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
 	      pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
 	      pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
@@ -1685,6 +1709,14 @@ namespace HM
          pClientInfo->SetPort(GetLocalEndpointPort());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
          pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -2020,6 +2052,14 @@ namespace HM
          pClientInfo->SetPort(GetLocalEndpointPort());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
+         pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+         if (IsSSLConnection())
+         {
+            auto cipher_info = GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
 
          pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
 
@@ -2101,6 +2141,14 @@ namespace HM
                pClientInfo->SetPort(GetLocalEndpointPort());
                pClientInfo->SetHELO(helo_host_);
                pClientInfo->SetIsAuthenticated(isAuthenticated_);
+               pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+               if (IsSSLConnection())
+               {
+                  auto cipher_info = GetCipherInfo();
+                  pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+                  pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+                  pClientInfo->SetCipherBits(cipher_info.GetBits());
+               }
 
                pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
                pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -2125,6 +2173,14 @@ namespace HM
                   pClientInfo->SetPort(GetLocalEndpointPort());
                   pClientInfo->SetHELO(helo_host_);
                   pClientInfo->SetIsAuthenticated(isAuthenticated_);
+                  pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+                  if (IsSSLConnection())
+                  {
+                     auto cipher_info = GetCipherInfo();
+                     pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+                     pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+                     pClientInfo->SetCipherBits(cipher_info.GetBits());
+                  }
 
                   pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
                   pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
