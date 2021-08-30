@@ -1547,36 +1547,36 @@ namespace HM
             pClientInfo->SetCipherBits(cipher_info.GetBits());
          }
 
-	      pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
-	      pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+         pContainer->AddObject("Result", pResult, ScriptObject::OTResult);
 
 	      String sEventCaller = "OnHELO(HMAILSERVER_CLIENT)";
 	      ScriptServer::Instance()->FireEvent(ScriptServer::EventOnHELO, sEventCaller, pContainer);
 
-	      switch (pResult->GetValue())
-	      {
-	      case 1:
-	      {
-		      String sErrorMessage = "554 Rejected";
-		      EnqueueWrite_(sErrorMessage);
-		      LogAwstatsMessageRejected_();
-		      return;
-	      }
-	      case 2:
-	      {
-		      String sErrorMessage = "554 " + pResult->GetMessage();
-		      EnqueueWrite_(sErrorMessage);
-		      LogAwstatsMessageRejected_();
-		      return;
-	      }
-	      case 3:
-	      {
-		      String sErrorMessage = "453 " + pResult->GetMessage();
-		      EnqueueWrite_(sErrorMessage);
-		      LogAwstatsMessageRejected_();
-		      return;
-	      }
-	      }
+         switch (pResult->GetValue())
+         {
+         case 1:
+         {
+            String sErrorMessage = "554 Rejected";
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         case 2:
+         {
+            String sErrorMessage = "554 " + pResult->GetMessage();
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         case 3:
+         {
+            String sErrorMessage = "453 " + pResult->GetMessage();
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         }
       }
 
       SendEHLOKeywords_();
@@ -1624,30 +1624,30 @@ namespace HM
          String sEventCaller = "OnHELO(HMAILSERVER_CLIENT)";
          ScriptServer::Instance()->FireEvent(ScriptServer::EventOnHELO, sEventCaller, pContainer);
 
-	      switch (pResult->GetValue())
-	      {
-	      case 1:
-	      {
-		      String sErrorMessage = "554 Rejected";
-		      EnqueueWrite_(sErrorMessage);
-		      LogAwstatsMessageRejected_();
-		      return;
-	      }
-	      case 2:
-	      {
-		      String sErrorMessage = "554 " + pResult->GetMessage();
-		      EnqueueWrite_(sErrorMessage);
-		      LogAwstatsMessageRejected_();
-		      return;
-	      }
-	      case 3:
-	      {
-		      String sErrorMessage = "453 " + pResult->GetMessage();
-		      EnqueueWrite_(sErrorMessage);
-		      LogAwstatsMessageRejected_();
-		      return;
-	      }
-	      }
+         switch (pResult->GetValue())
+         {
+         case 1:
+         {
+            String sErrorMessage = "554 Rejected";
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         case 2:
+         {
+            String sErrorMessage = "554 " + pResult->GetMessage();
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         case 3:
+         {
+            String sErrorMessage = "453 " + pResult->GetMessage();
+            EnqueueWrite_(sErrorMessage);
+            LogAwstatsMessageRejected_();
+            return;
+         }
+         }
       }
 
       EnqueueWrite_("250 Hello.");
