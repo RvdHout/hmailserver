@@ -125,7 +125,6 @@ namespace HM
          SessionManager::Instance()->OnSessionEnded(STSMTP);
    }
 
-
    void
    SMTPConnection::OnConnected()
    {
@@ -640,8 +639,8 @@ namespace HM
       if (dp != RecipientParser::DP_Possible)
       {
          AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
-
-		 SendErrorResponse_(550, sErrMsg);
+		   
+         SendErrorResponse_(550, sErrMsg);
          return;
       }
 
