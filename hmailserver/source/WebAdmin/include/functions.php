@@ -30,9 +30,6 @@ function hmailGetVar($p_varname, $p_defaultvalue = null, $p_isnumeric = false)
 		$retval	= $_REQUEST[$p_varname];
 	}
 	
-	if (get_magic_quotes_gpc())
-	   $retval = stripslashes($retval);
-   
 	if ($p_isnumeric) 
 	{
 		$retval = intval($retval);
@@ -225,18 +222,23 @@ function  PrintPasswordEntry($name, $caption, $length = 20)
 }
 
 
-function  PrintCheckboxRow($name, $caption, $checked)
+function  PrintCheckboxRow($name, $caption, $checked, $disabled = false)
 {
    global $obLanguage;
    $caption = $obLanguage->String($caption);
    
    $checked_text = hmailCheckedIf1($checked);
    
+	$disabledstr = "";
+	if ($disabled){
+		$disabledstr = " disabled ";
+	}
+   
    echo 
    "
    	<tr>
    		<td>$caption</td>
-   		<td><input type=\"checkbox\" name=\"$name\" value=\"1\" $checked_text></td>
+   		<td><input type=\"checkbox\"' . $disabledstr . 'name=\"$name\" value=\"1\" $checked_text></td>
    	</tr>	
     ";
 }
