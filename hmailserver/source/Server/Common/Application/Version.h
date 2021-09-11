@@ -43,6 +43,5 @@
 [*]Added: DKIM signature for domain aliases [url=https://github.com/hmailserver/hmailserver/pull/383]pull 383[/url]
 [*]Added: TLS server cipher preference support and support for prioritizing ChaCha20Poly1305 [url=https://github.com/hmailserver/hmailserver/pull/379]pull 379[/url]
 [*]Added: New ClientInfo properties oClient.EncryptedConnection (Boolean), oClient.CipherVersion, oClient.CipherName and oClient.CipherBits
-[*]Added: DomainMembers DistributionList mode
 [/list]
 */

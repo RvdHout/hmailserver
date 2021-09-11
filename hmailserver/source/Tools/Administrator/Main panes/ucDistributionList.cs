@@ -90,7 +90,6 @@ namespace hMailServer.Administrator
 
             radioModePublic.Checked = _representedObject.Mode == eDistributionListMode.eLMPublic;
             radioModeMembership.Checked = _representedObject.Mode == eDistributionListMode.eLMMembership;
-            radioModeDomainMembers.Checked = _representedObject.Mode == eDistributionListMode.eLMDomainMembers;
             optModeAnnouncements.Checked = _representedObject.Mode == eDistributionListMode.eLMAnnouncement;
 
             textRequireAddress.Text = _representedObject.RequireSenderAddress;
@@ -126,9 +125,6 @@ namespace hMailServer.Administrator
 
             if (optModeAnnouncements.Checked)
                 _representedObject.Mode = eDistributionListMode.eLMAnnouncement;
-
-            if (radioModeDomainMembers.Checked)
-                _representedObject.Mode = eDistributionListMode.eLMDomainMembers;
 
             _representedObject.RequireSenderAddress = textRequireAddress.Text;
             _representedObject.RequireSMTPAuth = checkRequireSMTPAuthentication.Checked;
