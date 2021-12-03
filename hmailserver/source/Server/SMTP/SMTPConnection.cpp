@@ -1218,6 +1218,7 @@ namespace HM
          pClientInfo->SetUsername(username_);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
          pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
@@ -1536,6 +1537,7 @@ namespace HM
 
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
          if (IsSSLConnection())
@@ -1607,6 +1609,7 @@ namespace HM
 
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
          if (IsSSLConnection())
@@ -1706,6 +1709,7 @@ namespace HM
          pClientInfo->SetUsername(username_);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
          pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
@@ -2049,6 +2053,7 @@ namespace HM
          pClientInfo->SetUsername(sUsername);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetHELO(helo_host_);
          pClientInfo->SetIsAuthenticated(isAuthenticated_);
          pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
@@ -2138,6 +2143,7 @@ namespace HM
                pClientInfo->SetUsername(username_);
                pClientInfo->SetIPAddress(GetIPAddressString());
                pClientInfo->SetPort(GetLocalEndpointPort());
+               pClientInfo->SetSessionID(GetSessionID());
                pClientInfo->SetHELO(helo_host_);
                pClientInfo->SetIsAuthenticated(isAuthenticated_);
                pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
@@ -2170,6 +2176,7 @@ namespace HM
                   pClientInfo->SetUsername(username_);
                   pClientInfo->SetIPAddress(GetIPAddressString());
                   pClientInfo->SetPort(GetLocalEndpointPort());
+                  pClientInfo->SetSessionID(GetSessionID());
                   pClientInfo->SetHELO(helo_host_);
                   pClientInfo->SetIsAuthenticated(isAuthenticated_);
                   pClientInfo->SetIsEncryptedConnection(IsSSLConnection());

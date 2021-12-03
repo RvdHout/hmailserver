@@ -148,7 +148,7 @@ namespace HM
    }
 
    void
-   TCPConnection::AsyncConnectCompleted(const boost::system::error_code& err)
+   TCPConnection::AsyncConnectCompleted(const boost::system::error_code &err)
    {
       if (err)
       {

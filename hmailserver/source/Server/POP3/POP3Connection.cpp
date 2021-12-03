@@ -467,6 +467,7 @@ namespace HM
          pClientInfo->SetUsername(sUsername);
          pClientInfo->SetIPAddress(GetIPAddressString());
          pClientInfo->SetPort(GetLocalEndpointPort());
+         pClientInfo->SetSessionID(GetSessionID());
          pClientInfo->SetIsAuthenticated(isAuthenticated);
          pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
          if (IsSSLConnection())

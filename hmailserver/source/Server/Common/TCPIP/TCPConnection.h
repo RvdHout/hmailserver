@@ -68,10 +68,11 @@ namespace HM
 
       CipherInfo GetCipherInfo();
 
+      int GetSessionID();
+
    protected:
 
       ConnectionState GetConnectionState() { return connection_state_;  }
-      int GetSessionID();
 
       int GetBufferSize() {return BufferSize; }
 
