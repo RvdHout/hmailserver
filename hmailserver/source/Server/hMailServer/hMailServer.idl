@@ -512,6 +512,7 @@ interface IInterfaceStatus : IDispatch {
    [propget, id(4), helpstring("Gets the number of removed virues")] HRESULT RemovedViruses([out, retval] long *pVal);
    [propget, id(5), helpstring("Gets the number of detected spam messages")] HRESULT RemovedSpamMessages([out, retval] long *pVal);
    [propget, id(6), helpstring("Gets the current number of sessions")] HRESULT SessionCount([in] eSessionType iType, [out, retval] long *pVal);
+   [propget, id(7), helpstring("Gets the current thread number")] HRESULT ThreadID([out, retval] long *pVal);
 };
 
 [
