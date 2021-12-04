@@ -671,6 +671,28 @@ namespace HM
    }
 
    void
+   POP3ClientConnection::AppendHeaders_()
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Adds headers after the last existing header
+   //---------------------------------------------------------------------------()
+   {
+      String fileName = PersistentMessage::GetFileName(current_message_);
+
+      std::shared_ptr<MessageData> messageData = std::shared_ptr<MessageData>(new MessageData());
+      messageData->LoadFromMessage(fileName, current_message_);
+
+      // Add a header with the name of the external account, so that
+      // we can check where we downloaded it from later on.
+      messageData->SetFieldValue("X-hMailServer-ExternalAccount", account_->GetName().c_str());
+
+      // Add "X-hMailServer-Envelope-From" header
+      messageData->SetFieldValue("X-hMailServer-Envelope-From", current_message_->GetFromAddress());
+
+      messageData->Write(fileName);
+   }
+
+   void
    POP3ClientConnection::ParseData(std::shared_ptr<ByteBuffer> pBuf)
    {
       // 
@@ -729,7 +751,7 @@ namespace HM
             return;
          }
 
-         PrependHeaders_();
+         // PrependHeaders_();
       }
 
       transmission_buffer_->Append(pBuf->GetBuffer(), pBuf->GetSize());
@@ -808,6 +830,7 @@ namespace HM
       if (!account_->GetUseAntiSpam())
       {
          // spam protection isn't enabled.
+         AppendHeaders_();
          return true;
       }
 
@@ -822,6 +845,7 @@ namespace HM
 
 
       if (SpamProtection::IsWhiteListed(senderAddress, ipAddress))
+         AppendHeaders_();
          return true;
 
       std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
@@ -843,7 +867,10 @@ namespace HM
       {
          std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
          if (messageData)
+         {
+            AppendHeaders_();
             messageData->Write(fileName);
+         }
       }
 
       // Run PostTransmissionTests. These consists of more heavy stuff such as SURBL and SpamAssassin-
@@ -864,7 +891,10 @@ namespace HM
          std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
 
          if (messageData)
+         {
+            AppendHeaders_();
             messageData->Write(fileName);
+         }
       }
 
       return true;
