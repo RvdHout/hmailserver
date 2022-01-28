@@ -200,6 +200,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1c\out32\bin\libssl-1_1.dll $(OutDir)
     <ClCompile Include="..\Common\AntiSpam\SpamTestDNSBlackLists.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestHeloHost.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestMXRecords.cpp" />
+    <ClCompile Include="..\Common\AntiSpam\SpamTestPTR.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestResult.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestRunner.cpp" />
     <ClCompile Include="..\Common\AntiSpam\SpamTestSpamAssassin.cpp" />
@@ -685,6 +686,7 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1c\out32\bin\libssl-1_1.dll $(OutDir)
     <ClInclude Include="..\Common\AntiSpam\SpamTestDNSBlackLists.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestHeloHost.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestMXRecords.h" />
+    <ClInclude Include="..\Common\AntiSpam\SpamTestPTR.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestResult.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestRunner.h" />
     <ClInclude Include="..\Common\AntiSpam\SpamTestSpamAssassin.h" />

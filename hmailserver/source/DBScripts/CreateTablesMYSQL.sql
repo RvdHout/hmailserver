@@ -760,6 +760,14 @@ insert into hm_settings (settingname, settingstring, settinginteger) values ('Ss
 
 insert into hm_settings (settingname, settingstring, settinginteger) values ('SslVersions', '', 14);
 
+insert into hm_settings (settingname, settingstring, settinginteger) values ('TlsOptions', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ascheckptr', '', 0);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('ascheckptrscore', '', 1);
+
+insert into hm_settings (settingname, settingstring, settinginteger) values ('IPv6Preferred', '', 0);
+
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 25, 0, NULL, 0, 0);
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (1, 587, 0, NULL, 0, 0);
@@ -768,4 +776,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5601);
+insert into hm_dbversion values (5605);

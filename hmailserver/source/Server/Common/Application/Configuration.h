@@ -162,6 +162,9 @@ namespace HM
       bool GetTlsOptionEnabled(TlsOption option) const;
       void SetTlsOptionEnabled(TlsOption option, bool enabled);
 
+      bool GetIPv6Preferred();
+      void SetIPv6Preferred(bool enabled);
+
       int GetCrashSimulationMode() const;
       void SetCrashSimulationMode(int mode);
 

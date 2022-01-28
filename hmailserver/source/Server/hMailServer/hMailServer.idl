@@ -676,6 +676,9 @@ interface IInterfaceSettings : IDispatch{
    [propput, id(101), helpstring("Prefer SSL/TLS server ciphers over client ciphers.")] HRESULT TlsOptionPreferServerCiphersEnabled([in] VARIANT_BOOL newVal);
    [propget, id(102), helpstring("Prioritize ChaCha20Poly1305 when client does.")] HRESULT TlsOptionPrioritizeChaChaEnabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(102), helpstring("Prioritize ChaCha20Poly1305 when client does.")] HRESULT TlsOptionPrioritizeChaChaEnabled([in] VARIANT_BOOL newVal);
+
+   [propget, id(103), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([out, retval] VARIANT_BOOL* pVal);
+   [propput, id(103), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([in] VARIANT_BOOL newVal);
 };
 
 
@@ -1582,7 +1585,7 @@ interface IInterfaceClient : IDispatch{
    [propget, id(1), helpstring("The TCP/IP port the client is connected to.")] HRESULT Port([out, retval] LONG* pVal);
    [propget, id(2), helpstring("The TCP/IP address the client is connected to.")] HRESULT IPAddress([out, retval] BSTR* pVal);
    [propget, id(3), helpstring("The username of the client.")] HRESULT Username([out, retval] BSTR* pVal);
-   [propget, id(4), helpstring("The HELO sent by client.")] HRESULT HELO([out, retval] BSTR* pVal);
+   [propget, id(4), helpstring("The HELO greeting sent by client.")] HRESULT HELO([out, retval] BSTR* pVal);
    [propget, id(5), helpstring("The logon status of the client.")] HRESULT Authenticated([out, retval] VARIANT_BOOL* pVal);
    [propget, id(6), helpstring("The SSL/TLS status of the client.")] HRESULT EncryptedConnection([out, retval] VARIANT_BOOL* pVal);
    [propget, id(7), helpstring("The SSL/TLS cipher version of the client connection.")] HRESULT CipherVersion([out, retval] BSTR* pVal);
@@ -2218,6 +2221,11 @@ interface IInterfaceAntiSpam : IDispatch
    [propput, id(35), helpstring("Bypass grey listing if mail comes from domain A or MX record.")] HRESULT BypassGreylistingOnMailFromMX([in] VARIANT_BOOL newVal);
 
    [id(36), helpstring("Tests to connect to SpamAssassin")] HRESULT TestSpamAssassinConnection([in] BSTR Hostname, long Port, [out] BSTR *ResultText, [out, retval] VARIANT_BOOL *pResult);
+
+   [propget, id(37), helpstring("Check rDNS/PTR record.")] HRESULT CheckPTR([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(37), helpstring("Check rDNS/PTR record.")] HRESULT CheckPTR([in] VARIANT_BOOL newVal);
+   [propget, id(38), helpstring("Check rDNS/PTR record (SpamScore).")] HRESULT CheckPTRScore([out, retval] long *pVal);
+   [propput, id(38), helpstring("Check rDNS/PTR record (SpamScore).")] HRESULT CheckPTRScore([in] long newVal);
 };
 
 

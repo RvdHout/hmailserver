@@ -54,6 +54,8 @@
 #define PROPERTY_USEMXCHECKSCORE                _T("usemxchecksscore")
 #define PROPERTY_AS_CHECKHOSTINHELO             _T("ascheckhostinhelo")
 #define PROPERTY_AS_CHECKHOSTINHELOSCORE        _T("ascheckhostinheloscore")
+#define PROPERTY_AS_CHECKPTR                    _T("ascheckptr")
+#define PROPERTY_AS_CHECKPTRSCORE               _T("ascheckptrscore")
 
 #define PROPERTY_BACKUPOPTIONS                  _T("backupoptions")
 #define PROPERTY_BACKUPDESTINATION              _T("backupdestination")
@@ -130,5 +132,16 @@
 #define PROPERTY_CLAMAV_HOST                 _T("ClamAVHost")
 #define PROPERTY_CLAMAV_PORT                 _T("ClamAVPort")
 
+#define PROPERTY_IPV6_PREFERRED  _T("IPv6Preferred")
 
-#define REQUIRED_DB_VERSION            5601
+/*
+I added 4 setting properties so REQUIRED_DB_VERSION 5601 + 4 = 5605
+[list]
+[*]PROPERTY_TLSOPTIONS
+[*]PROPERTY_AS_CHECKPTR
+[*]PROPERTY_AS_CHECKPTRSCORE
+[*]PROPERTY_IPV6_PREFERRED
+[/list]
+*/
+
+#define REQUIRED_DB_VERSION            5605

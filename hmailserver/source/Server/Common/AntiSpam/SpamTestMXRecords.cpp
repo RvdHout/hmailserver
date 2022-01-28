@@ -51,7 +51,7 @@ namespace HM
       {
          // Blocked by SPF.
          String sMessage = _T("Sender domain does not have any MX records.");
-         int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetUseMXChecksScore();;
+         int iScore = Configuration::Instance()->GetAntiSpamConfiguration().GetUseMXChecksScore();
 
          std::shared_ptr<SpamTestResult> pResult = std::shared_ptr<SpamTestResult>(new SpamTestResult(GetName(), SpamTestResult::Fail, iScore, sMessage));
          setSpamTestResults.insert(pResult);   

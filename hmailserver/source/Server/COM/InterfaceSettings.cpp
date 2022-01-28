@@ -2417,34 +2417,34 @@ STDMETHODIMP InterfaceSettings::get_TlsVersion12Enabled(VARIANT_BOOL *pVal)
 
 STDMETHODIMP InterfaceSettings::put_TlsVersion13Enabled(VARIANT_BOOL newVal)
 {
-   try
-   {
-      if (!config_)
-         return GetAccessDenied();
+	try
+	{
+		if (!config_)
+			return GetAccessDenied();
 
-      config_->SetSslVersionEnabled(HM::TlsVersion13, newVal == VARIANT_TRUE);
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
+		config_->SetSslVersionEnabled(HM::TlsVersion13, newVal == VARIANT_TRUE);
+		return S_OK;
+	}
+	catch (...)
+	{
+		return COMError::GenerateGenericMessage();
+	}
 }
 
 STDMETHODIMP InterfaceSettings::get_TlsVersion13Enabled(VARIANT_BOOL *pVal)
 {
-   try
-   {
-      if (!config_)
-         return GetAccessDenied();
+	try
+	{
+		if (!config_)
+			return GetAccessDenied();
 
-      *pVal = config_->GetSslVersionEnabled(HM::TlsVersion13) ? VARIANT_TRUE : VARIANT_FALSE;
-      return S_OK;
-   }
-   catch (...)
-   {
-      return COMError::GenerateGenericMessage();
-   }
+		*pVal = config_->GetSslVersionEnabled(HM::TlsVersion13) ? VARIANT_TRUE : VARIANT_FALSE;
+		return S_OK;
+	}
+	catch (...)
+	{
+		return COMError::GenerateGenericMessage();
+	}
 }
 
 STDMETHODIMP InterfaceSettings::put_TlsOptionPreferServerCiphersEnabled(VARIANT_BOOL newVal)
@@ -2455,6 +2455,22 @@ STDMETHODIMP InterfaceSettings::put_TlsOptionPreferServerCiphersEnabled(VARIANT_
          return GetAccessDenied();
 
       config_->SetTlsOptionEnabled(HM::TlsOptionPreferServerCiphers, newVal == VARIANT_TRUE);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_TlsOptionPreferServerCiphersEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetTlsOptionEnabled(HM::TlsOptionPreferServerCiphers) ? VARIANT_TRUE : VARIANT_FALSE;
       return S_OK;
    }
    catch (...)
@@ -2495,14 +2511,32 @@ STDMETHODIMP InterfaceSettings::get_TlsOptionPrioritizeChaChaEnabled(VARIANT_BOO
    }
 }
 
-STDMETHODIMP InterfaceSettings::get_TlsOptionPreferServerCiphersEnabled(VARIANT_BOOL *pVal)
+STDMETHODIMP InterfaceSettings::put_IPv6PreferredEnabled(VARIANT_BOOL newVal)
 {
    try
    {
       if (!config_)
          return GetAccessDenied();
 
-      *pVal = config_->GetTlsOptionEnabled(HM::TlsOptionPreferServerCiphers) ? VARIANT_TRUE : VARIANT_FALSE;
+      config_->SetIPv6Preferred(newVal == VARIANT_TRUE);
+
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceSettings::get_IPv6PreferredEnabled(VARIANT_BOOL *pVal)
+{
+   try
+   {
+      if (!config_)
+         return GetAccessDenied();
+
+      *pVal = config_->GetIPv6Preferred() ? VARIANT_TRUE : VARIANT_FALSE;
+
       return S_OK;
    }
    catch (...)

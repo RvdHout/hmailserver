@@ -68,6 +68,8 @@ namespace hMailServer.Administrator
             textUseSPFScore.Number = antiSpam.UseSPFScore;
             chkCheckHostInHelo.Checked = antiSpam.CheckHostInHelo;
             textCheckHostInHeloScore.Number = antiSpam.CheckHostInHeloScore;
+            chkCheckPTR.Checked = antiSpam.CheckPTR;
+            textCheckPTRScore.Number = antiSpam.CheckPTRScore;
             chkUseMXChecks.Checked = antiSpam.UseMXChecks;
             textUseMXChecksScore.Number = antiSpam.UseMXChecksScore;
 
@@ -104,6 +106,8 @@ namespace hMailServer.Administrator
             antiSpam.UseSPFScore = textUseSPFScore.Number;
             antiSpam.CheckHostInHelo = chkCheckHostInHelo.Checked;
             antiSpam.CheckHostInHeloScore = textCheckHostInHeloScore.Number;
+            antiSpam.CheckPTR = chkCheckPTR.Checked;
+            antiSpam.CheckPTRScore = textCheckPTRScore.Number;
             antiSpam.UseMXChecks = chkUseMXChecks.Checked;
             antiSpam.UseMXChecksScore = textUseMXChecksScore.Number;
 
@@ -158,6 +162,7 @@ namespace hMailServer.Administrator
 
             textUseSPFScore.Enabled = chkUseSPF.Checked;
             textCheckHostInHeloScore.Enabled = chkCheckHostInHelo.Checked;
+            textCheckPTRScore.Enabled = chkCheckPTR.Checked;
             textUseMXChecksScore.Enabled = chkUseMXChecks.Checked;
 
             textDKIMVerificationFailureScore.Enabled = checkDKIMVerificationEnabled.Checked;
@@ -189,7 +194,11 @@ namespace hMailServer.Administrator
         private void chkCheckHostInHelo_CheckedChanged(object sender, EventArgs e)
         {
             EnableDisable();
+        }
 
+        private void chkCheckPTR_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisable();
         }
 
         private void chkUseMXChecks_CheckedChanged(object sender, EventArgs e)

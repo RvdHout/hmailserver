@@ -1,7 +1,7 @@
 #pragma once
 
 #define HMAILSERVER_VERSION "5.6.8"
-#define HMAILSERVER_BUILD "2574.43"
+#define HMAILSERVER_BUILD "2574.45"
 
 /*
 [list=1]
@@ -29,12 +29,12 @@
 [*]Added: ability to DKIM sign NDR messages (forwarded to external) [url=https://github.com/hmailserver/hmailserver/pull/301]pull #301[/url]
 [*]Added: Use custom daemonaddressdomain from INI [url=https://github.com/hmailserver/hmailserver/pull/301]pull #301[/url]
 [*]Fix: SURBL regex [url=https://github.com/hmailserver/hmailserver/pull/320]pull #320[/url]
-[*]Added: RMSPF library SpamTestSPF Result to DEBUG logging, see [url=https://www.hmailserver.com/forum/viewtopic.php?p=218710#p218710]this[/url] forum topic
+[*][s]Added: RMSPF library SpamTestSPF Result to DEBUG logging, see [url=https://www.hmailserver.com/forum/viewtopic.php?p=218710#p218710]this[/url] forum topic[/s]
 [*]Fix: Ignore SpamTestSPF and SpamTestHeloHost when send thru local IP Address, see [url=https://www.hmailserver.com/forum/viewtopic.php?f=10&t=34865]this[/url] forum topic 
 [*]Added: SPF test to include "HELO/EHLO host" used by DNS macros [url=https://github.com/hmailserver/hmailserver/pull/353]pull 353[/url]
 [*]Fix: 'Unencrypted Cleartext Login' vulnerability detection [url=https://github.com/hmailserver/hmailserver/pull/342]pull 242[/url]
 [*]Fix: Anti-spam; Maximum message to scan (KB) is now limited to 256MB, see [url=https://www.hmailserver.com/forum/viewtopic.php?f=22&p=226989#p226989]this[/url] forum topic
-[*]Added: "UseDNSCache" INI setting. 1 = Use cache in DNS Client service (default). 0 = Bypass cache in DNS Client service. [url=https://github.com/hmailserver/hmailserver/pull/396]pull 396[/ur
+[*]Added: "UseDNSCache" INI setting. 1 = Use cache in DNS Client service (default). 0 = Bypass cache in DNS Client service. [url=https://github.com/hmailserver/hmailserver/pull/396]pull 396[/url]
 [*]Fix: AWStats::LogDeliveryFailure was called twice for each message in OnDeliveryFailed [url=https://github.com/hmailserver/hmailserver/pull/368]pull 368[/url] 
 [*]Fix: oMessage object was empty (in some circumstances) when called from OnDeliveryFailed [url=https://github.com/hmailserver/hmailserver/pull/369]pull 369[/url] 
 [*]Added: Experimental events OnRecipientUnknown(oClient, oMessage) and OnTooManyInvalidCommands(oClient, oMessage) [url=https://github.com/hmailserver/hmailserver/pull/390]pull #390[/url]
@@ -48,5 +48,8 @@
 [*]Fix: integer overflow check for SPF macro segment count [url=https://github.com/hmailserver/hmailserver/pull/399]pull #399[/url]
 [*]Added: New ClientInfo property oClient.SessionID (long) [url=https://github.com/hmailserver/hmailserver/issues/401]issue #401[/url]
 [*]Added: New Status property oApp.Status.ThreadID (long) [url=https://www.hmailserver.com/forum/viewtopic.php?f=10&t=33787&hilit=threadid]this[/url] forum topic
+[*]Added: rDNS/PTR AntiSpam Check [url=https://github.com/hmailserver/hmailserver/pull/413]pull #413[/url]
+[*]Added: Prefer IPv6 over IPv4 [url=https://github.com/hmailserver/hmailserver/pull/415]pull #415[/url]
+[*]Fix: SpamTestHeloHost IPv6 Fix [url=https://github.com/hmailserver/hmailserver/pull/416]pull #416[/url]
 [/list]
 */
