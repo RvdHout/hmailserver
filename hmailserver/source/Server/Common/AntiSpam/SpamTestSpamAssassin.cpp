@@ -58,11 +58,9 @@ namespace HM
       const String sFilename = PersistentMessage::GetFileName(pMessage);
 
       // SMTP servers making final delivery MAY/SHOULD remove Return-path header fields before adding their own. See: rfc2821 and rfc5321
-      if (!pTestData->GetMessageData()->GetReturnPath().IsEmpty())
+      while (!pTestData->GetMessageData()->GetReturnPath().IsEmpty())
       {
-         do {
-            pTestData->GetMessageData()->DeleteField("Return-Path");
-         } while (!pTestData->GetMessageData()->GetReturnPath().IsEmpty());
+         pTestData->GetMessageData()->DeleteField("Return-Path");
       }
 
       // Add Return-Path as topmost header to help SpamAssassin with its SPF checks.
