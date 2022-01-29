@@ -652,6 +652,7 @@ namespace HM
       return true;
    }
 
+   /*
    void 
    POP3ClientConnection::PrependHeaders_()
    //---------------------------------------------------------------------------()
@@ -669,6 +670,7 @@ namespace HM
 
       transmission_buffer_->Append((BYTE*) sAnsiHeader.GetBuffer(), sAnsiHeader.GetLength());
    }
+   */
 
    void
    POP3ClientConnection::AppendHeaders_()
@@ -845,8 +847,10 @@ namespace HM
 
 
       if (SpamProtection::IsWhiteListed(senderAddress, ipAddress))
+      {
          AppendHeaders_();
          return true;
+      }
 
       std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
       
