@@ -677,7 +677,7 @@ interface IInterfaceSettings : IDispatch{
    [propget, id(102), helpstring("Prioritize ChaCha20Poly1305 when client does.")] HRESULT TlsOptionPrioritizeChaChaEnabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(102), helpstring("Prioritize ChaCha20Poly1305 when client does.")] HRESULT TlsOptionPrioritizeChaChaEnabled([in] VARIANT_BOOL newVal);
 
-   [propget, id(103), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([out, retval] VARIANT_BOOL* pVal);
+   [propget, id(103), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(103), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([in] VARIANT_BOOL newVal);
 };
 

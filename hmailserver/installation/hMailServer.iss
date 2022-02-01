@@ -100,7 +100,7 @@ Source: "..\source\Tools\DataDirectorySynchronizer\Bin\Release\*.exe"; DestDir: 
 Source: "..\source\tools\Administrator\bin\Release\Interop.hMailServer.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion; Components: admintools;
 Source: "..\source\Tools\Shared\Bin\Release\*.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion recursesubdirs;Components: server;
 
-Source: "..\source\Addons\*.*"; DestDir: "{app}\Addons"; Flags: ignoreversion recursesubdirs; Excludes: "Events";  Components: server;
+Source: "..\source\Addons\*.*"; DestDir: "{app}\Addons"; Flags: onlyifdoesntexist recursesubdirs; Excludes: "Events";  Components: server;
 Source: "..\source\Addons\Events\*.*"; DestDir: "{app}\Events"; Flags: onlyifdoesntexist uninsneveruninstall; Components: server;
 
 Source: "..\source\WebAdmin\*.*"; DestDir: "{app}\PHPWebAdmin"; Flags: recursesubdirs; Components: admintools;
