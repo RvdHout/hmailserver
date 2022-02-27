@@ -1,7 +1,7 @@
 #pragma once
 
 #define HMAILSERVER_VERSION "5.6.8"
-#define HMAILSERVER_BUILD "2574.45"
+#define HMAILSERVER_BUILD "2574.46"
 
 /*
 [list=1]
@@ -51,5 +51,6 @@
 [*]Added: rDNS/PTR AntiSpam Check [url=https://github.com/hmailserver/hmailserver/pull/413]pull #413[/url]
 [*]Added: Prefer IPv6 over IPv4 [url=https://github.com/hmailserver/hmailserver/pull/415]pull #415[/url]
 [*]Fix: SpamTestHeloHost IPv6 Fix [url=https://github.com/hmailserver/hmailserver/pull/416]pull #416[/url]
+[*]Fix: Changed ClamAV Scan from STREAM to INSTREAM. [url=https://github.com/hmailserver/hmailserver/issues/420]issue #420[/url]
 [/list]
 */
