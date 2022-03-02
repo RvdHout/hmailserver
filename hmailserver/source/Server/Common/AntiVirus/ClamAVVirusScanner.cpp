@@ -82,11 +82,11 @@ namespace HM
       {
          std::shared_ptr<ByteBuffer> pBuf = oFile.ReadChunk(STREAM_BLOCK_SIZE);
 
-			if (!pBuf)
+         if (!pBuf)
             break;
 
-			bArray.integer = htonl(static_cast<unsigned int>(pBuf->GetSize()));
-			if (!commandConnection.Write(to_string(bArray.byte[0]) + to_string(bArray.byte[1]) + to_string(bArray.byte[2]) + to_string(bArray.byte[3])))
+         bArray.integer = htonl(static_cast<unsigned int>(pBuf->GetSize()));
+         if (!commandConnection.Write(to_string(bArray.byte[0]) + to_string(bArray.byte[1]) + to_string(bArray.byte[2]) + to_string(bArray.byte[3])))
             return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write packet size to stream port.");
 
          if (!commandConnection.Write(*pBuf))
@@ -94,8 +94,8 @@ namespace HM
 
       }
 
-		bArray.integer = 0;
-		if (!commandConnection.Write(to_string(bArray.byte[0]) + to_string(bArray.byte[1]) + to_string(bArray.byte[2]) + to_string(bArray.byte[3])))
+      bArray.integer = 0;
+      if (!commandConnection.Write(to_string(bArray.byte[0]) + to_string(bArray.byte[1]) + to_string(bArray.byte[2]) + to_string(bArray.byte[3])))
          return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write end of stream.");
 
       AnsiString readData;
