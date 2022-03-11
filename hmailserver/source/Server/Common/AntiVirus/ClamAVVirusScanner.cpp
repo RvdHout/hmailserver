@@ -52,7 +52,7 @@ namespace HM
 
       union
       {
-         unsigned int integer;
+         uint32_t integer;
          unsigned char byte[4];
       } bArray;
 
@@ -85,7 +85,7 @@ namespace HM
          if (!pBuf)
             break;
 
-         bArray.integer = htonl(static_cast<unsigned int>(pBuf->GetSize()));
+         bArray.integer = htonl(static_cast<uint32_t>(pBuf->GetSize()));
          if (!commandConnection.Write(to_string(bArray.byte[0]) + to_string(bArray.byte[1]) + to_string(bArray.byte[2]) + to_string(bArray.byte[3])))
             return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write packet size to stream port.");
 
