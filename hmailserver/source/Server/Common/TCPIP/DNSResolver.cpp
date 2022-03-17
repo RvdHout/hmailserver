@@ -415,9 +415,9 @@ namespace HM
             return false;
          }
 		 
-		 for(String record : a_records)         
-		 {
-		 	HostNameAndIpAddress hostAndAddress;
+         for (String record : a_records)
+         {
+            HostNameAndIpAddress hostAndAddress;
             hostAndAddress.SetHostName(sDomainName);
             hostAndAddress.SetIpAddress(record);
 
@@ -457,7 +457,7 @@ namespace HM
                }
             }
 
-               for(String record : a_records)
+            for(String record : a_records)
             {
                HostNameAndIpAddress hostAndAddress;
                hostAndAddress.SetHostName(domain);
