@@ -431,7 +431,7 @@ namespace HM
 
          String sMessage;
          sMessage.Format(_T("SMTPDeliverer - Message %I64d: ")
-            _T("Message will be deleted. Action was taken by a global rule (%s). "),
+            _T("Message will be deleted. Action triggered by a global rule (%s). "),
             pMessage->GetID(), 
             sDeleteRuleName.c_str());
 
