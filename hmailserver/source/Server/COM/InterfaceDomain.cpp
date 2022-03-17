@@ -1198,7 +1198,7 @@ STDMETHODIMP InterfaceDomain::put_DKIMSignEnabled(VARIANT_BOOL newVal)
    }
 }
 
-STDMETHODIMP InterfaceDomain::get_DKIMSignAliasesEnabled(VARIANT_BOOL* pVal)
+STDMETHODIMP InterfaceDomain::get_DKIMSignAliasesEnabled(VARIANT_BOOL *pVal)
 {
    try
    {
