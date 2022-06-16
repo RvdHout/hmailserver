@@ -71,7 +71,6 @@ namespace HM
       int GetDBConnectionAttemptsDelay() const;
       
       bool GetAddXAuthUserHeader() {return add_xauth_user_header_; }
-      bool GetAuthUserIsLocal(){ return treat_authenticated_as_local_; };
       String GetDaemonAddressDomain() const { return daemonaddress_domain_; }
       int GetMaxNumberOfExternalFetchThreads() {return max_no_of_external_fetch_threads_ ;}
       bool GetGreylistingEnabledDuringRecordExpiration() {return greylisting_enabled_during_record_expiration_;}
@@ -145,7 +144,6 @@ namespace HM
       int no_of_dbconnection_attempts_;
       int no_of_dbconnection_attempts_Delay;
       bool add_xauth_user_header_;
-      bool treat_authenticated_as_local_;
       String daemonaddress_domain_;
       int max_no_of_external_fetch_threads_;
 

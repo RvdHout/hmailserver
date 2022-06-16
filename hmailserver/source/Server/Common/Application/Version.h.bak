@@ -29,7 +29,7 @@
 [*]Added: ability to DKIM sign NDR messages (forwarded to external) [url=https://github.com/hmailserver/hmailserver/pull/301]pull #301[/url]
 [*]Added: Use custom daemonaddressdomain from INI [url=https://github.com/hmailserver/hmailserver/pull/301]pull #301[/url]
 [*]Fix: SURBL regex [url=https://github.com/hmailserver/hmailserver/pull/320]pull #320[/url]
-[*]A̶d̶d̶e̶d̶:̶ ̶R̶M̶S̶P̶F̶ ̶l̶i̶b̶r̶a̶r̶y̶ ̶S̶p̶a̶m̶T̶e̶s̶t̶S̶P̶F̶ ̶R̶e̶s̶u̶l̶t̶ ̶t̶o̶ ̶D̶E̶B̶U̶G̶ ̶l̶o̶g̶g̶i̶n̶g̶,̶ ̶s̶e̶e̶ ̶[url=https://www.hmailserver.com/forum/viewtopic.php?p=218710#p218710]t̶h̶i̶s̶[/url] ̶f̶o̶r̶u̶m̶ ̶t̶o̶p̶i̶c̶
+[*]A̶d̶d̶e̶d̶:̶ ̶R̶M̶S̶P̶F̶ ̶l̶i̶b̶r̶a̶r̶y̶ ̶S̶p̶a̶m̶T̶e̶s̶t̶S̶P̶F̶ ̶R̶e̶s̶u̶l̶t̶ ̶t̶o̶ ̶D̶E̶B̶U̶G̶ ̶l̶o̶g̶g̶i̶n̶g̶,̶ ̶s̶e̶e̶ ̶[url=https://www.hmailserver.com/forum/viewtopic.php?p=218710#p218710]t̶h̶i̶s̶[/url] ̶f̶o̶r̶u̶m̶ ̶t̶o̶p̶i̶c̶[/s]
 [*]Fix: Ignore SpamTestSPF and SpamTestHeloHost when send thru local IP Address, see [url=https://www.hmailserver.com/forum/viewtopic.php?f=10&t=34865]this[/url] forum topic 
 [*]Added: SPF test to include "HELO/EHLO host" used by DNS macros [url=https://github.com/hmailserver/hmailserver/pull/353]pull 353[/url]
 [*]Fix: 'Unencrypted Cleartext Login' vulnerability detection [url=https://github.com/hmailserver/hmailserver/pull/342]pull 242[/url]
