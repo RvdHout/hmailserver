@@ -298,49 +298,6 @@ namespace HM
       }
    }
 
-   /*
-   void 
-   SMTPConnection::LogClientCommand_(const String &sClientData)
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Logs one client command.
-   //---------------------------------------------------------------------------()
-   {
-      if (Logger::Instance()->GetLogSMTP())
-      {
-
-         String sLogData = sClientData;
-
-         if (current_state_ == SMTPUSERNAME && requestedAuthenticationType_ == AUTH_PLAIN)
-         {
-            // Both user name and password in line. 
-            sLogData = "***";
-
-            String sAuthentication;
-            StringParser::Base64Decode(sClientData, sAuthentication);
-
-            // Extract the username and password from the decoded string.
-            int iSecondTab = sAuthentication.Find(_T("\t"),1);
-            if (iSecondTab > 0)
-            {
-               String username = sAuthentication.Mid(0, iSecondTab);
-
-
-               sLogData = username + " ***";
-            }
-         }
-         else if (current_state_ == SMTPUPASSWORD)
-         {
-            sLogData = "***";
-         }         
-         
-         // Append
-         sLogData = "RECEIVED: " + sLogData;
-
-         LOG_SMTP(GetSessionID(), GetIPAddressString(), sLogData);      
-      }
-   }
-
    void
    SMTPConnection::ParseData(const AnsiString &sRequest)
    {
