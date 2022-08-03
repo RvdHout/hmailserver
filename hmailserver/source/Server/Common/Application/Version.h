@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2593.46"
+#define HMAILSERVER_BUILD "2602.48"
 
 /*
 [list=1]
@@ -53,5 +53,7 @@
 [*]Fix: SpamTestHeloHost IPv6 Fix [url=https://github.com/hmailserver/hmailserver/pull/416]pull #416[/url]
 [*]Fix: Changed ClamAV Scan from STREAM to INSTREAM. [url=https://github.com/hmailserver/hmailserver/issues/420]issue #420[/url]
 [*]Added: MIME Recipient Headers as configurable comma delimited string [url=https://github.com/hmailserver/hmailserver/pull/428]pull #428[/url]
+[*]Fix: AUTH PLAIN followed by base64 encoded username and password (on same line) in log exposed account password. [url=https://github.com/hmailserver/hmailserver/pull/437]pull #437[/url]
+[*]Fix: rfc4954 After a successful AUTH command completes, a server MUST reject any further AUTH commands with a 503 reply. [url=https://github.com/hmailserver/hmailserver/pull/438]pull #438[/url]
 [/list]
 */
