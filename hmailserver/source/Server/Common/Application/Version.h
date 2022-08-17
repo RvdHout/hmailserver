@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2602.48"
+#define HMAILSERVER_BUILD "2602.49"
 
 /*
 [list=1]
@@ -55,5 +55,6 @@
 [*]Added: MIME Recipient Headers as configurable comma delimited string [url=https://github.com/hmailserver/hmailserver/pull/428]pull #428[/url]
 [*]Fix: AUTH PLAIN followed by base64 encoded username and password (on same line) in log exposed account password. [url=https://github.com/hmailserver/hmailserver/pull/437]pull #437[/url]
 [*]Fix: rfc4954 After a successful AUTH command completes, a server MUST reject any further AUTH commands with a 503 reply. [url=https://github.com/hmailserver/hmailserver/pull/438]pull #438[/url]
+[*]Fix: HM5157 SpamAssassinClient::OnReadError, The WinSock error code is 2. [url=https://github.com/hmailserver/hmailserver/issues/167]issue #167[/url]
 [/list]
 */
