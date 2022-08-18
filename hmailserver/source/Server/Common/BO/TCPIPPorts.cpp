@@ -43,11 +43,18 @@ namespace HM
       Refresh();
 
       // check if the settings are already default.
-      if (vecObjects.size() == 3)
+      if (vecObjects.size() == 4)
       {
+         /* Should we reset SSL/TLS settings as well?
+         if (vecObjects[0]->GetPortNumber() == 25 && vecObjects[0]->GetProtocol() == STSMTP && vecObjects[0]->GetConnectionSecurity() == CSNone &&
+            vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 && vecObjects[1]->GetConnectionSecurity() == CSNone &&
+            vecObjects[2]->GetPortNumber() == 143 && vecObjects[2]->GetProtocol() == STIMAP && vecObjects[2]->GetConnectionSecurity() == CSNone &&
+            vecObjects[3]->GetPortNumber() == 587 && vecObjects[3]->GetProtocol() == STSMTP && vecObjects[3]->GetConnectionSecurity() == CSNone)
+         */
          if (vecObjects[0]->GetPortNumber() == 25 && vecObjects[0]->GetProtocol() == STSMTP &&
-             vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 &&
-             vecObjects[2]->GetPortNumber() == 143 && vecObjects[2]->GetProtocol() == STIMAP) 
+            vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 &&
+            vecObjects[2]->GetPortNumber() == 143 && vecObjects[2]->GetProtocol() == STIMAP &&
+            vecObjects[3]->GetPortNumber() == 587 && vecObjects[3]->GetProtocol() == STSMTP)
          {
             // no changes are needed. 
             return;
@@ -72,6 +79,11 @@ namespace HM
       pTCPIPPort = std::shared_ptr<TCPIPPort>(new TCPIPPort);
       pTCPIPPort->SetPortNumber(143);
       pTCPIPPort->SetProtocol(STIMAP);
+      PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
+
+      pTCPIPPort = std::shared_ptr<TCPIPPort>(new TCPIPPort);
+      pTCPIPPort->SetPortNumber(587);
+      pTCPIPPort->SetProtocol(STSMTP);
       PersistentTCPIPPort::SaveObject(pTCPIPPort, error_message, PersistenceModeNormal);
 
       Refresh();
