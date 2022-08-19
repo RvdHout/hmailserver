@@ -24,31 +24,8 @@ namespace HM
 
    }
 
-   inline const char* EnumToString(int v)
-   {
-      switch (v)
-      {
-         case SPF_Pass: 
-            return "Pass";
-         case SPF_SoftFail: 
-            return "SoftFail";
-         case SPF_Fail: 
-            return "Fail";
-         case SPF_Neutral: 
-            return "Neutral";
-         case SPF_None: 
-            return "None";
-         case SPF_TempError: 
-            return "TempError";
-         case SPF_PermError: 
-            return "PermError";
-         default: 
-            return "Unknown";
-      }
-   }
-
    SPF::Result
-   SPF::Test(const String &sSenderIP, const String &sSenderEmail, String &sExplanation)
+   SPF::Test(const String &sSenderIP, const String &sSenderEmail, const String &sHeloHost, String &sExplanation)
    {
       USES_CONVERSION;
       String sDomain = StringParser::ExtractDomain(sSenderEmail);
@@ -68,7 +45,7 @@ namespace HM
          return Neutral;
 
       const char* explain;
-      int result=SPFQuery(family,BinaryIP,T2A(sSenderEmail),NULL,NULL,NULL,&explain);
+      int result=SPFQuery(family,BinaryIP,T2A(sSenderEmail),NULL,T2A(sHeloHost),NULL,&explain);
 
       if (explain != NULL)
       {
@@ -76,7 +53,7 @@ namespace HM
          SPFFree(explain);
       }
 
-      LOG_DEBUG(Formatter::Format("Spam test: SpamTestSPF, Result: {0}", EnumToString(result)));
+      LOG_DEBUG(Formatter::Format("Spam test: SpamTestSPF, RMSPF Result: {0}", SPFResultString(result)));
 
       if (result == SPF_Fail)
       {
