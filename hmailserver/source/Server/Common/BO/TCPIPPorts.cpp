@@ -26,7 +26,7 @@ namespace HM
    TCPIPPorts::Refresh()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads all SURBL servers from the database.
+   // Reads all TCP/IP Ports from the database.
    //---------------------------------------------------------------------------()
    {
       String sSQL = "select * from hm_tcpipports order by portaddress1 asc, portaddress2 asc, portnumber asc";
@@ -37,7 +37,7 @@ namespace HM
    TCPIPPorts::SetDefault()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads all SURBL servers from the database.
+   // Resets all TCP/IP Ports to their default values.
    //---------------------------------------------------------------------------()
    {
       Refresh();
