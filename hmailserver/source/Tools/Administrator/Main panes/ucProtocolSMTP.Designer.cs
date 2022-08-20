@@ -47,8 +47,6 @@ namespace hMailServer.Administrator
            this.labelMinutesOfRetries = new System.Windows.Forms.Label();
            this.labelNumberOfRetries = new System.Windows.Forms.Label();
            this.labelDeliveryOfEmail = new System.Windows.Forms.Label();
-           this.tabPage3 = new System.Windows.Forms.TabPage();
-           this.label1 = new System.Windows.Forms.Label();
            this.tabPage4 = new System.Windows.Forms.TabPage();
            this.labelMaximumNumberOfInvalidCommands = new System.Windows.Forms.Label();
            this.tabPage5 = new System.Windows.Forms.TabPage();
@@ -70,7 +68,6 @@ namespace hMailServer.Administrator
            this.textHostName = new hMailServer.Shared.ucText();
            this.textMinutesBetween = new hMailServer.Shared.ucText();
            this.textNoOfRetries = new hMailServer.Shared.ucText();
-           this.checkSendStatistics = new hMailServer.Administrator.Controls.ucCheckbox();
            this.textMaxNumberOfInvalidCommands = new hMailServer.Shared.ucText();
            this.checkDisconnectInvalidClients = new hMailServer.Administrator.Controls.ucCheckbox();
            this.checkAllowIncorrectLineEndings = new hMailServer.Administrator.Controls.ucCheckbox();
@@ -85,7 +82,6 @@ namespace hMailServer.Administrator
            this.tabControl.SuspendLayout();
            this.tabPage1.SuspendLayout();
            this.tabPage2.SuspendLayout();
-           this.tabPage3.SuspendLayout();
            this.tabPage4.SuspendLayout();
            this.tabPage5.SuspendLayout();
            this.SuspendLayout();
@@ -94,7 +90,6 @@ namespace hMailServer.Administrator
            // 
            this.tabControl.Controls.Add(this.tabPage1);
            this.tabControl.Controls.Add(this.tabPage2);
-           this.tabControl.Controls.Add(this.tabPage3);
            this.tabControl.Controls.Add(this.tabPage4);
            this.tabControl.Controls.Add(this.tabPage5);
            this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -289,25 +284,6 @@ namespace hMailServer.Administrator
            this.labelDeliveryOfEmail.Size = new System.Drawing.Size(105, 13);
            this.labelDeliveryOfEmail.TabIndex = 12;
            this.labelDeliveryOfEmail.Text = "Delivery of e-mail";
-           // 
-           // tabPage3
-           // 
-           this.tabPage3.Controls.Add(this.label1);
-           this.tabPage3.Controls.Add(this.checkSendStatistics);
-           this.tabPage3.Location = new System.Drawing.Point(4, 22);
-           this.tabPage3.Name = "tabPage3";
-           this.tabPage3.Size = new System.Drawing.Size(526, 409);
-           this.tabPage3.TabIndex = 2;
-           this.tabPage3.Text = "Statistics";
-           this.tabPage3.UseVisualStyleBackColor = true;
-           // 
-           // label1
-           // 
-           this.label1.Location = new System.Drawing.Point(12, 47);
-           this.label1.Name = "label1";
-           this.label1.Size = new System.Drawing.Size(453, 55);
-           this.label1.TabIndex = 32;
-           this.label1.Text = resources.GetString("label1.Text");
            // 
            // tabPage4
            // 
@@ -528,16 +504,6 @@ namespace hMailServer.Administrator
            this.textNoOfRetries.Size = new System.Drawing.Size(109, 20);
            this.textNoOfRetries.TabIndex = 15;
            // 
-           // checkSendStatistics
-           // 
-           this.checkSendStatistics.AutoSize = true;
-           this.checkSendStatistics.Location = new System.Drawing.Point(15, 14);
-           this.checkSendStatistics.Name = "checkSendStatistics";
-           this.checkSendStatistics.Size = new System.Drawing.Size(188, 17);
-           this.checkSendStatistics.TabIndex = 31;
-           this.checkSendStatistics.Text = "Send statistics to hMailServer.com";
-           this.checkSendStatistics.UseVisualStyleBackColor = true;
-           // 
            // textMaxNumberOfInvalidCommands
            // 
            this.textMaxNumberOfInvalidCommands.Location = new System.Drawing.Point(37, 126);
@@ -661,8 +627,6 @@ namespace hMailServer.Administrator
            this.tabPage1.PerformLayout();
            this.tabPage2.ResumeLayout(false);
            this.tabPage2.PerformLayout();
-           this.tabPage3.ResumeLayout(false);
-           this.tabPage3.PerformLayout();
            this.tabPage4.ResumeLayout(false);
            this.tabPage4.PerformLayout();
            this.tabPage5.ResumeLayout(false);
@@ -676,7 +640,6 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.TabControl tabControl;
        private System.Windows.Forms.TabPage tabPage1;
        private System.Windows.Forms.TabPage tabPage2;
-       private System.Windows.Forms.TabPage tabPage3;
        private System.Windows.Forms.TabPage tabPage4;
        private System.Windows.Forms.TabPage tabPage5;
        private hMailServer.Shared.ucText textMaxMessageSize;
@@ -703,8 +666,6 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.Label labelPassword;
        private hMailServer.Shared.ucText textSMTPRelayerUsername;
        private System.Windows.Forms.Label labelUsername;
-       private System.Windows.Forms.Label label1;
-       private hMailServer.Administrator.Controls.ucCheckbox checkSendStatistics;
        private hMailServer.Administrator.Controls.ucCheckbox checkAllowPlainTextAuthentication;
        private hMailServer.Administrator.Controls.ucCheckbox checkAllowMailFromNull;
        private hMailServer.Administrator.Controls.ucCheckbox checkAllowIncorrectLineEndings;

@@ -655,7 +655,6 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1n\out32\bin\libssl-1_1.dll $(OutDir)
     <ClCompile Include="..\Smtp\SMTPVirusNotifier.cpp" />
     <ClCompile Include="..\Smtp\Spf\RMSPF.cpp" />
     <ClCompile Include="..\Smtp\Spf\SPF.cpp" />
-    <ClCompile Include="..\Smtp\StatisticsSender.cpp" />
     <ClCompile Include="hMailServer.cpp" />
     <ClCompile Include="hMailServer_i.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -1151,7 +1150,6 @@ xcopy /F /Y $(hMailServerLibs)\openssl-1.1.1n\out32\bin\libssl-1_1.dll $(OutDir)
     <ClInclude Include="..\Smtp\SMTPVirusNotifier.h" />
     <ClInclude Include="..\Smtp\Spf\Rmspf.h" />
     <ClInclude Include="..\Smtp\Spf\SPF.h" />
-    <ClInclude Include="..\Smtp\StatisticsSender.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

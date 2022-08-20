@@ -22,13 +22,13 @@ if($action == "save")
 	$obSettings->HostName= hmailGetVar("HostName", "");
    
    
-    $obSettings->SMTPRelayer= hmailGetVar("smtprelayer",0);
-	$obSettings->SMTPRelayerPort= hmailGetVar("smtprelayerport",0);
-    $obSettings->SMTPRelayerRequiresAuthentication = hmailGetVar("SMTPRelayerRequiresAuthentication",0);
-    $obSettings->SMTPRelayerUsername = hmailGetVar("SMTPRelayerUsername","");
-    $obSettings->SMTPRelayerConnectionSecurity = hmailGetVar("SMTPRelayerConnectionSecurity","0");
-	  
-    if (hmailGetVar("SMTPRelayerPassword","") != "")
+   $obSettings->SMTPRelayer= hmailGetVar("smtprelayer",0);
+   $obSettings->SMTPRelayerPort= hmailGetVar("smtprelayerport",0);
+   $obSettings->SMTPRelayerRequiresAuthentication = hmailGetVar("SMTPRelayerRequiresAuthentication",0);
+   $obSettings->SMTPRelayerUsername = hmailGetVar("SMTPRelayerUsername","");
+   $obSettings->SMTPRelayerConnectionSecurity = hmailGetVar("SMTPRelayerConnectionSecurity","0");
+
+   if (hmailGetVar("SMTPRelayerPassword","") != "")
       $obSettings->SetSMTPRelayerPassword(hmailGetVar("SMTPRelayerPassword",""));
    
 	
@@ -46,9 +46,7 @@ if($action == "save")
 	$obSettings->DisconnectInvalidClients = hmailGetVar("DisconnectInvalidClients",0);
 	$obSettings->MaxNumberOfInvalidCommands = hmailGetVar("MaxNumberOfInvalidCommands",0);
 	
-	$obSettings->SendStatistics = hmailGetVar("SendStatistics",0);
-   
-    $obSettings->AddDeliveredToHeader = hmailGetVar("AddDeliveredToHeader",0);
+   $obSettings->AddDeliveredToHeader = hmailGetVar("AddDeliveredToHeader",0);
 	
 	$obSettings->MaxNumberOfMXHosts = hmailGetVar("MaxNumberOfMXHosts", 15);
 	
@@ -84,14 +82,12 @@ $AllowMailFromNull      = $obSettings->DenyMailFromNull == "0";
 $AllowIncorrectLineEndings     = $obSettings->AllowIncorrectLineEndings;
 $DisconnectInvalidClients     = $obSettings->DisconnectInvalidClients;
 $MaxNumberOfInvalidCommands     = $obSettings->MaxNumberOfInvalidCommands;
-$SendStatistics         = $obSettings->SendStatistics;
 $AddDeliveredToHeader = $obSettings->AddDeliveredToHeader;
 
 $AllowSMTPAuthPlainChecked = hmailCheckedIf1($AllowSMTPAuthPlain);
 $AllowMailFromNullChecked    = hmailCheckedIf1($AllowMailFromNull);
 $AllowIncorrectLineEndingsChecked = hmailCheckedIf1($AllowIncorrectLineEndings);
-$DisconnectInvalidClientsChecked = hmailCheckedIf1($DisconnectInvalidClients );
-$SendStatisticsChecked = hmailCheckedIf1($SendStatistics );
+$DisconnectInvalidClientsChecked = hmailCheckedIf1($DisconnectInvalidClients);
 
 $MaxNumberOfMXHosts = $obSettings->MaxNumberOfMXHosts;
 
@@ -177,18 +173,6 @@ $SMTPConnectionSecurity = $obSettings->SMTPConnectionSecurity == CONNECTION_SECU
 		
 		 
       	</table>
-      </div>
-      
-      <div class="tabbertab">
-         <h2><?php EchoTranslation("Statistics")?></h2> 
-   
-         <table border="0" width="100%" cellpadding="5">
-      	<tr>
-      		<td width="50%"><?php EchoTranslation("Send statistics to hMailServer.com")?></td>
-      		<td width="50%"><input type="checkbox" name="SendStatistics" value="1" <?php echo $SendStatisticsChecked?>></td>
-      	</tr>	
-         </table>	
-         
       </div>
       
       <div class="tabbertab">

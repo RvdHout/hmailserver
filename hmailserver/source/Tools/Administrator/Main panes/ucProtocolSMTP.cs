@@ -71,8 +71,6 @@ namespace hMailServer.Administrator
             textSMTPRelayerUsername.Text = settings.SMTPRelayerUsername;
             comboConnectionSecurity.SelectedValue = settings.SMTPRelayerConnectionSecurity;
 
-            checkSendStatistics.Checked = settings.SendStatistics;
-
             checkAllowPlainTextAuthentication.Checked = settings.AllowSMTPAuthPlain;
             checkAllowMailFromNull.Checked = !settings.DenyMailFromNull;
             checkAllowIncorrectLineEndings.Checked = settings.AllowIncorrectLineEndings;
@@ -112,8 +110,6 @@ namespace hMailServer.Administrator
 
             if (textSMTPRelayerPassword.Dirty)
                 settings.SetSMTPRelayerPassword(textSMTPRelayerPassword.Password);
-
-            settings.SendStatistics = checkSendStatistics.Checked;
 
             settings.AllowSMTPAuthPlain = checkAllowPlainTextAuthentication.Checked;
             settings.DenyMailFromNull = !checkAllowMailFromNull.Checked;
