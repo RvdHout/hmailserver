@@ -45,16 +45,17 @@ namespace HM
       // check if the settings are already default.
       if (vecObjects.size() == 4)
       {
-         /* Should we reset SSL/TLS settings as well?
+         /* Shouldn't we reset SSL/TLS settings as well?
+         https://github.com/hmailserver/hmailserver/pull/441#issuecomment-1221246664
+         if (vecObjects[0]->GetPortNumber() == 25 && vecObjects[0]->GetProtocol() == STSMTP &&
+         vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 &&
+         vecObjects[2]->GetPortNumber() == 143 && vecObjects[2]->GetProtocol() == STIMAP &&
+         vecObjects[3]->GetPortNumber() == 587 && vecObjects[3]->GetProtocol() == STSMTP)
+         */
          if (vecObjects[0]->GetPortNumber() == 25 && vecObjects[0]->GetProtocol() == STSMTP && vecObjects[0]->GetConnectionSecurity() == CSNone &&
             vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 && vecObjects[1]->GetConnectionSecurity() == CSNone &&
             vecObjects[2]->GetPortNumber() == 143 && vecObjects[2]->GetProtocol() == STIMAP && vecObjects[2]->GetConnectionSecurity() == CSNone &&
             vecObjects[3]->GetPortNumber() == 587 && vecObjects[3]->GetProtocol() == STSMTP && vecObjects[3]->GetConnectionSecurity() == CSNone)
-         */
-         if (vecObjects[0]->GetPortNumber() == 25 && vecObjects[0]->GetProtocol() == STSMTP &&
-            vecObjects[1]->GetPortNumber() == 110 && vecObjects[1]->GetProtocol() == STPOP3 &&
-            vecObjects[2]->GetPortNumber() == 143 && vecObjects[2]->GetProtocol() == STIMAP &&
-            vecObjects[3]->GetPortNumber() == 587 && vecObjects[3]->GetProtocol() == STSMTP)
          {
             // no changes are needed. 
             return;
