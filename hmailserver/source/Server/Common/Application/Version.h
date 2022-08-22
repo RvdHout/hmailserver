@@ -56,7 +56,7 @@
 [*]Fix: AUTH PLAIN followed by base64 encoded username and password (on same line) in log exposed account password. [url=https://github.com/hmailserver/hmailserver/pull/437]pull #437[/url]
 [*]Fix: rfc4954 After a successful AUTH command completes, a server MUST reject any further AUTH commands with a 503 reply. [url=https://github.com/hmailserver/hmailserver/pull/438]pull #438[/url]
 [*]Fix: HM5157 SpamAssassinClient::OnReadError, The WinSock error code is 2. [url=https://github.com/hmailserver/hmailserver/issues/167]issue #167[/url]
-[*]Fix: TCP/IP Ports 'Default' button in GUI did not add the standard port SMTP 587 (this port is standard added by SQL script during installation) [url=https://github.com/hmailserver/hmailserver/pull/441]#pull 441[/url]
+[*]Fix: TCP/IP Ports 'Default' button in GUI did not add the standard port SMTP 587 (this port is standard added by SQL script during installation)
 [*]Removed: Collection of statistics, since it's no longer being used. [url=https://github.com/hmailserver/hmailserver/issues/435]issue #435[/url]
 [/list]
 */
