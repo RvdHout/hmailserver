@@ -19,7 +19,7 @@ namespace HM
    IniFileSettings::IniFileSettings() :
       is_internal_database_(false),
       dbport_(0),
-      no_of_dbconnections_(0),
+      no_of_dbconnections_(5),
       add_xauth_user_header_(false),
       no_of_dbconnection_attempts_(6),
       no_of_dbconnection_attempts_Delay(5),
@@ -28,39 +28,39 @@ namespace HM
       greylisting_expiration_interval_(240),
       preferred_hash_algorithm_(3),
       dnsbl_checks_after_mail_from_(false),
-      log_level_(0),
+      log_level_(9),
       max_log_line_len_(500),
       quick_retries_(0),
-      quick_retries_Minutes(0),
+      quick_retries_Minutes(6),
       queue_randomness_minutes_(0),
       mxtries_factor_(0),
       sqldbtype_(HM::DatabaseSettings::TypeUnknown),
       sep_svc_logs_(false),
       rewrite_envelope_from_when_forwarding_(false),
       archive_hardlinks_(false),
-      pop3dmin_timeout_(0),
-      pop3dmax_timeout_(0),
-      pop3cmin_timeout_(0),
-      pop3cmax_timeout_(0),
-      smtpdmin_timeout_(0),
-      smtpdmax_timeout_(0),
-      smtpcmin_timeout_(0),
-      smtpcmax_timeout_(0),
-      samin_timeout_(0),
-      samax_timeout_(0),
-      clam_min_timeout_(0),
-      clam_max_timeout_(0),
+      pop3dmin_timeout_(10),
+      pop3dmax_timeout_(600),
+      pop3cmin_timeout_(30),
+      pop3cmax_timeout_(900),
+      smtpdmin_timeout_(10),
+      smtpdmax_timeout_(1800),
+      smtpcmin_timeout_(30),
+      smtpcmax_timeout_(600),
+      samin_timeout_(30),
+      samax_timeout_(90),
+      clam_min_timeout_(15),
+      clam_max_timeout_(90),
       samove_vs_copy_(false),
-      indexer_full_minutes_(0),
-      indexer_full_limit_(0),
-      indexer_quick_limit_(0),
-      load_header_read_size_(0),
-      load_body_read_size_(0),
+      indexer_full_minutes_(720),
+      indexer_full_limit_(25000),
+      indexer_quick_limit_(1000),
+      load_header_read_size_(4000),
+      load_body_read_size_(4000),
       blocked_iphold_seconds_(0),
       smtpdmax_size_drop_(0),
       backup_messages_dbonly_(false),
       add_xauth_user_ip_(false),
-      use_dns_cache_(1)
+      use_dns_cache_(true)
 
    {
 
@@ -173,29 +173,29 @@ namespace HM
          archive_dir_ = archive_dir_.Left(archive_dir_.GetLength() -1);
       archive_hardlinks_ =  ReadIniSettingInteger_("Settings", "ArchiveHardLinks", 0) == 1;
       pop3dmin_timeout_ =  ReadIniSettingInteger_("Settings", "POP3DMinTimeout", 10);
-      pop3dmax_timeout_ =  ReadIniSettingInteger_("Settings", "POP3DMaxTimeout",600);
+      pop3dmax_timeout_ =  ReadIniSettingInteger_("Settings", "POP3DMaxTimeout", 600);
       pop3cmin_timeout_ =  ReadIniSettingInteger_("Settings", "POP3CMinTimeout", 30);
-      pop3cmax_timeout_ =  ReadIniSettingInteger_("Settings", "POP3CMaxTimeout",900);
+      pop3cmax_timeout_ =  ReadIniSettingInteger_("Settings", "POP3CMaxTimeout", 900);
       smtpdmin_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPDMinTimeout", 10);
-      smtpdmax_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxTimeout",1800);
+      smtpdmax_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxTimeout", 1800);
       smtpcmin_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPCMinTimeout", 30);
-      smtpcmax_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPCMaxTimeout",600);
+      smtpcmax_timeout_ =  ReadIniSettingInteger_("Settings", "SMTPCMaxTimeout", 600);
       samin_timeout_ =  ReadIniSettingInteger_("Settings", "SAMinTimeout", 30);
-      samax_timeout_ =  ReadIniSettingInteger_("Settings", "SAMaxTimeout",90);
+      samax_timeout_ =  ReadIniSettingInteger_("Settings", "SAMaxTimeout", 90);
       clam_min_timeout_ =  ReadIniSettingInteger_("Settings", "ClamMinTimeout", 15);
-      clam_max_timeout_ =  ReadIniSettingInteger_("Settings", "ClamMaxTimeout",90);
+      clam_max_timeout_ =  ReadIniSettingInteger_("Settings", "ClamMaxTimeout", 90);
       samove_vs_copy_ = ReadIniSettingInteger_("Settings", "SAMoveVsCopy", 0) == 1;
       auth_user_replacement_ip_ = ReadIniSettingString_("Settings", "AuthUserReplacementIP", "");
-      indexer_full_minutes_ =  ReadIniSettingInteger_("Settings", "IndexerFullMinutes",720);
-      indexer_full_limit_ =  ReadIniSettingInteger_("Settings", "IndexerFullLimit",25000);
-      indexer_quick_limit_ =  ReadIniSettingInteger_("Settings", "IndexerQuickLimit",1000);
-      load_header_read_size_ =  ReadIniSettingInteger_("Settings", "LoadHeaderReadSize",4000);
-      load_body_read_size_ =  ReadIniSettingInteger_("Settings", "LoadBodyReadSize",4000);
-      blocked_iphold_seconds_ =  ReadIniSettingInteger_("Settings", "BlockedIPHoldSeconds",0);
-      smtpdmax_size_drop_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxSizeDrop",0);
-      backup_messages_dbonly_ =  ReadIniSettingInteger_("Settings", "BackupMessagesDBOnly",0) == 1;
-      add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP",1) == 1;
-      use_dns_cache_ = ReadIniSettingInteger_("Settings", "UseDNSCache",1) == 1;
+      indexer_full_minutes_ =  ReadIniSettingInteger_("Settings", "IndexerFullMinutes", 720);
+      indexer_full_limit_ =  ReadIniSettingInteger_("Settings", "IndexerFullLimit", 25000);
+      indexer_quick_limit_ =  ReadIniSettingInteger_("Settings", "IndexerQuickLimit", 1000);
+      load_header_read_size_ =  ReadIniSettingInteger_("Settings", "LoadHeaderReadSize", 4000);
+      load_body_read_size_ =  ReadIniSettingInteger_("Settings", "LoadBodyReadSize", 4000);
+      blocked_iphold_seconds_ =  ReadIniSettingInteger_("Settings", "BlockedIPHoldSeconds", 0);
+      smtpdmax_size_drop_ =  ReadIniSettingInteger_("Settings", "SMTPDMaxSizeDrop", 0);
+      backup_messages_dbonly_ =  ReadIniSettingInteger_("Settings", "BackupMessagesDBOnly", 0) == 1;
+      add_xauth_user_ip_ =  ReadIniSettingInteger_("Settings", "AddXAuthUserIP", 1) == 1;
+      use_dns_cache_ = ReadIniSettingInteger_("Settings", "UseDNSCache", 1) == 1;
       dns_server_ = ReadIniSettingString_("Settings", "DNSServer", "");
       rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
       m_sDisableAUTHList = ReadIniSettingString_("Settings", "DisableAUTHList", "");
