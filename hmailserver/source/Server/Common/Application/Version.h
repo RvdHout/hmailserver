@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2602.53"
+#define HMAILSERVER_BUILD "2602.54"
 
 /*
 [list=1]
@@ -59,6 +59,7 @@
 [*]Fix: TCP/IP Ports 'Default' button in GUI did not add the standard port SMTP 587 (this port is standard added by SQL script during installation) [url=https://github.com/hmailserver/hmailserver/pull/441]#pull 441[/url]
 [*]Removed: Collection of statistics, since it's no longer being used. [url=https://github.com/hmailserver/hmailserver/issues/435]issue #435[/url]
 [*]Fix: If MSSQL OLE DB Provider 18 or later is installed, prefer that one, since it supports TLS1.1/1.2 which older providers do not. [url=https://github.com/hmailserver/hmailserver/issues/186]issue 186[/url]
-[*]Added: %MACRO_ORIGINAL_HEADER% macro expansion for 'Set header value' rules 
+[*]Added: %MACRO_ORIGINAL_HEADER% macro expansion for 'Set header value' rules
+[*]Fix: S/MIME Signed Message Failing Signature Validation due to X-hMailServer-Envelope-From header position, effectively this means ungrouping of the X-hMailServer-* headers
 [/list]
 */

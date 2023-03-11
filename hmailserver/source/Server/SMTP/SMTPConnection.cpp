@@ -26,6 +26,7 @@
 #include "../common/AntiSpam/SpamTestResult.h"
 #include "../Common/UTil/Math.h"
 #include "../Common/UTil/SignatureAdder.h"
+#include "../Common/Util/TraceHeaderWriter.h"
 #include "../common/BO/Routes.h"
 #include "../common/BO/RouteAddresses.h"
 #include "../common/BO/SecurityRange.h"
@@ -1166,16 +1167,16 @@ namespace HM
    // for example where message signature and spam-headers are added.
    //---------------------------------------------------------------------------()
    {
-      String fileName = PersistentMessage::GetFileName(current_message_);
+      const String fileName = PersistentMessage::GetFileName(current_message_);
 
-      std::shared_ptr<MessageData> pMsgData = std::shared_ptr<MessageData>(new MessageData());
-
+      std::vector<std::pair<AnsiString, AnsiString>> fieldsToWrite;
       // Add "X-hMailServer-Envelope-From" header
-      pMsgData->LoadFromMessage(fileName, current_message_);
-      pMsgData->SetFieldValue("X-hMailServer-Envelope-From", current_message_->GetFromAddress());
-      pMsgData->Write(fileName);
-      
-      //std::shared_ptr<MessageData> pMsgData;
+      fieldsToWrite.push_back(std::make_pair("X-hMailServer-Envelope-From", current_message_->GetFromAddress()));
+
+      TraceHeaderWriter writer;
+      writer.Write(fileName, current_message_, fieldsToWrite);
+
+      std::shared_ptr<MessageData> pMsgData;
 
       // Check if we should add a spam header.
       int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(spam_test_results_);

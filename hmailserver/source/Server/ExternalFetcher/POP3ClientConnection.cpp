@@ -17,6 +17,7 @@
 #include "../SMTP/RecipientParser.h"
 #include "../Common/Util/Parsing/AddressListParser.h"
 #include "../Common/Util/Utilities.h"
+#include "../Common/Util/TraceHeaderWriter.h"
 #include "../Common/Mime/Mime.h"
 #include "../Common/BO/FetchAccountUID.h"
 #include "../Common/BO/MessageRecipients.h"
@@ -675,25 +676,23 @@ namespace HM
    */
 
    void
-   POP3ClientConnection::AppendHeaders_()
+   POP3ClientConnection::PrependHeaders_()
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Adds headers after the last existing header
+   // Adds headers to the beginning of the message.
    //---------------------------------------------------------------------------()
    {
-      String fileName = PersistentMessage::GetFileName(current_message_);
+      const String fileName = PersistentMessage::GetFileName(current_message_);
 
-      std::shared_ptr<MessageData> messageData = std::shared_ptr<MessageData>(new MessageData());
-      messageData->LoadFromMessage(fileName, current_message_);
-
+      std::vector<std::pair<AnsiString, AnsiString>> fieldsToWrite;
       // Add a header with the name of the external account, so that
       // we can check where we downloaded it from later on.
-      messageData->SetFieldValue("X-hMailServer-ExternalAccount", account_->GetName().c_str());
-
+      fieldsToWrite.push_back(std::make_pair("X-hMailServer-ExternalAccount", account_->GetName().c_str()));
       // Add "X-hMailServer-Envelope-From" header
-      messageData->SetFieldValue("X-hMailServer-Envelope-From", current_message_->GetFromAddress());
+      fieldsToWrite.push_back(std::make_pair("X-hMailServer-Envelope-From", current_message_->GetFromAddress()));
 
-      messageData->Write(fileName);
+      TraceHeaderWriter writer;
+      writer.Write(fileName, current_message_, fieldsToWrite);
    }
 
    void
@@ -755,7 +754,7 @@ namespace HM
             return;
          }
 
-         // PrependHeaders_();
+         //PrependHeaders_();
       }
 
       transmission_buffer_->Append(pBuf->GetBuffer(), pBuf->GetSize());
@@ -834,7 +833,7 @@ namespace HM
       if (!account_->GetUseAntiSpam())
       {
          // spam protection isn't enabled.
-         AppendHeaders_();
+         PrependHeaders_();
          return true;
       }
 
@@ -850,9 +849,11 @@ namespace HM
 
       if (SpamProtection::IsWhiteListed(senderAddress, ipAddress))
       {
-         AppendHeaders_();
+         PrependHeaders_();
          return true;
       }
+
+      PrependHeaders_();
 
       std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
       
@@ -874,7 +875,6 @@ namespace HM
          std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
          if (messageData)
          {
-            AppendHeaders_();
             messageData->Write(fileName);
          }
       }
@@ -898,7 +898,6 @@ namespace HM
 
          if (messageData)
          {
-            AppendHeaders_();
             messageData->Write(fileName);
          }
       }
