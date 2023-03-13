@@ -2111,8 +2111,17 @@ namespace HM
                pClientInfo->SetUsername(username_);
                pClientInfo->SetIPAddress(GetIPAddressString());
                pClientInfo->SetPort(GetLocalEndpointPort());
+               pClientInfo->SetSessionID(GetSessionID());
                pClientInfo->SetHELO(helo_host_);
                pClientInfo->SetIsAuthenticated(isAuthenticated_);
+               pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+               if (IsSSLConnection())
+               {
+                  auto cipher_info = GetCipherInfo();
+                  pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+                  pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+                  pClientInfo->SetCipherBits(cipher_info.GetBits());
+               }
 
                pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
                pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
@@ -2135,8 +2144,17 @@ namespace HM
                   pClientInfo->SetUsername(username_);
                   pClientInfo->SetIPAddress(GetIPAddressString());
                   pClientInfo->SetPort(GetLocalEndpointPort());
+                  pClientInfo->SetSessionID(GetSessionID());
                   pClientInfo->SetHELO(helo_host_);
                   pClientInfo->SetIsAuthenticated(isAuthenticated_);
+                  pClientInfo->SetIsEncryptedConnection(IsSSLConnection());
+                  if (IsSSLConnection())
+                  {
+                     auto cipher_info = GetCipherInfo();
+                     pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+                     pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+                     pClientInfo->SetCipherBits(cipher_info.GetBits());
+                  }
 
                   pContainer->AddObject("HMAILSERVER_MESSAGE", current_message_, ScriptObject::OTMessage);
                   pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
