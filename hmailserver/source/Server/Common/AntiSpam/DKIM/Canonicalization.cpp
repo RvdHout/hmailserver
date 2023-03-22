@@ -126,6 +126,11 @@ namespace HM
                fields.erase(fields.begin()+i);
 
                value = field.GetValue();
+               // Fix for DKIM Header verification failing on empty header value, for example: subject header
+               if (value.GetLength() == 0)
+               {
+                  value += "\r\n";
+               }
                break;
             }
          }
