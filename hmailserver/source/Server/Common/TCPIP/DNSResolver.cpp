@@ -2,6 +2,7 @@
 // http://www.hmailserver.com
 
 #include "stdafx.h"
+#include "TCPServer.h"
 #include "DNSResolver.h"
 #include <iphlpapi.h>
 #include <windns.h>
@@ -363,10 +364,22 @@ namespace HM
          endpoint_iterator++;
       }
 
-      for(String address : addresses_ipv4)
-         saFoundNames.push_back(address);
-      for(String address : addresses_ipv6)
-         saFoundNames.push_back(address);
+      // if IPv6 is preferred first return IPv6 DNS Lookup(s)
+      if (TCPServer::HasIPV6() && Configuration::Instance()->GetIPv6Preferred())
+      {
+         for (String address : addresses_ipv6)
+            saFoundNames.push_back(address);
+         for (String address : addresses_ipv4)
+            saFoundNames.push_back(address);
+      }
+      else 
+      {
+         for (String address : addresses_ipv4)
+            saFoundNames.push_back(address);
+         for (String address : addresses_ipv6)
+            saFoundNames.push_back(address);
+      }
+
 
       return true;
    }

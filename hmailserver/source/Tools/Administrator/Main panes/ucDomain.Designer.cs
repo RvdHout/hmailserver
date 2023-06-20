@@ -321,6 +321,7 @@ namespace hMailServer.Administrator
            // radioSMSetIfNotSpecifiedInAccount
            // 
            this.radioSMSetIfNotSpecifiedInAccount.AutoSize = true;
+           this.radioSMSetIfNotSpecifiedInAccount.Checked = true;
            this.radioSMSetIfNotSpecifiedInAccount.Location = new System.Drawing.Point(32, 34);
            this.radioSMSetIfNotSpecifiedInAccount.Name = "radioSMSetIfNotSpecifiedInAccount";
            this.radioSMSetIfNotSpecifiedInAccount.Size = new System.Drawing.Size(312, 17);
@@ -589,6 +590,7 @@ namespace hMailServer.Administrator
            // radioDKIMSigningAlgorithmSHA256
            // 
            this.radioDKIMSigningAlgorithmSHA256.AutoSize = true;
+           this.radioDKIMSigningAlgorithmSHA256.Checked = true;
            this.radioDKIMSigningAlgorithmSHA256.Location = new System.Drawing.Point(82, 4);
            this.radioDKIMSigningAlgorithmSHA256.Name = "radioDKIMSigningAlgorithmSHA256";
            this.radioDKIMSigningAlgorithmSHA256.Size = new System.Drawing.Size(65, 17);
@@ -620,6 +622,7 @@ namespace hMailServer.Administrator
            // radioDKIMBodyMethodRelaxed
            // 
            this.radioDKIMBodyMethodRelaxed.AutoSize = true;
+           this.radioDKIMBodyMethodRelaxed.Checked = true;
            this.radioDKIMBodyMethodRelaxed.Location = new System.Drawing.Point(82, 3);
            this.radioDKIMBodyMethodRelaxed.Name = "radioDKIMBodyMethodRelaxed";
            this.radioDKIMBodyMethodRelaxed.Size = new System.Drawing.Size(64, 17);
@@ -651,6 +654,7 @@ namespace hMailServer.Administrator
            // radioDKIMHeaderMethodRelaxed
            // 
            this.radioDKIMHeaderMethodRelaxed.AutoSize = true;
+           this.radioDKIMHeaderMethodRelaxed.Checked = true;
            this.radioDKIMHeaderMethodRelaxed.Location = new System.Drawing.Point(82, 4);
            this.radioDKIMHeaderMethodRelaxed.Name = "radioDKIMHeaderMethodRelaxed";
            this.radioDKIMHeaderMethodRelaxed.Size = new System.Drawing.Size(64, 17);
