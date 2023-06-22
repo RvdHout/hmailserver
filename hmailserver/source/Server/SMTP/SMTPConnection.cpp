@@ -26,7 +26,6 @@
 #include "../common/AntiSpam/SpamTestResult.h"
 #include "../Common/UTil/Math.h"
 #include "../Common/UTil/SignatureAdder.h"
-#include "../Common/Util/TraceHeaderWriter.h"
 #include "../common/BO/Routes.h"
 #include "../common/BO/RouteAddresses.h"
 #include "../common/BO/SecurityRange.h"
