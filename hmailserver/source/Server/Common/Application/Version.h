@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2607.61"
+#define HMAILSERVER_BUILD "2607.62"
 
 /*
 [list=1]
@@ -65,6 +65,7 @@
 [*]Fix: DKIM Signing Not Performed On Messages > 10 MB [url=https://github.com/hmailserver/hmailserver/issues/387]issue #387[/url]
 [*]Fix: DKIM (header) verification fails when an email is received with no subject [url=https://github.com/hmailserver/hmailserver/issues/245]issue #245[/url]
 [*]Added: DKIM signing support for CSA-Compliant Mail Headers, eg: X-CSA-Complaints and List-Unsubscribe-Post headers
+[*]Fix: Prefer IPv6 over IPv4 didn't do anything, added the missing part (sorting of found IP Adressess)
 [*]Removed: X-hMailServer-Envelope-From header
 [*]Added: Received-SPF: diagnostic header (Not for Authenticated client connections or localhost!)
 [*]Added: (envelope-from <user@domain.com>), for <user@domain.com> to Received: headers (if single recipient!)
