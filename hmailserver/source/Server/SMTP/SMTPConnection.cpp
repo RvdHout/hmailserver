@@ -245,7 +245,7 @@ namespace HM
          boost::wregex expression(sRegex, boost::wregex::icase);
          boost::wsmatch matches;
          // AUTH PLAIN command and both user name and password in line. 
-         if (boost::regex_match(sLogData, matches, expression) && current_state_ == HEADER)
+         if (current_state_ == HEADER && boost::regex_match(sLogData, matches, expression))
          {
             if (matches.size() > 0)
             {
@@ -871,7 +871,15 @@ namespace HM
       {
          std::shared_ptr<MimeHeader> original_headers = Utilities::GetMimeHeader(transmission_buffer_->GetBuffer()->GetBuffer(), transmission_buffer_->GetBuffer()->GetSize());
 
-         SMTPMessageHeaderCreator header_creator(username_, GetIPAddressString(), isAuthenticated_, helo_host_, original_headers);
+         String sEnvelopFrom = current_message_->GetFromAddress();
+         String sEnvelopTo;
+
+         std::shared_ptr<MessageRecipients> pRecipients = current_message_->GetRecipients();
+         std::vector<std::shared_ptr<MessageRecipient> > &recipients = pRecipients->GetVector();
+         if (recipients.size() > 0 && recipients.size() < 2)
+            sEnvelopTo = (*recipients.begin())->GetOriginalAddress();
+
+         SMTPMessageHeaderCreator header_creator(username_, sEnvelopFrom, sEnvelopTo, GetIPAddressString(), isAuthenticated_, helo_host_, original_headers);
          
          if (IsSSLConnection())
             header_creator.SetCipherInfo(GetCipherInfo());
@@ -1167,24 +1175,6 @@ namespace HM
    // for example where message signature and spam-headers are added.
    //---------------------------------------------------------------------------()
    {
-      const String fileName = PersistentMessage::GetFileName(current_message_);
-
-      // Delete existing "X-hMailServer-Envelope-From" header
-      std::shared_ptr<MessageData> pMessageData = std::shared_ptr<MessageData>(new MessageData());
-      pMessageData->LoadFromMessage(fileName, current_message_);
-      if (!pMessageData->GetFieldValue("X-hMailServer-Envelope-From").IsEmpty())
-      {
-         pMessageData->DeleteField("X-hMailServer-Envelope-From");
-         pMessageData->Write(fileName);
-      }
-
-      std::vector<std::pair<AnsiString, AnsiString>> fieldsToWrite;
-      // Add "X-hMailServer-Envelope-From" header
-      fieldsToWrite.push_back(std::make_pair("X-hMailServer-Envelope-From", current_message_->GetFromAddress()));
-
-      TraceHeaderWriter writer;
-      writer.Write(fileName, current_message_, fieldsToWrite);
-
       std::shared_ptr<MessageData> pMsgData;
 
       // Check if we should add a spam header.
@@ -1202,7 +1192,7 @@ namespace HM
       SetMessageSignature_(pMsgData);
 
       if (pMsgData)
-         pMsgData->Write(fileName);
+         pMsgData->Write(PersistentMessage::GetFileName(current_message_));
    }
 
    void

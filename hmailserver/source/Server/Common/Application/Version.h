@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2607.57"
+#define HMAILSERVER_BUILD "2607.61"
 
 /*
 [list=1]
@@ -63,6 +63,10 @@
 [*]Fix: S/MIME Signed Message Failing Signature Validation due to X-hMailServer-Envelope-From header position, effectively this means ungrouping of the X-hMailServer-* headers
 [*]Fix: Error logged if email address length exceeds 254 characters [url=https://github.com/hmailserver/hmailserver/issues/393]issue #393[/url]
 [*]Fix: DKIM Signing Not Performed On Messages > 10 MB [url=https://github.com/hmailserver/hmailserver/issues/387]issue #387[/url]
-[*]Fix: DKIM (header) verification fails when an email is recieved with no subject [url=https://github.com/hmailserver/hmailserver/issues/245]issue #245[/url]
+[*]Fix: DKIM (header) verification fails when an email is received with no subject [url=https://github.com/hmailserver/hmailserver/issues/245]issue #245[/url]
+[*]Added: DKIM signing support for CSA-Compliant Mail Headers, eg: X-CSA-Complaints and List-Unsubscribe-Post headers
+[*]Removed: X-hMailServer-Envelope-From header
+[*]Added: Received-SPF: diagnostic header (Not for Authenticated client connections or localhost!)
+[*]Added: (envelope-from <user@domain.com>), for <user@domain.com> to Received: headers (if single recipient!)
 [/list]
 */

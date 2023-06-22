@@ -17,7 +17,6 @@
 #include "../SMTP/RecipientParser.h"
 #include "../Common/Util/Parsing/AddressListParser.h"
 #include "../Common/Util/Utilities.h"
-#include "../Common/Util/TraceHeaderWriter.h"
 #include "../Common/Mime/Mime.h"
 #include "../Common/BO/FetchAccountUID.h"
 #include "../Common/BO/MessageRecipients.h"
@@ -474,7 +473,7 @@ namespace HM
    POP3ClientConnection::StartMailboxCleanup_()
    {
       cur_message_ = downloaded_messages_.begin();
-	  SetReceiveBinary(false);
+      SetReceiveBinary(false);
 
       MailboxCleanup_();
    }
@@ -655,7 +654,6 @@ namespace HM
       return true;
    }
 
-   /*
    void 
    POP3ClientConnection::PrependHeaders_()
    //---------------------------------------------------------------------------()
@@ -672,36 +670,6 @@ namespace HM
       AnsiString sAnsiHeader = sHeader;
 
       transmission_buffer_->Append((BYTE*) sAnsiHeader.GetBuffer(), sAnsiHeader.GetLength());
-   }
-   */
-
-   void
-   POP3ClientConnection::PrependHeaders_()
-   //---------------------------------------------------------------------------()
-   // DESCRIPTION:
-   // Adds headers to the beginning of the message.
-   //---------------------------------------------------------------------------()
-   {
-      const String fileName = PersistentMessage::GetFileName(current_message_);
-
-      // Delete existing "X-hMailServer-Envelope-From" header
-      std::shared_ptr<MessageData> pMessageData = std::shared_ptr<MessageData>(new MessageData());
-      pMessageData->LoadFromMessage(fileName, current_message_);
-      if (!pMessageData->GetFieldValue("X-hMailServer-Envelope-From").IsEmpty())
-      {
-         pMessageData->DeleteField("X-hMailServer-Envelope-From");
-         pMessageData->Write(fileName);
-      }
-
-      std::vector<std::pair<AnsiString, AnsiString>> fieldsToWrite;
-      // Add a header with the name of the external account, so that
-      // we can check where we downloaded it from later on.
-      fieldsToWrite.push_back(std::make_pair("X-hMailServer-ExternalAccount", account_->GetName().c_str()));
-      // Add "X-hMailServer-Envelope-From" header
-      fieldsToWrite.push_back(std::make_pair("X-hMailServer-Envelope-From", current_message_->GetFromAddress()));
-
-      TraceHeaderWriter writer;
-      writer.Write(fileName, current_message_, fieldsToWrite);
    }
 
    void
@@ -763,7 +731,7 @@ namespace HM
             return;
          }
 
-         //PrependHeaders_();
+         PrependHeaders_();
       }
 
       transmission_buffer_->Append(pBuf->GetBuffer(), pBuf->GetSize());
@@ -842,7 +810,6 @@ namespace HM
       if (!account_->GetUseAntiSpam())
       {
          // spam protection isn't enabled.
-         PrependHeaders_();
          return true;
       }
 
@@ -857,12 +824,7 @@ namespace HM
 
 
       if (SpamProtection::IsWhiteListed(senderAddress, ipAddress))
-      {
-         PrependHeaders_();
          return true;
-      }
-
-      PrependHeaders_();
 
       std::set<std::shared_ptr<SpamTestResult> > setSpamTestResults;
       
@@ -883,9 +845,7 @@ namespace HM
       {
          std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
          if (messageData)
-         {
             messageData->Write(fileName);
-         }
       }
 
       // Run PostTransmissionTests. These consists of more heavy stuff such as SURBL and SpamAssassin-
@@ -906,9 +866,7 @@ namespace HM
          std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
 
          if (messageData)
-         {
             messageData->Write(fileName);
-         }
       }
 
       return true;
@@ -1068,15 +1026,6 @@ namespace HM
    // to the message
    //---------------------------------------------------------------------------()
    {
-      /*
-      String sTo = pHeader->GetRawFieldValue("To");
-      String sCC = pHeader->GetRawFieldValue("CC");
-      String sXRCPTTo = pHeader->GetRawFieldValue("X-RCPT-TO");
-      String sXEnvelopeTo = pHeader->GetRawFieldValue("X-Envelope-To");
-      
-      String sAllRecipients = sTo + "," + sCC + "," + sXRCPTTo + "," + sXEnvelopeTo;
-      */
-
       AnsiString sMimeRecipientHeaders = account_->GetMIMERecipientHeaders();
       std::vector<std::string> sMimeRecipientHeader;
       std::vector<std::string> sMimeRecipientsList;

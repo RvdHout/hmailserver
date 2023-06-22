@@ -154,6 +154,6 @@ namespace HM
 
       std::shared_ptr<FetchAccountUIDList> fetch_account_uidlist_;
 
-	  std::shared_ptr<ByteBuffer> _firstRetrResponseBuffer;
+      std::shared_ptr<ByteBuffer> _firstRetrResponseBuffer;
   };
 }
