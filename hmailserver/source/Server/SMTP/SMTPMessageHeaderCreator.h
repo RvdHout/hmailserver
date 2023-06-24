@@ -23,7 +23,7 @@ namespace HM
    private:
 
       String GenerateReceivedSPFHeader_(const String &sHostname);
-      String GenerateReceivedHeader_(const String &overriden_received_ip);
+      String GenerateReceivedHeader_(const String &local_computer_name, const String &overriden_received_ip);
 
       String username_;
       String envelopeFrom_;

@@ -72,7 +72,7 @@ namespace HM
       if (add_received_spf_header) 
          new_header_lines += GenerateReceivedSPFHeader_(sComputerName);
 
-      new_header_lines += GenerateReceivedHeader_(overriden_received_ip_address);
+      new_header_lines += GenerateReceivedHeader_(sComputerName, overriden_received_ip_address);
 
       // Add Message-ID header if it does not exist.
       if (!original_headers_->FieldExists("Message-ID"))
@@ -105,28 +105,25 @@ namespace HM
    SMTPMessageHeaderCreator::GenerateReceivedSPFHeader_(const String &sHostname)
    {
       String sReceivedSPFHeader;
-      if (!is_authenticated_)
-      {
-         IPAddress address;
-         if (!address.TryParse(remote_ip_address_))
-            return sReceivedSPFHeader;
 
-         if (LocalIPAddresses::Instance()->IsWithinLoopbackRange(address))
-            return sReceivedSPFHeader;
-
-         return SPF::Instance()->ReceivedSPFHeader(sHostname, remote_ip_address_, envelopeFrom_, helo_host_, sReceivedSPFHeader);
-      }
-      else
-      {
+      // skip for authenticated clients
+      if (is_authenticated_)
          return sReceivedSPFHeader;
-      }
+
+      IPAddress address;
+      if (!address.TryParse(remote_ip_address_))
+         return sReceivedSPFHeader;
+
+      // skip for localhost/loopback clients
+      if (LocalIPAddresses::Instance()->IsWithinLoopbackRange(address))
+         return sReceivedSPFHeader;
+
+      return SPF::Instance()->ReceivedSPFHeader(sHostname, remote_ip_address_, envelopeFrom_, helo_host_, sReceivedSPFHeader);
    }
 
    String
-   SMTPMessageHeaderCreator::GenerateReceivedHeader_(const String &overriden_received_ip)
+   SMTPMessageHeaderCreator::GenerateReceivedHeader_(const String &local_computer_name, const String &overriden_received_ip)
    {
-      String local_computer_name = Utilities::ComputerName();
-
       std::vector<String> results;
       // do a PTR lookup, solves an issue with some spam filerting programs such as SA
       // not having a PTR in the Received header.
