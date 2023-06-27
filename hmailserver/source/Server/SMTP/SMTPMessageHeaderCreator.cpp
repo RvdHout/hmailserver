@@ -149,7 +149,7 @@ namespace HM
       if (is_authenticated_)
          esmtp_additions += "A";
 
-      String envelopeFrom;
+      String envelopeFrom = " ";
       if (!envelopeFrom_.IsEmpty() && !is_authenticated_)
          envelopeFrom.Format(_T(" (envelope-from\r\n\t<%s>)\r\n\t"), envelopeFrom_.c_str());
 
@@ -164,7 +164,7 @@ namespace HM
 
       String sResult;
       sResult.Format(_T("Received: from %s (%s [%s])\r\n")
-         _T("\tby %s with ESMTP%s\r\n")
+         _T("\tby %s%swith ESMTP%s%s\r\n")
          _T("%s")
          _T("\t; %s\r\n"),
          remote_hostname.c_str(),
