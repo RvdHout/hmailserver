@@ -160,13 +160,13 @@ namespace HM
       String cipher_line;
 
       if (is_tls_)
-         cipher_line.Format(_T("\t(version=%s cipher=%s bits=%d)\r\n"), String(cipher_info_.GetVersion()).c_str(), String(cipher_info_.GetName()).c_str(), cipher_info_.GetBits());
+         cipher_line.Format(_T("\r\n\t(version=%s cipher=%s bits=%d)"), String(cipher_info_.GetVersion()).c_str(), String(cipher_info_.GetName()).c_str(), cipher_info_.GetBits());
 
       String sResult;
       sResult.Format(_T("Received: from %s (%s [%s])\r\n")
-         _T("\tby %s%swith ESMTP%s%s\r\n")
-         _T("%s")
-         _T("\t; %s\r\n"),
+         _T("\tby %s%swith ESMTP%s%s")
+         _T("%s;\r\n")
+         _T("\t%s\r\n"),
          remote_hostname.c_str(),
          ptr_record_host.c_str(),
          overriden_received_ip.c_str(),
