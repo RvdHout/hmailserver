@@ -311,14 +311,14 @@ namespace HM
       {
          switch (current_state_)
          {
-         case DATA:
-            EnqueueRead("");
-            break;
-         case STARTTLS:
-            break;
-         default:
-            EnqueueRead();
-            break;
+            case DATA:
+               EnqueueRead("");
+               break;
+            case STARTTLS:
+               break;
+            default:
+               EnqueueRead();
+               break;
          }
       }
    }
@@ -365,51 +365,51 @@ namespace HM
       switch (current_state_)
       {
          case INITIAL:
-            {
-               requestedAuthenticationType_ = AUTH_NONE;
-               SendErrorResponse_(503, "Bad sequence of commands"); 
-               break;
-            }
+         {
+            requestedAuthenticationType_ = AUTH_NONE;
+            SendErrorResponse_(503, "Bad sequence of commands");
+            break;
+         }
          case HEADER:
+         {
+            switch (eCommandType)
             {
-               switch (eCommandType)
-               {
-                  case SMTP_COMMAND_STARTTLS: ProtocolSTARTTLS_(sRequest); break;
-                  case SMTP_COMMAND_AUTH: ProtocolAUTH_(sRequest); break;
-                  case SMTP_COMMAND_MAIL: ProtocolMAIL_(sRequest); break;
-                  case SMTP_COMMAND_RCPT: ProtocolRCPT_(sRequest); break;
-                  case SMTP_COMMAND_TURN: SendErrorResponse_(502, "TURN disallowed."); break;
-                  case SMTP_COMMAND_ETRN: ProtocolETRN_(sRequest); break;
-                  case SMTP_COMMAND_VRFY: SendErrorResponse_(502, "VRFY disallowed."); break;
-                  case SMTP_COMMAND_DATA: ProtocolDATA_(); break;
-                  default:
-                     SendErrorResponse_(503, "Bad sequence of commands"); 
-               }
-               break;
+               case SMTP_COMMAND_STARTTLS: ProtocolSTARTTLS_(sRequest); break;
+               case SMTP_COMMAND_AUTH: ProtocolAUTH_(sRequest); break;
+               case SMTP_COMMAND_MAIL: ProtocolMAIL_(sRequest); break;
+               case SMTP_COMMAND_RCPT: ProtocolRCPT_(sRequest); break;
+               case SMTP_COMMAND_TURN: SendErrorResponse_(502, "TURN disallowed."); break;
+               case SMTP_COMMAND_ETRN: ProtocolETRN_(sRequest); break;
+               case SMTP_COMMAND_VRFY: SendErrorResponse_(502, "VRFY disallowed."); break;
+               case SMTP_COMMAND_DATA: ProtocolDATA_(); break;
+               default:
+                  SendErrorResponse_(503, "Bad sequence of commands");
             }
+            break;
+         }
          case SMTPUSERNAME:
+         {
+            if (requestedAuthenticationType_ == AUTH_LOGIN)
             {
-               if (requestedAuthenticationType_ == AUTH_LOGIN)
-               {
-                  ProtocolUsername_(sRequest);
-               }
-               else
-               {
-                  AuthenticateUsingPLAIN_(sRequest);
-               }
+               ProtocolUsername_(sRequest);
+            }
+            else
+            {
+               AuthenticateUsingPLAIN_(sRequest);
+            }
 
-               break;
-            }
+            break;
+         }
          case SMTPUPASSWORD:
-            {
-               ProtocolPassword_(sRequest);
-               break;
-            }
+         {
+            ProtocolPassword_(sRequest);
+            break;
+         }
          default:
-            {
-               ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5500, "SMTPConnection::InternalParseData", 
-                  Formatter::Format(_T("Received unexpected string data: {0}"), sRequest));
-            }
+         {
+            ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5500, "SMTPConnection::InternalParseData",
+               Formatter::Format(_T("Received unexpected string data: {0}"), sRequest));
+         }
       }
  
       return;
@@ -758,7 +758,7 @@ namespace HM
             {
                // The sender is greylisted. We don't log to awstats here,
                // since we tell the client to try again later.
-               SendErrorResponse_(451, "Please try again later.");
+               EnqueueWrite_("451 Please try again later.");
                return;
             }
          }
@@ -1280,20 +1280,20 @@ namespace HM
 
          switch (pResult->GetValue())
          {
-         case 1:
+            case 1:
             {
                SendErrorResponse_(554, "Rejected");
                LogAwstatsMessageRejected_();
                return false;
             }
-         case 2:
+            case 2:
             {
                String sErrorMessage = pResult->GetMessage();
                SendErrorResponse_(554, sErrorMessage);
                LogAwstatsMessageRejected_();
                return false;
             }
-         case 3:
+            case 3:
             {
                String sErrorMessage = "453 " + pResult->GetMessage();
                EnqueueWrite_(sErrorMessage);
@@ -1596,26 +1596,26 @@ namespace HM
 
          switch (pResult->GetValue())
          {
-         case 1:
-         {
-            SendErrorResponse_(554, "Rejected");
-            LogAwstatsMessageRejected_();
-            return;
-         }
-         case 2:
-         {
-            String sErrorMessage = pResult->GetMessage();
-            SendErrorResponse_(554, sErrorMessage);
-            LogAwstatsMessageRejected_();
-            return;
-         }
-         case 3:
-         {
-            String sErrorMessage = "453 " + pResult->GetMessage();
-            EnqueueWrite_(sErrorMessage);
-            LogAwstatsMessageRejected_();
-            return;
-         }
+            case 1:
+            {
+               SendErrorResponse_(554, "Rejected");
+               LogAwstatsMessageRejected_();
+               return;
+            }
+            case 2:
+            {
+               String sErrorMessage = pResult->GetMessage();
+               SendErrorResponse_(554, sErrorMessage);
+               LogAwstatsMessageRejected_();
+               return;
+            }
+            case 3:
+            {
+               String sErrorMessage = "453 " + pResult->GetMessage();
+               EnqueueWrite_(sErrorMessage);
+               LogAwstatsMessageRejected_();
+               return;
+            }
          }
       }
 
@@ -1667,26 +1667,26 @@ namespace HM
 
          switch (pResult->GetValue())
          {
-         case 1:
-         {
-            SendErrorResponse_(554, "Rejected");
-            LogAwstatsMessageRejected_();
-            return;
-         }
-         case 2:
-         {
-            String sErrorMessage = pResult->GetMessage();
-            SendErrorResponse_(554, sErrorMessage);
-            LogAwstatsMessageRejected_();
-            return;
-         }
-         case 3:
-         {
-            String sErrorMessage = "453 " + pResult->GetMessage();
-            EnqueueWrite_(sErrorMessage);
-            LogAwstatsMessageRejected_();
-            return;
-         }
+            case 1:
+            {
+               SendErrorResponse_(554, "Rejected");
+               LogAwstatsMessageRejected_();
+               return;
+            }
+            case 2:
+            {
+               String sErrorMessage = pResult->GetMessage();
+               SendErrorResponse_(554, sErrorMessage);
+               LogAwstatsMessageRejected_();
+               return;
+            }
+            case 3:
+            {
+               String sErrorMessage = "453 " + pResult->GetMessage();
+               EnqueueWrite_(sErrorMessage);
+               LogAwstatsMessageRejected_();
+               return;
+            }
          }
       }
 
@@ -1768,26 +1768,26 @@ namespace HM
 
          switch (pResult->GetValue())
          {
-         case 1:
-         {
-            SendErrorResponse_(554, "Rejected");
-            LogAwstatsMessageRejected_();
-            return;
-         }
-         case 2:
-         {
-            String sErrorMessage = pResult->GetMessage();
-            SendErrorResponse_(554, sErrorMessage);
-            LogAwstatsMessageRejected_();
-            return;
-         }
-         case 3:
-         {
-            String sErrorMessage = "453 " + pResult->GetMessage();
-            EnqueueWrite_(sErrorMessage);
-            LogAwstatsMessageRejected_();
-            return;
-         }
+            case 1:
+            {
+               SendErrorResponse_(554, "Rejected");
+               LogAwstatsMessageRejected_();
+               return;
+            }
+            case 2:
+            {
+               String sErrorMessage = pResult->GetMessage();
+               SendErrorResponse_(554, sErrorMessage);
+               LogAwstatsMessageRejected_();
+               return;
+            }
+            case 3:
+            {
+               String sErrorMessage = "453 " + pResult->GetMessage();
+               EnqueueWrite_(sErrorMessage);
+               LogAwstatsMessageRejected_();
+               return;
+            }
          }
       }      
 
@@ -2078,7 +2078,7 @@ namespace HM
       AccountLogon accountLogon;
       bool disconnect;
 
-	  String sUsername = username_;
+      String sUsername = username_;
 
       std::shared_ptr<const Account> pAccount = accountLogon.Logon(GetRemoteEndpointAddress(), username_, password_, disconnect);
          
@@ -2256,7 +2256,7 @@ namespace HM
    {
       if (rejected_by_delayed_grey_listing_)
       {
-         SendErrorResponse_(450, "Please try again later.");
+         EnqueueWrite_("450 Please try again later.");
          // Don't log to awstats here, since we tell the client to try again later.
          return false;
       }
