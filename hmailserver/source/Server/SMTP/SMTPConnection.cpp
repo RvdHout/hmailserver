@@ -945,14 +945,14 @@ namespace HM
             pending_disconnect_ = true;
             EnqueueDisconnect();
             return;
-      } 
-      else 
-      {
-         // We need more data.
-         EnqueueRead("");
-         return;
+         } 
+         else 
+         {
+            // We need more data.
+            EnqueueRead("");
+            return;
+         }
       }
-   }
 
       // Since this may be a time-consuming task, do it asynchronously
       std::shared_ptr<AsynchronousTask<TCPConnection> > finalizationTask = 

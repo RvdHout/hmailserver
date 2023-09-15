@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2607.62"
+#define HMAILSERVER_BUILD "2641.63"
 
 /*
 [list=1]
@@ -69,5 +69,6 @@
 [*]Removed: X-hMailServer-Envelope-From as it had no practical use
 [*]Added: Received-SPF: diagnostic header controlled with INI setting "AddReceivedSPFHeader" (skip for authenticated client connections or localhost!)
 [*]Added: (envelope-from <user@domain.com>), for <user@domain.com> to Received: header (if single recipient!)
+[*]Fix: All 5xx errors are permanent errors and should be treated as such, eg: contributing to invalid commands counter
 [/list]
 */
