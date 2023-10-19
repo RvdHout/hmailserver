@@ -154,7 +154,9 @@ namespace HM
       // executes a script which saves the message, only the file changes should be saved. We should
       // not add any rows to the database in this scenario. To ensure this, InterfaceMessage checks the
       // message state. If it's "Delivering", it won't save the changes to the database.
-      accountLevelMessage->SetState(Message::Delivered); 
+      accountLevelMessage->SetState(Message::Delivered);
+      // Recalculate filesize after Return-Path and optionally Delivered-To header(s) are added
+      accountLevelMessage->SetSize(FileUtilities::FileSize(PersistentMessage::GetFileName(account, accountLevelMessage)));
 
       PersistentMessage::SaveObject(accountLevelMessage);
 

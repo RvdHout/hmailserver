@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.63"
+#define HMAILSERVER_BUILD "2641.64"
 
 /*
 [list=1]
@@ -70,5 +70,6 @@
 [*]Added: Received-SPF: diagnostic header controlled with INI setting "AddReceivedSPFHeader" (skip for authenticated client connections or localhost!)
 [*]Added: (envelope-from <user@domain.com>), for <user@domain.com> to Received: header (if single recipient!)
 [*]Fix: All 5xx errors are permanent errors and should be treated as such, eg: contributing to invalid commands counter
+[*]Fix: hMailServer reports incorrect RFC822.SIZE [url=https://github.com/hmailserver/hmailserver/pull/477]pull 477[/url]
 [/list]
 */
