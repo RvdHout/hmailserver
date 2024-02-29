@@ -158,6 +158,7 @@ static typIsamDelete* pIsamDelete;
 #endif //LONG_MAX
 
 #define SPF_NoMatch (SPF_PermError+1)
+#define SPF_DomainHasMultipleSPFRecords (SPF_PermError+2)
 
 #ifdef SPFCACHE
 #define SPF_NoMemory (SPF_PermError+2)
@@ -3295,7 +3296,8 @@ getspf(const char* domain, const dnsrec** datapp, time_t currtime)
       {
          spffree(datap);
          datap = NULL;
-         result = SPF_PermError;
+         //result = SPF_PermError;
+         result = SPF_DomainHasMultipleSPFRecords;
          break;
       }
 
@@ -3590,6 +3592,8 @@ check_host(spfrec* spfp, const char* domain)
       {
          if (result == SPF_PermError) // domain does not exist
             return SPF_None | SPF_NoDomain;
+         if (result == SPF_DomainHasMultipleSPFRecords) // domain has multiple spf records
+            return SPF_PermError;
          return result;
       }
       else if (bestguess_a != NULL && !spfp->spf_testhelo

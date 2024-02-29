@@ -151,7 +151,7 @@ namespace HM
 
       String envelopeFrom = " ";
       if (!envelopeFrom_.IsEmpty() && !is_authenticated_)
-         envelopeFrom.Format(_T(" (envelope-from\r\n\t<%s>)\r\n\t"), envelopeFrom_.c_str());
+         envelopeFrom.Format(_T(" (envelope-from <%s>)\r\n\t"), envelopeFrom_.c_str());
 
       String envelopeTo;
       if (!envelopeTo_.IsEmpty())

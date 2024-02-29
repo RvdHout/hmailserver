@@ -96,29 +96,35 @@ namespace HM
       String sSPFResultString = SPFResultString(result);
       String sResultMessage;
 
+      // http://www.open-spf.org/SPF_Received_Header/
       switch (result)
       {
-         case SPF_Pass:
-            sResultMessage.Format(_T("%s (%s: domain of\r\n\t%s designates\r\n\t%s as permitted sender)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
+         case SPF_Pass: // 0
+            sResultMessage.Format(_T("%s (%s: domain of %s designates %s as permitted sender)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
             break;
-         case SPF_SoftFail:
-            sResultMessage.Format(_T("%s (%s: domain of transitioning\r\n\t%s does not designate\r\n\t%s as permitted sender)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
+         case SPF_SoftFail: // 1
+            sResultMessage.Format(_T("%s (%s: domain of transitioning %s does not designate %s as permitted sender)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
             break;
-         case SPF_Fail:
-            sResultMessage.Format(_T("%s (%s: domain of\r\n\t%s does not designate\r\n\t%s as permitted sender)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
+         case SPF_Fail: // 2
+            sResultMessage.Format(_T("%s (%s: domain of %s does not designate %s as permitted sender)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
             break;
-         case SPF_Neutral:
-            sResultMessage.Format(_T("%s (%s: %s is neither permitted\r\n\tnor denied by domain of %s)"), sSPFResultString.c_str(), sHostname.c_str(), sSenderIP.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
+         case SPF_Neutral: // 3
+            sResultMessage.Format(_T("%s (%s: %s is neither permitted nor denied by domain of %s)"), sSPFResultString.c_str(), sHostname.c_str(), sSenderIP.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
             break;
-         case SPF_None:
-            sResultMessage.Format(_T("%s (%s: domain of\r\n\t%s does not designate permitted sender hosts)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
+         case SPF_None: // 4
+         case SPF_None + SPF_BadDomain: // 20
+         case SPF_None + SPF_NoDomain: // 36
+         case SPF_None + SPF_Literal: // 52
+            sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
             break;
-         case SPF_TempError:
-            sResultMessage.Format(_T("%s (%s: temporary error\r\n\tin processing during lookup of\r\n\t%s: DNS Timeout)"), sSPFResultString.c_str(), sHostname.c_str(), sDomain.c_str());
+         case SPF_TempError: // 5
+            sResultMessage.Format(_T("%s (%s: temporary error in processing during lookup of %s: DNS Timeout)"), sSPFResultString.c_str(), sHostname.c_str(), sDomain.c_str());
             break;
-         case SPF_PermError:
-            sResultMessage.Format(_T("%s (%s: permanent error\r\n\tin processing during lookup of\r\n\t%s)"), sSPFResultString.c_str(), sHostname.c_str(), sDomain.c_str());
+         case SPF_PermError: // 6
+            sResultMessage.Format(_T("%s (%s: permanent error in processing during lookup of %s)"), sSPFResultString.c_str(), sHostname.c_str(), sDomain.c_str());
             break;
+         default:
+            return sResult;
       }
 
       if (!sSenderEmail.IsEmpty())
@@ -133,23 +139,17 @@ namespace HM
    {
       String sExplanation;
 
-      if (SPF::Instance()->Test("5.189.183.138", "example@hmailserver.com", "mail.hmailserver.com", sExplanation) != SPF::Pass)
+      if (SPF::Instance()->Test("185.216.75.37", "example@hmailserver.com", "mail.hmailserver.com", sExplanation) != SPF::Pass)
       {
-         // Should be allowed. The sub domain instantpayroll.advantagepayroll.com does not have a SPF record.
+         // Should be allowed. 
          throw;
       }
 
       if (SPF::Instance()->Test("1.2.3.4", "example@hmailserver.com", "mail.hmailserver.com", sExplanation) != SPF::Fail)
       {
-         // Should not be allowed. advantagepayroll.com has SPF records.
+         // Should not be allowed.
          throw;
       }
-
- 
-     
-
-
-
    }
 
 
