@@ -112,9 +112,6 @@ namespace HM
             sResultMessage.Format(_T("%s (%s: %s is neither permitted nor denied by domain of %s)"), sSPFResultString.c_str(), sHostname.c_str(), sSenderIP.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
             break;
          case SPF_None: // 4
-         case SPF_None + SPF_BadDomain: // 20
-         case SPF_None + SPF_NoDomain: // 36
-         case SPF_None + SPF_Literal: // 52
             sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
             break;
          case SPF_TempError: // 5
@@ -122,6 +119,11 @@ namespace HM
             break;
          case SPF_PermError: // 6
             sResultMessage.Format(_T("%s (%s: permanent error in processing during lookup of %s)"), sSPFResultString.c_str(), sHostname.c_str(), sDomain.c_str());
+            break;
+         case SPF_None + SPF_BadDomain: // 20
+         case SPF_None + SPF_NoDomain: // 36
+         case SPF_None + SPF_Literal: // 52
+            sResultMessage.Format(_T("%s (%s: domain %s is an address literal, malformed, or non-existent)"), sSPFResultString.c_str(), sHostname.c_str(), sDomain.c_str());
             break;
          default:
             return sResult;
