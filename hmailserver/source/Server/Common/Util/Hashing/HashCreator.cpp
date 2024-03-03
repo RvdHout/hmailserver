@@ -6,9 +6,11 @@
 #include "../PasswordGenerator.h"
 #include "../../Mime/MimeCode.h"
 
+#if (OPENSSL_VERSION_MAJOR < 3)
 #include <openssl/sha.h>
-#include <openssl/md5.h>
 #include <openssl/evp.h>
+#endif
+#include <openssl/md5.h>
 
 #include "HashCreator.h"
 

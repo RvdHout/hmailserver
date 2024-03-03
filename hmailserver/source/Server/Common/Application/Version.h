@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.65"
+#define HMAILSERVER_BUILD "2641.66"
 
 /*
 [list=1]
@@ -72,5 +72,6 @@
 [*]Fix: All 5xx errors are permanent errors and should be treated as such, eg: contributing to invalid commands counter
 [*]Fix: hMailServer reports incorrect RFC822.SIZE [url=https://github.com/hmailserver/hmailserver/pull/477]pull 477[/url]
 [*]Fix: hMailServer AUTH PLAIN in SMTP fails when authzid is supplied
+[*]Fix: Minor bugfix where the Received-SPF diagnostic header gave incomplete or inaccurate results
 [/list]
 */

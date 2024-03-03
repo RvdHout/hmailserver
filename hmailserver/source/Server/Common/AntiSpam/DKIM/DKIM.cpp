@@ -16,11 +16,13 @@
 #include "../../Util/TraceHeaderWriter.h"
 #include "../../Persistence/PersistentMessage.h"
 
+#if (OPENSSL_VERSION_MAJOR < 3)
 #include <openssl/rsa.h>
 #include <openssl/obj_mac.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#endif
 
 
 #ifdef _DEBUG
@@ -40,8 +42,10 @@ namespace HM
    void 
    DKIM::Initialize()
    {
+#if (OPENSSL_VERSION_MAJOR < 3)
       OpenSSL_add_all_algorithms();
       ERR_load_crypto_strings();
+#endif
       ERR_load_EVP_strings();
 
       recommendedHeaderFields_.push_back("From");
