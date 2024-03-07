@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.66"
+#define HMAILSERVER_BUILD "2641.67"
 
 /*
 [list=1]
@@ -73,5 +73,6 @@
 [*]Fix: hMailServer reports incorrect RFC822.SIZE [url=https://github.com/hmailserver/hmailserver/pull/477]pull 477[/url]
 [*]Fix: hMailServer AUTH PLAIN in SMTP fails when authzid is supplied
 [*]Fix: Minor bugfix where the Received-SPF diagnostic header gave incomplete or inaccurate results
+[*]Fix: Minor bugfix where the Received-SPF diagnostic header gave inaccurate results when receiving mail through a (trusted/internal) relay
 [/list]
 */
