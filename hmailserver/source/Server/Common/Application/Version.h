@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.67"
+#define HMAILSERVER_BUILD "2641.68"
 
 /*
 [list=1]
@@ -74,5 +74,6 @@
 [*]Fix: hMailServer AUTH PLAIN in SMTP fails when authzid is supplied
 [*]Fix: Minor bugfix where the Received-SPF diagnostic header gave incomplete or inaccurate results
 [*]Fix: Minor bugfix where the Received-SPF diagnostic header gave inaccurate results when receiving mail through a (trusted/internal) relay
+[*]Added: IPv6 Support from BLCheck [url=https://github.com/hmailserver/hmailserver/pull/487]pull 487[/url]
 [/list]
 */
