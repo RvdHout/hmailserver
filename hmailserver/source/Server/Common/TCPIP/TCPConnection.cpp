@@ -477,6 +477,109 @@ namespace HM
 
    }
 
+   void
+   TCPConnection::AsyncReadCompleted(const boost::system::error_code &error, size_t bytes_transferred)
+   {
+      UpdateAutoLogoutTimer();
+
+      // Ignore end of file or end of stream error, there may still be data in the receive buffer we can read.
+      if (error.value() != 0 && error.value() != boost::asio::error::eof)
+      {
+         if (connection_state_ != StateConnected)
+         {
+            // The read failed, but we've already started the disconnection. So we should not log the failure
+            // or enqueue a new disconnect.
+            return;
+         }
+
+         OnReadError(error.value());
+
+         String message;
+         message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
+         ReportDebugMessage(message, error);
+
+         if (error.value() == boost::asio::error::not_found)
+         {
+            // read buffer is full...
+            OnExcessiveDataReceived();
+         }
+
+         EnqueueDisconnect();
+      }
+      else
+      {
+         if (receive_binary_)
+         {
+            std::shared_ptr<ByteBuffer> pBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer());
+            pBuffer->Allocate(receive_buffer_.size());
+
+            std::istream is(&receive_buffer_);
+            is.read((char*)pBuffer->GetBuffer(), receive_buffer_.size());
+
+            if (error.value() == 0 && pBuffer->GetSize() > 0)
+            {
+               try
+               {
+                  ParseData(pBuffer);
+               }
+               catch (DisconnectedException&)
+               {
+                  throw;
+               }
+               catch (...)
+               {
+                  String message;
+                  message.Format(_T("An error occured while parsing data. Data size: %d"), pBuffer->GetSize());
+
+                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+
+                  throw;
+               }
+            }
+         }
+         else
+         {
+            std::string s;
+            std::istream is(&receive_buffer_);
+            std::getline(is, s, '\r');
+
+            // consume trailing \n on line.
+            receive_buffer_.consume(1);
+
+#ifdef _DEBUG
+            String sDebugOutput;
+            sDebugOutput.Format(_T("RECEIVED: %s\r\n"), String(s).c_str());
+            OutputDebugString(sDebugOutput);
+#endif
+
+            if (error.value() == 0 && s.size() > 0)
+            {
+               try
+               {
+                  ParseData(s);
+               }
+               catch (DisconnectedException&)
+               {
+                  throw;
+               }
+               catch (...)
+               {
+                  String message;
+                  message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s).c_str());
+
+                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+
+                  throw;
+               }
+            }
+         }
+      }
+
+      operation_queue_.Pop(IOOperation::BCTRead);
+      ProcessOperationQueue_(0);
+   }
+
+   /*
    void 
    TCPConnection::AsyncReadCompleted(const boost::system::error_code& error, size_t bytes_transferred)
    {
@@ -611,6 +714,7 @@ namespace HM
       operation_queue_.Pop(IOOperation::BCTRead);
       ProcessOperationQueue_(0);
    }
+   */
 
    void 
    TCPConnection::EnqueueWrite(const AnsiString &sData)
