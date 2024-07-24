@@ -516,26 +516,23 @@ namespace HM
             std::istream is(&receive_buffer_);
             is.read((char*)pBuffer->GetBuffer(), receive_buffer_.size());
 
-            //if (!error && pBuffer->GetSize() > 0)
-            if (!error)
+            try
             {
-               try
-               {
+               if (pBuffer->GetSize() > 0)
                   ParseData(pBuffer);
-               }
-               catch (DisconnectedException&)
-               {
-                  throw;
-               }
-               catch (...)
-               {
-                  String message;
-                  message.Format(_T("An error occured while parsing data. Data size: %d"), pBuffer->GetSize());
+            }
+            catch (DisconnectedException&)
+            {
+               throw;
+            }
+            catch (...)
+            {
+               String message;
+               message.Format(_T("An error occured while parsing data. Data size: %d"), pBuffer->GetSize());
 
-                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+               ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
 
-                  throw;
-               }
+               throw;
             }
          }
          else
@@ -553,26 +550,23 @@ namespace HM
             OutputDebugString(sDebugOutput);
 #endif
             
-            //if (!error && s.size() > 0)
-            if (!error)
+            try
             {
-               try
-               {
+               if (s.size() > 0)
                   ParseData(s);
-               }
-               catch (DisconnectedException&)
-               {
-                  throw;
-               }
-               catch (...)
-               {
-                  String message;
-                  message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s).c_str());
+            }
+            catch (DisconnectedException&)
+            {
+               throw;
+            }
+            catch (...)
+            {
+               String message;
+               message.Format(_T("An error occured while parsing data. Data length: %d, Data: %s."), s.size(), String(s).c_str());
 
-                  ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
+               ReportError(ErrorManager::Medium, 5136, "TCPConnection::AsyncReadCompleted", message);
 
-                  throw;
-               }
+               throw;
             }
          }
       }
