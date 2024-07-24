@@ -483,7 +483,7 @@ namespace HM
       UpdateAutoLogoutTimer();
 
       // Ignore end of file or end of stream error, there may still be data in the receive buffer we can read.
-      if (error.value() != 0 && error.value() != boost::asio::error::eof)
+      if (error && error != boost::asio::error::eof)
       {
          if (connection_state_ != StateConnected)
          {
@@ -498,7 +498,7 @@ namespace HM
          message.Format(_T("The read operation failed. Bytes transferred: %d"), bytes_transferred);
          ReportDebugMessage(message, error);
 
-         if (error.value() == boost::asio::error::not_found)
+         if (error == boost::asio::error::not_found)
          {
             // read buffer is full...
             OnExcessiveDataReceived();
@@ -516,7 +516,8 @@ namespace HM
             std::istream is(&receive_buffer_);
             is.read((char*)pBuffer->GetBuffer(), receive_buffer_.size());
 
-            if (error.value() == 0 && pBuffer->GetSize() > 0)
+            //if (!error && pBuffer->GetSize() > 0)
+            if (!error)
             {
                try
                {
@@ -551,8 +552,9 @@ namespace HM
             sDebugOutput.Format(_T("RECEIVED: %s\r\n"), String(s).c_str());
             OutputDebugString(sDebugOutput);
 #endif
-
-            if (error.value() == 0 && s.size() > 0)
+            
+            //if (!error && s.size() > 0)
+            if (!error)
             {
                try
                {
