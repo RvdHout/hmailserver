@@ -478,17 +478,24 @@ namespace HM
    }
 
    void
-   TCPConnection::AsyncReadCompleted(const boost::system::error_code &error, size_t bytes_transferred)
+   TCPConnection::AsyncReadCompleted(const boost::system::error_code& error, size_t bytes_transferred)
    {
       UpdateAutoLogoutTimer();
 
       // Ignore end of file or end of stream error, there may still be data in the receive buffer we can read.
-      if (error && error != boost::asio::error::eof)
+      //if (error && error != boost::asio::error::eof)
+      if (error && !receive_binary_ || error && error != boost::asio::error::eof && receive_binary_)
       {
          if (connection_state_ != StateConnected)
          {
             // The read failed, but we've already started the disconnection. So we should not log the failure
             // or enqueue a new disconnect.
+            return;
+         }
+
+         if (error == boost::asio::error::eof)
+         {
+            // Ignore end of file or end of stream error
             return;
          }
 
@@ -552,8 +559,7 @@ namespace HM
             
             try
             {
-               if (s.size() > 0)
-                  ParseData(s);
+               ParseData(s);
             }
             catch (DisconnectedException&)
             {
