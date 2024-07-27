@@ -191,6 +191,10 @@ namespace HM
       if (BLCheck::GetRevertedIP(_T("111.222.333.444")) != _T("444.333.222.111"))
          throw;
 
+      // IPv6
+      if (BLCheck::GetRevertedIP(_T("::1")) != _T("1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"))
+         throw;
+
       std::set<String> expandedaddresses = BLCheck::ExpandAddresses("127.0.0.*");
 
       if (expandedaddresses.find("127.0.0.*") == expandedaddresses.end())
