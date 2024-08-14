@@ -423,6 +423,43 @@ namespace HM
       sOutput = output;
    }
 
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Check for 2 NULL delimiters in Base64 encoded authentication string
+   // Example: username@domain.com\0username@domain.com\0P@ssword
+   //---------------------------------------------------------------------------()
+   bool
+   StringParser::IsBase64NullDelimited(const String &sInput)
+   {
+      if (sInput.GetLength() == 0)
+      {
+         return false;
+      }
+
+      AnsiString sInputStr = sInput;
+
+      MimeCodeBase64 DeCoder;
+      DeCoder.AddLineBreak(false);
+      DeCoder.SetInput(sInputStr, sInputStr.GetLength(), false);
+
+      AnsiString output;
+      DeCoder.GetOutput(output);
+
+      int length = output.GetLength();
+      int iFound = 0;
+
+      for (int i = 0; i < length; i++)
+      {
+         if (output[i] == 0)
+         {
+            // Count NULL delimiters
+            iFound++;
+         }
+      }
+
+      return iFound == 2;
+   }
+
    bool
    StringParser::IsNumeric(const String &sInput)
    {

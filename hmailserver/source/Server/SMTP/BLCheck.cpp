@@ -188,7 +188,7 @@ namespace HM
       if (BLCheck::GetRevertedIP(_T("1.2.3.4")) != _T("4.3.2.1"))
          throw;
 
-      if (BLCheck::GetRevertedIP(_T("111.222.333.444")) != _T("444.333.222.111"))
+      if (BLCheck::GetRevertedIP(_T("255.255.255.0")) != _T("0.255.255.255"))
          throw;
 
       // IPv6

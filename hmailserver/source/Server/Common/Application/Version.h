@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.68"
+#define HMAILSERVER_BUILD "2641.70"
 
 /*
 [list=1]
@@ -75,5 +75,7 @@
 [*]Fix: Minor bugfix where the Received-SPF diagnostic header gave incomplete or inaccurate results
 [*]Fix: Minor bugfix where the Received-SPF diagnostic header gave inaccurate results when receiving mail through a (trusted/internal) relay
 [*]Added: IPv6 Support for BLCheck [url=https://github.com/hmailserver/hmailserver/pull/487]pull 487[/url]
+[*]Experimental: improved SA winsock 2 error fix, ignore all boost::asio::error::eof errors which probably are related to IMAP FETCH HM5136 errors
+[*]Fix: Improved AUTH PLAIN base64 encoded username and password masking, retain client command format for troubleshooting purposes
 [/list]
 */
