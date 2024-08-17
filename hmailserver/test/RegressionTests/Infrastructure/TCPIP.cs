@@ -125,26 +125,10 @@ namespace RegressionTests.Infrastructure
 
          oApp.Stop();
 
-         /*
-         // Delete the port again
+         // Delete the new port again
          oApp.Settings.TCPIPPorts.DeleteByDBID(oPort.ID);
 
-         // Change back the ports
-         for (int i = 0; i < oPorts.Count; i++)
-         {
-            TCPIPPort oTestPort = oPorts[i];
-            if (oTestPort.Protocol == eSessionType.eSTIMAP)
-               oTestPort.PortNumber = 143;
-            else if (oTestPort.Protocol == eSessionType.eSTSMTP)
-               oTestPort.PortNumber = 25;
-            else if (oTestPort.Protocol == eSessionType.eSTPOP3)
-               oTestPort.PortNumber = 110;
-
-            oTestPort.Save();
-         }
-         */
-
-         // Delete the port again
+         // Reset the ports
          oApp.Settings.TCPIPPorts.SetDefault();
 
          oApp.Start();
