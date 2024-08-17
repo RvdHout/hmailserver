@@ -97,9 +97,9 @@ namespace RegressionTests.Infrastructure
             TCPIPPort oTestPort = oPorts[i];
             if (oTestPort.Protocol == eSessionType.eSTIMAP)
                oTestPort.PortNumber = 14300;
-            else if (oTestPort.Protocol == eSessionType.eSTSMTP)
-               oTestPort.PortNumber = 11000;
             else if (oTestPort.Protocol == eSessionType.eSTPOP3)
+               oTestPort.PortNumber = 11000;
+            else if (oTestPort.Protocol == eSessionType.eSTSMTP && oTestPort.PortNumber == 25)
                oTestPort.PortNumber = 2500;
 
             oTestPort.Save();
@@ -107,9 +107,9 @@ namespace RegressionTests.Infrastructure
 
          oApp.Start();
 
+         Assert.IsTrue(pIMAPSimulator.TestConnect(14300));
+         Assert.IsTrue(pPOP3Simulator.TestConnect(11000));
          Assert.IsTrue(pSMTPSimulator.TestConnect(2500));
-         Assert.IsTrue(pSMTPSimulator.TestConnect(11000));
-         Assert.IsTrue(pSMTPSimulator.TestConnect(14300));
 
          oApp.Stop();
 
@@ -125,6 +125,7 @@ namespace RegressionTests.Infrastructure
 
          oApp.Stop();
 
+         /*
          // Delete the port again
          oApp.Settings.TCPIPPorts.DeleteByDBID(oPort.ID);
 
@@ -141,12 +142,32 @@ namespace RegressionTests.Infrastructure
 
             oTestPort.Save();
          }
+         */
+
+         // Delete the port again
+         oApp.Settings.TCPIPPorts.SetDefault();
 
          oApp.Start();
 
          Assert.IsTrue(pSMTPSimulator.TestConnect(25));
+         Assert.IsTrue(pSMTPSimulator.TestConnect(587));
          Assert.IsTrue(pPOP3Simulator.TestConnect(110));
-         Assert.IsTrue(pPOP3Simulator.TestConnect(143));
+         Assert.IsTrue(pIMAPSimulator.TestConnect(143));
+      }
+
+      [Test]
+      public void TestDefaultPortCount()
+      {
+         Application oApp = SingletonProvider<TestSetup>.Instance.GetApp();
+
+         oApp.Settings.TCPIPPorts.SetDefault();
+
+         oApp.Stop();
+         oApp.Start();
+
+         var ports = oApp.Settings.TCPIPPorts;
+
+         Assert.AreEqual(4, ports.Count);
       }
    }
 }

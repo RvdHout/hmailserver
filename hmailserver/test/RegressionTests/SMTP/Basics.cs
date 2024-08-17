@@ -947,47 +947,6 @@ namespace RegressionTests.SMTP
          Assert.Fail("Wasn't disconnected");
       }
 
-      //RvdH
-      [Test]
-      public void TestTooManyInvalidCommandsWithinOnHeloEventTrigger()
-      {
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
-
-         // First set up a script
-         string script =
-            @"Sub OnHelo(oClient)
-               EventLog.Write(oClient.HELO)
-	            If (oClient.HELO = ""ylmf-pc"") Then
-                  Result.Value = 1
-               End If
-            End Sub";
-
-         Scripting scripting = _settings.Scripting;
-         string file = scripting.CurrentScriptFile;
-         File.WriteAllText(file, script);
-         scripting.Enabled = true;
-         scripting.Reload();
-
-         Settings settings = _settings;
-         settings.DisconnectInvalidClients = true;
-         settings.MaxNumberOfInvalidCommands = 3;
-
-         var sim = new TcpConnection();
-         sim.Connect(25);
-         sim.Receive(); // banner
-
-         sim.SendAndReceive("HELO ylmf-pc\r\n");
-         sim.SendAndReceive("HELO ylmf-pc\r\n");
-         sim.SendAndReceive("HELO ylmf-pc\r\n");
-         var result = sim.SendAndReceive("HELO ylmf-pc\r\n");
-
-         settings.Scripting.Enabled = false;
-
-         Assert.IsTrue(result.Contains("Too many invalid commands"), result);
-      }
-
       [Test]
       public void TestTooManyInvalidCommandsHELO()
       {

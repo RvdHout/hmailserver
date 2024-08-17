@@ -14,17 +14,22 @@ namespace RegressionTests.API
    [TestFixture]
    public class Events : TestFixtureBase
    {
+      //RvdH
       [Test]
-      public void TestOnAcceptMessageJScript()
+      public void TestOnHeloVBScript()
       {
-         _settings.Scripting.Language = "JScript";
+         string eventLogFile = _settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
          // First set up a script
          string script =
-            @"function OnAcceptMessage(oClient, oMessage)
-                           {
-                              oMessage.HeaderValue('X-SpamResult') = 'TEST';
-                              oMessage.Save();
-                           }";
+            @"Sub OnHelo(oClient)
+               EventLog.Write(oClient.HELO)
+	            If (oClient.HELO = ""ylmf-pc"") Then
+                  Result.Value = 1
+               End If
+            End Sub";
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
@@ -32,16 +37,22 @@ namespace RegressionTests.API
          scripting.Enabled = true;
          scripting.Reload();
 
-         // Add an account and send a message to it.
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
 
-         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
 
-         // Check that the message exists
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
-         Assert.IsNotEmpty(message);
+         sim.SendAndReceive("HELO ylmf-pc\r\n");
+         sim.SendAndReceive("HELO ylmf-pc\r\n");
+         sim.SendAndReceive("HELO ylmf-pc\r\n");
+         var result = sim.SendAndReceive("HELO ylmf-pc\r\n");
 
-         Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
+         settings.Scripting.Enabled = false;
+
+         Assert.IsTrue(result.Contains("Too many invalid commands"), result);
       }
 
       //RvdH
@@ -83,7 +94,7 @@ namespace RegressionTests.API
 
       //RvdH
       [Test]
-      public void TestOnTooManyInvalidCommands()
+      public void TestOnTooManyInvalidCommandsVBScript()
       {
          int maxInvalid = 5;
 
@@ -122,6 +133,36 @@ namespace RegressionTests.API
          // Check that the event was triggered
          var message = TestSetup.ReadExistingTextFile(eventLogFile);
          Assert.IsTrue(message.Contains("OnTooManyInvalidCommands"));
+      }
+
+      [Test]
+      public void TestOnAcceptMessageJScript()
+      {
+         _settings.Scripting.Language = "JScript";
+         // First set up a script
+         string script =
+            @"function OnAcceptMessage(oClient, oMessage)
+                           {
+                              oMessage.HeaderValue('X-SpamResult') = 'TEST';
+                              oMessage.Save();
+                           }";
+
+         Scripting scripting = _settings.Scripting;
+         string file = scripting.CurrentScriptFile;
+         File.WriteAllText(file, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         // Add an account and send a message to it.
+         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         SmtpClientSimulator.StaticSend(oAccount1.Address, oAccount1.Address, "Test", "SampleBody");
+
+         // Check that the message exists
+         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         Assert.IsNotEmpty(message);
+
+         Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
       }
 
       [Test]

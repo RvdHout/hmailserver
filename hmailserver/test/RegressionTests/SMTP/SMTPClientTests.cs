@@ -111,7 +111,7 @@ namespace RegressionTests.SMTP
             TCPIPPort oTestPort = oPorts[i];
             if (oTestPort.Protocol == eSessionType.eSTIMAP)
                oTestPort.PortNumber = 14300;
-            else if (oTestPort.Protocol == eSessionType.eSTSMTP)
+            else if (oTestPort.Protocol == eSessionType.eSTSMTP && oTestPort.PortNumber == 25)
                oTestPort.PortNumber = 11000;
             else if (oTestPort.Protocol == eSessionType.eSTPOP3)
                oTestPort.PortNumber = 2500;
