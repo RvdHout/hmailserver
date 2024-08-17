@@ -51,7 +51,7 @@ namespace RegressionTests.Security
          return _password;
       }
 
-
+      /*
       private void EnsureNoPassword()
       {
          string logFileName = _settings.Logging.CurrentDefaultLog;
@@ -80,6 +80,55 @@ namespace RegressionTests.Security
             Assert.IsTrue(text.Contains(_username) || text.Contains(EncodeBase64(_username)), text);
             Assert.IsFalse(text.Contains(_password) || text.Contains(EncodeBase64(_password)), text);
             Assert.IsTrue(text.Contains("***"), text);
+         }
+      }
+      */
+      //RvdH
+      private void EnsureNoPassword(bool usernameExpected = true)
+      {
+         string logFileName = _settings.Logging.CurrentDefaultLog;
+
+         for (int i = 1; i <= 10; i++)
+         {
+            string text = string.Empty;
+
+            try
+            {
+               using (var fileStream = File.Open(logFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+               using (var streamReader = new StreamReader(fileStream))
+               {
+                  text = streamReader.ReadToEnd();
+               }
+            }
+            catch
+            {
+               if (i == 10)
+                  throw;
+
+               Thread.Sleep(1000);
+               continue;
+            }
+
+            // masked Base64 encoded string in various formats to compare against
+            var auth2param_masked = EncodeBase64("\\0" + _username + "\\0" + "***");
+            var auth3param_masked = EncodeBase64(_username + "\\0" + _username + "\\0" + "***");
+            var tabdelimited_masked = EncodeBase64(_username + "\\t" + _username + "\\t" + "***");
+
+            if (usernameExpected)
+               // should contain plain text username for POP en IMAP, Base64 encoded username for SMTP
+               Assert.IsTrue(text.Contains(_username) || text.Contains(EncodeBase64(_username)), text);
+            else
+            {
+               // should contain Base64 encoded strings for AUTH PLAIN, either \0 or \t delimited 
+               Assert.IsTrue(text.Contains(auth2param_masked) || text.Contains(auth3param_masked) || text.Contains(tabdelimited_masked), text);
+               // should not contain plain text username for POP en IMAP, Base64 encoded username for SMTP
+               Assert.IsFalse(text.Contains(_username) || text.Contains(EncodeBase64(_username)), text);
+            }
+
+            Assert.IsFalse(text.Contains(_password) || text.Contains(EncodeBase64(_password)), text);
+
+            if (!text.Contains(auth2param_masked) && !text.Contains(auth3param_masked) && !text.Contains(tabdelimited_masked))
+               Assert.IsTrue(text.Contains("***"), text);
          }
       }
 
@@ -161,6 +210,7 @@ namespace RegressionTests.Security
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -250,9 +300,12 @@ namespace RegressionTests.Security
 
          sock.Send(EncodeBase64(GetPassword()) + "\r\n");
          Assert.IsTrue(sock.Receive().StartsWith("535"));
+         sock.Send("QUIT\r\n");
+         sock.Disconnect();
          EnsureNoPassword();
       }
 
+      //RvdH
       [Test]
       public void TestSMTPServerAuthPlain()
       {
@@ -266,11 +319,127 @@ namespace RegressionTests.Security
          sock.Send("AUTH PLAIN\r\n");
          Assert.IsTrue(sock.Receive().StartsWith("334"));
 
-         string str = "\t" + GetUsername() + "\t" + GetPassword();
+         string str = "\0" + GetUsername() + "\0" + GetPassword();
 
          sock.Send(EncodeBase64(str) + "\r\n");
          Assert.IsTrue(sock.Receive().StartsWith("535"));
-         EnsureNoPassword();
+         sock.Send("QUIT\r\n");
+         sock.Disconnect();
+         EnsureNoPassword(false);
       }
+      
+      //RvdH
+      [Test]
+      public void TestSMTPServerAuthPlainRFC4616()
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+         sock.Send("AUTH PLAIN\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("334"));
+
+         string str = GetUsername() + "\0" + GetUsername() + "\0" + GetPassword();
+
+         sock.Send(EncodeBase64(str) + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("535"));
+         sock.Send("QUIT\r\n");
+         sock.Disconnect();
+         EnsureNoPassword(false);
+      }
+
+      //RvdH
+      [Test]
+      public void TestSMTPServerAuthPlainSingleLine()
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+
+         string str = "\0" + GetUsername() + "\0" + GetPassword();
+
+         sock.Send("AUTH PLAIN " + EncodeBase64(str) + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("535"));
+         sock.Send("QUIT\r\n");
+         sock.Disconnect();
+         EnsureNoPassword(false);
+      }
+
+      //RvdH
+      [Test]
+      public void TestSMTPServerAuthPlainSingleLineRFC4616()
+      {
+         _settings.AllowSMTPAuthPlain = true;
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+
+         string str = GetUsername() + "\0" + GetUsername() + "\0" + GetPassword();
+
+         sock.Send("AUTH PLAIN " + EncodeBase64(str) + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("535"));
+         sock.Send("QUIT\r\n");
+         sock.Disconnect();
+         EnsureNoPassword(false);
+      }
+
+      //RvdH
+      [Test]
+      public void TestSMTPServerAuthPlainInvalidCommand()
+      {
+         _settings.AllowSMTPAuthPlain = false;
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+         
+         // null delimited
+         string str = GetUsername() + "\0" + GetUsername() + "\0" + GetPassword();
+         
+         // server should also strip used password when credentials are sent even when not accepted/expected
+         sock.Send(EncodeBase64(str) + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503 Bad sequence of commands"));
+         sock.Send("QUIT\r\n");
+         sock.Disconnect();
+         EnsureNoPassword(false);
+      }
+
+      //RvdH
+      [Test]
+      public void TestSMTPServerAuthPlainDisabledTabDelimitedInvalidCommand()
+      {
+         _settings.AllowSMTPAuthPlain = false;
+
+         var sock = new TcpConnection();
+         sock.Connect(25);
+         Assert.IsTrue(sock.Receive().StartsWith("220"));
+         sock.Send("EHLO test.com\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("250"));
+         sock.Send("AUTH PLAIN\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("504"));
+         
+         // tab delimited
+         string str = GetUsername() + "\t" + GetUsername() + "\t" + GetPassword();
+         
+         // server should also strip used password when credentials are sent even when disabled
+         sock.Send(EncodeBase64(str) + "\r\n");
+         Assert.IsTrue(sock.Receive().StartsWith("503 Bad sequence of commands"));
+         sock.Send("QUIT\r\n");
+         sock.Disconnect();
+         EnsureNoPassword(false);
+      }
+
    }
 }

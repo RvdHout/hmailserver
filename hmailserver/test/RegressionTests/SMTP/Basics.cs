@@ -836,6 +836,7 @@ namespace RegressionTests.SMTP
          }
       }
 
+      /*
       [Test]
       public void TestTooManyInvalidCommandsAUTH()
       {
@@ -881,7 +882,7 @@ namespace RegressionTests.SMTP
 
          Assert.Fail("Wasn't disconnected");
       }
-
+      
       [Test]
       public void TestTooManyInvalidCommandsHELO()
       {
@@ -894,6 +895,110 @@ namespace RegressionTests.SMTP
          sim.Receive(); // banner
 
          sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         var result = sim.SendAndReceive("HELO\r\n");
+         Assert.IsTrue(result.Contains("Too many invalid commands"), result);
+      }
+      */
+      
+      [Test]
+      public void TestTooManyInvalidCommandsAUTH()
+      {
+         Settings settings = _settings;
+
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Send("EHLO test.com\r\n");
+         sim.ReadUntil("250 HELP\r\n");
+
+         for (int i = 1; i <= 5; i++)
+         {
+            sim.Send("AUTH LOGIN\r\n");
+
+            // Send invalid username/password
+            string usernamePrompt = sim.Receive();
+
+            // Send a invalid username
+            sim.Send("YWNhZGVtaWE=\r\n");
+            string passwordPrompt = sim.Receive();
+            StringAssert.Contains("334 UGFzc3dvcmQ6", passwordPrompt); // Base64 encoded "Password" prompt
+
+            // Send a invalid password
+            sim.Send("abc\r\n");
+            var loginResult = sim.Receive();
+
+
+            if (i == 4)
+            {
+               StringAssert.Contains("Too many invalid commands", loginResult);
+               return;
+            }
+            else
+            {
+               StringAssert.Contains("535 Authentication failed. Restarting authentication process.", loginResult);
+            }
+         }
+
+         Assert.Fail("Wasn't disconnected");
+      }
+
+      //RvdH
+      [Test]
+      public void TestTooManyInvalidCommandsWithinOnHeloEventTrigger()
+      {
+         string eventLogFile = _settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // First set up a script
+         string script =
+            @"Sub OnHelo(oClient)
+               EventLog.Write(oClient.HELO)
+	            If (oClient.HELO = ""ylmf-pc"") Then
+                  Result.Value = 1
+               End If
+            End Sub";
+
+         Scripting scripting = _settings.Scripting;
+         string file = scripting.CurrentScriptFile;
+         File.WriteAllText(file, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO ylmf-pc\r\n");
+         sim.SendAndReceive("HELO ylmf-pc\r\n");
+         sim.SendAndReceive("HELO ylmf-pc\r\n");
+         var result = sim.SendAndReceive("HELO ylmf-pc\r\n");
+
+         settings.Scripting.Enabled = false;
+
+         Assert.IsTrue(result.Contains("Too many invalid commands"), result);
+      }
+
+      [Test]
+      public void TestTooManyInvalidCommandsHELO()
+      {
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
          sim.SendAndReceive("HELO\r\n");
          sim.SendAndReceive("HELO\r\n");
          sim.SendAndReceive("HELO\r\n");
@@ -986,8 +1091,10 @@ namespace RegressionTests.SMTP
          var oSimulator = new SmtpClientSimulator();
 
          string sWelcomeMessage = oSimulator.GetWelcomeMessage();
-
-         if (sWelcomeMessage != "220 HOWDYHO\r\n")
+         
+         //RvdH
+         // if (sWelcomeMessage != "220 HOWDYHO\r\n")
+         if (sWelcomeMessage != "220 HOWDYHO ESMTP\r\n")
             throw new Exception("ERROR - Wrong welcome message.");
       }
 

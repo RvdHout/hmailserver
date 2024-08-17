@@ -35,6 +35,47 @@ namespace RegressionTests.Infrastructure
          Assert.IsTrue(query.Length == 0);
       }
 
+
+
+      //RvdH
+      [Test]
+      [Category("TCP/IP implementation")]
+      public void NullMXRecordShouldNotResolve()
+      {
+         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
+         // If a MX record contains a Null MX no mail server should be returned
+         string actualServer = application.Utilities.GetMailServer("test@allelassers.nl");
+
+         Assert.AreEqual("", actualServer);
+      }
+
+      //RvdH
+      [Test]
+      [Category("TCP/IP implementation")]
+      public void IPAddressAsMXRecordShouldResolve()
+      {
+         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
+         // Okay, this is an invalid MX record. The MX record should always contain 
+         // a host name but in this case it appears an IP address. We'll be kind to
+         // the domain owner and still deliver the email to him.
+         var actualServer = application.Utilities.GetMailServer("test@test.allelassers.nl");
+
+         Assert.AreEqual("10.0.0.0", actualServer);
+      }
+
+      //RvdH
+      [Test]
+      [Category("TCP/IP implementation")]
+      public void CnameDomainRecordsShouldResolve()
+      {
+         Application application = SingletonProvider<TestSetup>.Instance.GetApp();
+         // If a Domain name resolves to a CNAME record, the CNAME record should be followed.
+         var actualServer = application.Utilities.GetMailServer("test@external.bankup.be");
+
+         Assert.AreEqual("10.0.0.1", actualServer);
+      }
+
+
       [Test]
       [Category("TCP/IP implementation")]
       [Description("Ensure that it's possible to re-configure which ports hMailServer should listen on")]

@@ -26,9 +26,8 @@ namespace RegressionTests.Shared
 
       }
 
-      public TcpConnection(bool useSSL) 
+      public TcpConnection(bool useSSL)
          : this(useSSL, SslProtocols.Default)
-         
       {
          _useSslSocket = useSSL;
       }

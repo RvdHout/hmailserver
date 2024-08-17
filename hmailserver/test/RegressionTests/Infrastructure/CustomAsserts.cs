@@ -83,8 +83,11 @@ namespace RegressionTests.Infrastructure
          // Check if we can launch it...
          try
          {
-            var serviceController = new ServiceController("SpamAssassinJAM");
+            //RvdH
+            //var serviceController = new ServiceController("SpamAssassinJAM");
+            var serviceController = new ServiceController("SpamAssassin");
             serviceController.Start();
+            serviceController.WaitForStatus(ServiceControllerStatus.Running);
          }
          catch (Exception)
          {

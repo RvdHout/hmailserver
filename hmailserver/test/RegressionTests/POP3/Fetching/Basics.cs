@@ -30,6 +30,7 @@ namespace RegressionTests.POP3.Fetching
          fa.ServerAddress = "localhost";
          fa.Port = port;
          fa.ProcessMIMERecipients = false;
+         fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
          fa.DaysToKeepMessages = -1;
          fa.UseAntiSpam = antiSpam;
          fa.UseAntiVirus = antiVirus;
@@ -136,6 +137,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -165,6 +167,7 @@ namespace RegressionTests.POP3.Fetching
          fa.ServerAddress = "nonexistant.example.com";
          fa.Port = 110;
          fa.ProcessMIMERecipients = false;
+         fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
          fa.Save();
 
          fa.DownloadNow();
@@ -211,6 +214,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = -1;
             fa.Save();
 
@@ -261,6 +265,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = -1;
             fa.Save();
 
@@ -318,6 +323,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = true;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -387,6 +393,7 @@ namespace RegressionTests.POP3.Fetching
                fa.ServerAddress = "localhost";
                fa.Port = port;
                fa.ProcessMIMERecipients = true;
+               fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
                fa.EnableRouteRecipients = true;
                fa.Save();
 
@@ -457,6 +464,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = true;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.EnableRouteRecipients = true;
             fa.Save();
 
@@ -512,6 +520,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = true;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -563,6 +572,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
             fa.DownloadNow();
 
@@ -620,6 +630,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = -1;
             fa.UseAntiSpam = false;
             fa.Save();
@@ -684,6 +695,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = -1;
             fa.UseAntiSpam = true;
 
@@ -742,6 +754,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = -1;
             fa.UseAntiSpam = true;
 
@@ -800,6 +813,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = 0;
             fa.UseAntiSpam = true;
             fa.Save();
@@ -856,6 +870,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = 0;
             fa.UseAntiSpam = true;
             fa.Save();
@@ -920,6 +935,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = 0;
             fa.UseAntiSpam = true;
             fa.Save();
@@ -975,6 +991,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = 0;
             fa.UseAntiSpam = true;
             fa.Save();
@@ -1004,12 +1021,13 @@ namespace RegressionTests.POP3.Fetching
 
          var messages = new List<string>();
 
-         string message = "Received: from example.com (example.com [1.2.3]) by mail.example.com\r\n" +
-                          "From: example@example.com\r\n" +
+         //RvdH
+         string message = "Received: from example.com (mail.hmailserver.com [" + TestSetup.GethMailServerCOMIPaddress() + "]) by mail.example.com\r\n" +
+                          "From: test@hmailserver.com\r\n" +
                           "To: Martin@example.com\r\n" +
                           "Subject: Test\r\n" +
                           "\r\n" +
-                          "Should be blocked by SPF.";
+                          "Should not be blocked.";
 
          messages.Add(message);
 
@@ -1030,6 +1048,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.DaysToKeepMessages = 0;
             fa.UseAntiSpam = true;
             fa.Save();
@@ -1088,6 +1107,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -1145,6 +1165,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -1194,6 +1215,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -1211,5 +1233,61 @@ namespace RegressionTests.POP3.Fetching
          }
       }
 
+      //RvdH
+      [Test]
+      public void TestSpamProtectionPreTransmissionPTRPass()
+      {
+         _application.Settings.AntiSpam.SpamMarkThreshold = 1;
+         _application.Settings.AntiSpam.SpamDeleteThreshold = 100;
+         _application.Settings.AntiSpam.AddHeaderReason = true;
+         _application.Settings.AntiSpam.AddHeaderSpam = true;
+         _application.Settings.AntiSpam.PrependSubject = true;
+         _application.Settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
+
+         _application.Settings.AntiSpam.CheckPTR = true;
+         _application.Settings.AntiSpam.CheckPTRScore = 105;
+
+         var messages = new List<string>();
+
+         string message = "Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [2a00:1450:4864:20::533]) by mail.host.edu\r\n" +
+                          "From: something@gmail.com\r\n" +
+                          "To: Martin@example.com\r\n" +
+                          "Subject: Test\r\n" +
+                          "\r\n" +
+                          "Should not be blocked.";
+
+         messages.Add(message);
+
+         int port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
+         {
+            pop3Server.StartListen();
+
+            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+            FetchAccount fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.UseSSL = false;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
+            fa.ProcessMIMERecipients = false;
+            fa.DaysToKeepMessages = 0;
+            fa.UseAntiSpam = true;
+            fa.Save();
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            fa.Delete();
+
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+         }
+      }
    }
 }

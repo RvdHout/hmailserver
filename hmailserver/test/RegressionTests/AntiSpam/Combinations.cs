@@ -43,25 +43,33 @@ namespace RegressionTests.AntiSpam
          antiSpam.CheckHostInHelo = true;
          antiSpam.CheckHostInHeloScore = 10;
 
+         // Enable SpamAssassin as above CheckHostInHelo doesn't work on localhost any longer
+         _settings.AntiSpam.SpamAssassinEnabled = true;
+         _settings.AntiSpam.SpamAssassinHost = "localhost";
+         _settings.AntiSpam.SpamAssassinPort = 783;
+         _settings.AntiSpam.SpamAssassinMergeScore = false;
+         _settings.AntiSpam.SpamAssassinScore = 10;
+
          // Enable SURBL.
          SURBLServer oSURBLServer = antiSpam.SURBLServers[0];
          oSURBLServer.Active = true;
          oSURBLServer.Score = 10;
          oSURBLServer.Save();
 
-         // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
+         // Send a messages to this account, containing both SpamAssassin and SURBL-hits.
          // We should only detect one of these two:
          var smtpClientSimulator = new SmtpClientSimulator();
 
          // Should not be possible to send this email since it's results in a spam
          // score over the delete threshold.
          smtpClientSimulator.Send("test@example.com", oAccount1.Address, "INBOX",
-                                  "Test http://surbl-org-permanent-test-point.com/ Test 2");
+                                  "Test 1 SURBL: http://surbl-org-permanent-test-point.com/\r\nTest 2SpamAssassinString: XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X");
 
          string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-1:"));
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-2:"));
+         Assert.IsFalse(message.Contains("X-hMailServer-Reason-3:"));
       }
 
       [Test]
@@ -87,14 +95,14 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Score = 5;
          oSURBLServer.Save();
 
-         // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
+         // Send a messages to this account, containing both incorrect MX records and SURBL-hits.
          // We should only detect one of these two:
          var smtpClientSimulator = new SmtpClientSimulator();
 
          // Should not be possible to send this email since it's results in a spam
          // score over the delete threshold.
          smtpClientSimulator.Send("test@domain.without.mxrecords.example.com", oAccount1.Address, "INBOX",
-                                  "This is a test message.");
+                                  "Test 1 SURBL: http://surbl-org-permanent-test-point.com/");
 
          string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
@@ -131,7 +139,7 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Score = 5;
          oSURBLServer.Save();
 
-         // Send a messages to this account, containing both incorrect MX records an SURBL-hits.
+         // Send a messages to this account, containing both incorrect MX records and SURBL-hits.
          // We should only detect one of these two:
          var smtpClientSimulator = new SmtpClientSimulator();
 

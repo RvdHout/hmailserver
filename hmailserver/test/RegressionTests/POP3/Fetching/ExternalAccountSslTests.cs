@@ -49,6 +49,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -123,6 +124,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -167,6 +169,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -228,6 +231,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -272,6 +276,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();
@@ -316,6 +321,7 @@ namespace RegressionTests.POP3.Fetching
             fa.ServerAddress = "localhost";
             fa.Port = port;
             fa.ProcessMIMERecipients = false;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
             fa.Save();
 
             fa.DownloadNow();

@@ -203,6 +203,8 @@ namespace RegressionTests.AntiSpam
       [Test]
       public void TestSANotRunning()
       {
+         CustomAsserts.AssertSpamAssassinIsRunning();
+
          StopSpamAssassin();
          
          // Send a messages to this account.
@@ -220,6 +222,8 @@ namespace RegressionTests.AntiSpam
       [Test]
       public void TestScoreMerge()
       {
+         CustomAsserts.AssertSpamAssassinIsRunning();
+
          _settings.AntiSpam.SpamAssassinMergeScore = true;
 
          // Send a messages to this account.
@@ -318,13 +322,14 @@ namespace RegressionTests.AntiSpam
          Assert.IsFalse(sMessageContents.Contains("X-Spam-Status: Yes"));
       }
 
-
       private static void StopSpamAssassin()
       {
-         // Check if we can launch it...
+         // Check if we can stop it...
          try
          {
-            var serviceController = new ServiceController("SpamAssassinJAM");
+            // RvdH
+            //var serviceController = new ServiceController("SpamAssassinJAM");
+            var serviceController = new ServiceController("SpamAssassin");
             serviceController.Stop();
          }
          catch (Exception)

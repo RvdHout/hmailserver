@@ -48,6 +48,7 @@ namespace RegressionTests.POP3
          fa.ServerAddress = "localhost";
          fa.Port = _serverPort;
          fa.ProcessMIMERecipients = false;
+         fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
          fa.DaysToKeepMessages = -1;
          fa.UseAntiSpam = false;
          fa.UseAntiVirus = false;

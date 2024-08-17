@@ -490,6 +490,7 @@ namespace RegressionTests.Infrastructure
          fa.Port = _fetchAccountPort;
          fa.ProcessMIMEDate = true;
          fa.ProcessMIMERecipients = true;
+         fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
          fa.ServerAddress = "127.0.0.1";
          fa.Username = "test";
          fa.UseSSL = false;
@@ -844,6 +845,7 @@ namespace RegressionTests.Infrastructure
          Assert.AreEqual(_fetchAccountPort, fa.Port);
          Assert.AreEqual(true, fa.ProcessMIMEDate);
          Assert.IsTrue(fa.ProcessMIMERecipients);
+         Assert.AreEqual("To,CC,X-RCPT-TO,X-Envelope-To", fa.MIMERecipientHeaders);
          Assert.AreEqual("test", fa.Username);
          Assert.IsFalse(fa.UseSSL);
          Assert.AreEqual("127.0.0.1", fa.ServerAddress);

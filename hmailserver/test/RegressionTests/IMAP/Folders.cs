@@ -489,7 +489,9 @@ namespace RegressionTests.IMAP
 
          string sWelcomeMessage = oSimulator.Connect();
          oSimulator.LogonWithLiteral(oAccount.Address, "test");
-         oSimulator.Send("A01 CREATE A\r\n");
+         //RvdH
+         //oSimulator.Send("A01 CREATE A\r\n");
+         oSimulator.Send("A03 CREATE A");
          Assert.IsFalse(oSimulator.RenameFolder("A", "INBOX"));
          Assert.IsFalse(oSimulator.RenameFolder("INBOX", "B"));
 

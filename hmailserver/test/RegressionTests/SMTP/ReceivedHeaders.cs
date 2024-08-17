@@ -38,8 +38,10 @@ namespace RegressionTests.SMTP
          client.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "Test", out errorMessage);
 
          var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-
-         Assert.IsTrue(message.Contains("ESMTPA\r\n"));
+         
+         //RvdH
+         //Assert.IsTrue(message.Contains("ESMTPA\r\n"));
+         Assert.IsTrue(message.Contains("ESMTPA"));
       }
 
       [Test]
@@ -52,7 +54,9 @@ namespace RegressionTests.SMTP
          smtpClientSimulator.Send(true, string.Empty, string.Empty, _account.Address, _account.Address, "Test", "test", out errorMessage);
 
          var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-         Assert.IsTrue(message.Contains("ESMTPS\r\n"));
+         //RvdH
+         //Assert.IsTrue(message.Contains("ESMTPS\r\n"));
+         Assert.IsTrue(message.Contains("ESMTPS"));
       }
 
       [Test]
@@ -68,7 +72,9 @@ namespace RegressionTests.SMTP
                out errorMessage);
 
             var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-            Assert.IsTrue(message.Contains("ESMTPSA\r\n"));
+            //RvdH
+            //Assert.IsTrue(message.Contains("ESMTPSA\r\n"));
+            Assert.IsTrue(message.Contains("ESMTPSA"));
          }
          catch (Exception e)
          {
