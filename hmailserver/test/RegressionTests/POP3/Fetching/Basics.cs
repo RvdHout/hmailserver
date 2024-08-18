@@ -1235,6 +1235,63 @@ namespace RegressionTests.POP3.Fetching
 
       //RvdH
       [Test]
+      public void TestSpamProtectionPreTransmissionPTRFail()
+      {
+         _application.Settings.AntiSpam.SpamMarkThreshold = 1;
+         _application.Settings.AntiSpam.SpamDeleteThreshold = 100;
+         _application.Settings.AntiSpam.AddHeaderReason = true;
+         _application.Settings.AntiSpam.AddHeaderSpam = true;
+         _application.Settings.AntiSpam.PrependSubject = true;
+         _application.Settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
+
+         _application.Settings.AntiSpam.CheckPTR = true;
+         _application.Settings.AntiSpam.CheckPTRScore = 105;
+
+         var messages = new List<string>();
+
+         string message = "Received: from static.vnpt.vn (static.vnpt.vn [14.247.252.17]) by mail.host.edu\r\n" +
+                          "From: something@static.vnpt.vn\r\n" +
+                          "To: Martin@example.com\r\n" +
+                          "Subject: Test\r\n" +
+                          "\r\n" +
+                          "Should be blocked.";
+
+         messages.Add(message);
+
+         int port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
+         {
+            pop3Server.StartListen();
+
+            Account account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@test.com", "test");
+            FetchAccount fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.UseSSL = false;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.MIMERecipientHeaders = "To,CC,X-RCPT-TO,X-Envelope-To";
+            fa.ProcessMIMERecipients = false;
+            fa.DaysToKeepMessages = 0;
+            fa.UseAntiSpam = true;
+            fa.Save();
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            fa.Delete();
+
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
+         }
+      }
+
+      //RvdH
+      [Test]
       public void TestSpamProtectionPreTransmissionPTRPass()
       {
          _application.Settings.AntiSpam.SpamMarkThreshold = 1;

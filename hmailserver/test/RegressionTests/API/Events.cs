@@ -16,7 +16,179 @@ namespace RegressionTests.API
    {
       //RvdH
       [Test]
-      public void TestOnHeloVBScript()
+      public void OnClientHELOTestClientPropertiesVBScript()
+      {
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         // set ssl & tls ports
+         RegressionTests.SSL.SslSetup.SetupSSLPorts(app);
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnHELO(oClient)" + Environment.NewLine +
+                         " EventLog.Write(\"Port: \" & oClient.Port)" + Environment.NewLine +
+                         " EventLog.Write(\"Address: \" & oClient.IPAddress)" + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username)" + Environment.NewLine +
+                         " EventLog.Write(\"SessionId: \" & oClient.SessionID)" + Environment.NewLine +
+                         " EventLog.Write(\"Authenticated: \" & oClient.Authenticated)" + Environment.NewLine +
+                         " EventLog.Write(\"Encrypted: \" & oClient.EncryptedConnection)" + Environment.NewLine +
+                         " If (oClient.EncryptedConnection) Then" + Environment.NewLine +
+                         "    EventLog.Write(\"CipherVersion: \" & oClient.CipherVersion)" + Environment.NewLine +
+                         "    EventLog.Write(\"CipherName: \" & oClient.CipherName)" + Environment.NewLine +
+                         "    EventLog.Write(\"CipherBits: \" & oClient.CipherBits)" + Environment.NewLine +
+                         " End If" + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
+         var banner = smtpClientSimulator.Receive();
+         var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+         smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
+         smtpClientSimulator.HandshakeAsClient();
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("Port: 25002"));
+         Assert.IsTrue(message.Contains("Address: 127"));
+         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsFalse(message.Contains("Authenticated: True"));
+         Assert.IsFalse(message.Contains("Encrypted: True"));
+         Assert.IsFalse(message.Contains("CipherVersion: TLSv1"));
+         StringAssert.DoesNotMatch(".*\"CipherName: [\\w\\-]+\"", message);
+         StringAssert.DoesNotMatch(".*\"CipherBits: \\d+\"", message);
+
+         // Delete the log after swithing to StartTLS
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         var capabilities2 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsFalse(capabilities2.Contains("STARTTLS"));
+
+         smtpClientSimulator.SendAndReceive("QUIT\r\n");
+
+         // Check that the message exists
+         message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("Port: 25002"));
+         Assert.IsTrue(message.Contains("Address: 127"));
+         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsTrue(message.Contains("Authenticated: False"));
+         Assert.IsTrue(message.Contains("Encrypted: True"));
+         Assert.IsTrue(message.Contains("CipherVersion: TLSv1"));
+         StringAssert.IsMatch(".*\"CipherName: [\\w\\-]+\"", message);
+         StringAssert.IsMatch(".*\"CipherBits: \\d+\"", message);
+         
+         // reset ports
+         var settings = app.Settings;
+         var ports = settings.TCPIPPorts;
+         ports.SetDefault();
+         app.Stop();
+         app.Start();
+      }
+
+      //RvdH
+      [Test]
+      public void OnClientHELOTestClientPropertiesJScript()
+      {
+         _settings.Scripting.Language = "JScript";
+         
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         // set ssl & tls ports
+         RegressionTests.SSL.SslSetup.SetupSSLPorts(app);
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "function OnHELO(oClient) {" + Environment.NewLine +
+                         " EventLog.Write('Port: ' + oClient.Port);" + Environment.NewLine +
+                         " EventLog.Write('Address: ' + oClient.IPAddress);" + Environment.NewLine +
+                         " EventLog.Write('Username: ' + oClient.Username);" + Environment.NewLine +
+                         " EventLog.Write('SessionId: ' + oClient.SessionID);" + Environment.NewLine +
+                         " EventLog.Write('Authenticated: ' + oClient.Authenticated);" + Environment.NewLine +
+                         " EventLog.Write('Encrypted: ' + oClient.EncryptedConnection);" + Environment.NewLine +
+                         " if (oClient.EncryptedConnection) {" + Environment.NewLine +
+                         "    EventLog.Write('CipherVersion: ' + oClient.CipherVersion);" + Environment.NewLine +
+                         "    EventLog.Write('CipherName: ' + oClient.CipherName);" + Environment.NewLine +
+                         "    EventLog.Write('CipherBits: ' + oClient.CipherBits);" + Environment.NewLine +
+                         " }" + Environment.NewLine +
+                         "}" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25002);
+         var banner = smtpClientSimulator.Receive();
+         var capabilities1 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsTrue(capabilities1.Contains("STARTTLS"));
+
+         smtpClientSimulator.SendAndReceive("STARTTLS\r\n");
+         smtpClientSimulator.HandshakeAsClient();
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("Port: 25002"));
+         Assert.IsTrue(message.Contains("Address: 127"));
+         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsFalse(message.Contains("Authenticated: true"));
+         Assert.IsFalse(message.Contains("Encrypted: true"));
+         Assert.IsFalse(message.Contains("CipherVersion: TLSv1"));
+         StringAssert.DoesNotMatch(".*\"CipherName: [\\w\\-]+\"", message);
+         StringAssert.DoesNotMatch(".*\"CipherBits: \\d+\"", message);
+
+         // Delete the log after swithing to StartTLS
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         var capabilities2 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
+         Assert.IsFalse(capabilities2.Contains("STARTTLS"));
+
+         smtpClientSimulator.SendAndReceive("QUIT\r\n");
+
+         // Check that the message exists
+         message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("Port: 25002"));
+         Assert.IsTrue(message.Contains("Address: 127"));
+         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsTrue(message.Contains("Authenticated: false"));
+         Assert.IsTrue(message.Contains("Encrypted: true"));
+         Assert.IsTrue(message.Contains("CipherVersion: TLSv1"));
+         StringAssert.IsMatch(".*\"CipherName: [\\w\\-]+\"", message);
+         StringAssert.IsMatch(".*\"CipherBits: \\d+\"", message);
+
+         // reset ports
+         var settings = app.Settings;
+         var ports = settings.TCPIPPorts;
+         ports.SetDefault();
+         app.Stop();
+         app.Start();
+      }
+
+      //RvdH
+      [Test]
+      public void TestOnHeloRejectVBScript()
       {
          string eventLogFile = _settings.Logging.CurrentEventLog;
          if (File.Exists(eventLogFile))
@@ -50,7 +222,46 @@ namespace RegressionTests.API
          sim.SendAndReceive("HELO ylmf-pc\r\n");
          var result = sim.SendAndReceive("HELO ylmf-pc\r\n");
 
-         settings.Scripting.Enabled = false;
+         Assert.IsTrue(result.Contains("Too many invalid commands"), result);
+      }
+
+      //RvdH
+      [Test]
+      public void TestOnHeloRejectJScript()
+      {
+         _settings.Scripting.Language = "JScript";
+         
+         string eventLogFile = _settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // First set up a script
+         string script =
+            @"function OnHELO(oClient) {
+               EventLog.Write(oClient.HELO);
+	            if (oClient.HELO === 'ylmf-pc') {
+                  Result.Value = 1;
+               }
+            }";
+
+         Scripting scripting = _settings.Scripting;
+         string file = scripting.CurrentScriptFile;
+         File.WriteAllText(file, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO ylmf-pc\r\n");
+         sim.SendAndReceive("HELO ylmf-pc\r\n");
+         sim.SendAndReceive("HELO ylmf-pc\r\n");
+         var result = sim.SendAndReceive("HELO ylmf-pc\r\n");
 
          Assert.IsTrue(result.Contains("Too many invalid commands"), result);
       }
@@ -64,10 +275,49 @@ namespace RegressionTests.API
             File.Delete(eventLogFile);
 
          // First set up a script
-         string script =
+         string script = 
             @"Sub OnRecipientUnknown(oClient, oMessage)
-                               EventLog.Write(""OnRecipientUnknown"")
-                              End Sub";
+                  EventLog.Write(""OnRecipientUnknown"")
+              End Sub";
+
+         Scripting scripting = _settings.Scripting;
+         string file = scripting.CurrentScriptFile;
+         File.WriteAllText(file, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         // Add an account and send a message to it.
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         try
+         {
+            SmtpClientSimulator.StaticSend(account1.Address, "nonexistent@test.com", "Test", "SampleBody");
+         }
+         catch (DeliveryFailedException)
+         {
+            // Expected, since recipient does not exist.
+         }
+
+         // Check that the event was triggered
+         var message = TestSetup.ReadExistingTextFile(eventLogFile);
+         Assert.IsTrue(message.Contains("OnRecipientUnknown"));
+      }
+
+      //RvdH
+      [Test]
+      public void TestOnRecipientUnknownJScript()
+      {
+         _settings.Scripting.Language = "JScript";
+
+         string eventLogFile = _settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // First set up a script
+         string script =
+            @"function OnRecipientUnknown(oClient, oMessage) {
+               EventLog.Write(""OnRecipientUnknown"");
+            }";
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
@@ -108,15 +358,14 @@ namespace RegressionTests.API
          // First set up a script
          string script =
             @"Sub OnTooManyInvalidCommands(oClient, oMessage)
-                               EventLog.Write(""OnTooManyInvalidCommands"")
-                              End Sub";
+               EventLog.Write(""OnTooManyInvalidCommands"")
+            End Sub";
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
          File.WriteAllText(file, script);
          scripting.Enabled = true;
          scripting.Reload();
-
 
          var oSimulator = new TcpConnection();
          oSimulator.Connect(25);
@@ -128,7 +377,47 @@ namespace RegressionTests.API
             oSimulator.SendAndReceive("MAIL FROM\r\n");
          }
 
-         _settings.MaxNumberOfInvalidCommands = 3;
+         // Check that the event was triggered
+         var message = TestSetup.ReadExistingTextFile(eventLogFile);
+         Assert.IsTrue(message.Contains("OnTooManyInvalidCommands"));
+      }
+
+      //RvdH
+      [Test]
+      public void TestOnTooManyInvalidCommandsJScript()
+      {
+         _settings.Scripting.Language = "JScript";
+         
+         int maxInvalid = 5;
+
+         _settings.MaxNumberOfInvalidCommands = maxInvalid;
+         _settings.DisconnectInvalidClients = true;
+
+         string eventLogFile = _settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // First set up a script
+         string script =
+            @"function OnTooManyInvalidCommands(oClient, oMessage) {
+               EventLog.Write('OnTooManyInvalidCommands');
+            }";
+
+         Scripting scripting = _settings.Scripting;
+         string file = scripting.CurrentScriptFile;
+         File.WriteAllText(file, script);
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var oSimulator = new TcpConnection();
+         oSimulator.Connect(25);
+         oSimulator.Receive(); // Welcome banner
+         var ehloResponse = oSimulator.SendAndReceive("EHLO example.com\r\n");
+
+         for (int i = 0; i < maxInvalid + 1; i++)
+         {
+            oSimulator.SendAndReceive("MAIL FROM\r\n");
+         }
 
          // Check that the event was triggered
          var message = TestSetup.ReadExistingTextFile(eventLogFile);
@@ -139,14 +428,34 @@ namespace RegressionTests.API
       public void TestOnAcceptMessageJScript()
       {
          _settings.Scripting.Language = "JScript";
+
+         string eventLogFile = _settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
          // First set up a script
+         /*
          string script =
             @"function OnAcceptMessage(oClient, oMessage)
                            {
                               oMessage.HeaderValue('X-SpamResult') = 'TEST';
                               oMessage.Save();
+                              EventLog.Write('Port: ' + oClient.Port);
+                              EventLog.Write('Address: ' + oClient.IPAddress);
+                              EventLog.Write('Username: ' + oClient.Username);
                            }";
-
+         */
+         //RvdH
+         string script = @"function OnAcceptMessage(oClient, oMessage)
+                           {
+                              oMessage.HeaderValue('X-SpamResult') = 'TEST';
+                              oMessage.Save();
+                              EventLog.Write('Port: ' + oClient.Port);
+                              EventLog.Write('Address: ' + oClient.IPAddress);
+                              EventLog.Write('Username: ' + oClient.Username);
+                              EventLog.Write('SessionId: ' + oClient.SessionID);
+                           }";
+                           
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
          File.WriteAllText(file, script);
@@ -163,6 +472,16 @@ namespace RegressionTests.API
          Assert.IsNotEmpty(message);
 
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
+
+         // Check that the message exists
+         message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("Port: 25"));
+         Assert.IsTrue(message.Contains("Address: 127"));
+         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         //RvdH
+         StringAssert.IsMatch(".*\"SessionId: \\d+\"", message);
       }
 
       [Test]
@@ -173,6 +492,7 @@ namespace RegressionTests.API
             File.Delete(eventLogFile);
 
          // First set up a script
+         /*
          string script =
             @"Sub OnAcceptMessage(oClient, oMessage)
                                oMessage.HeaderValue(""X-SpamResult"") = ""TEST""
@@ -181,6 +501,16 @@ namespace RegressionTests.API
                                EventLog.Write(""Address: "" & oClient.IPAddress)
                                EventLog.Write(""Username: "" & oClient.Username)
                               End Sub";
+         */
+         //RvdH
+         string script = @"Sub OnAcceptMessage(oClient, oMessage)
+                              oMessage.HeaderValue(""X-SpamResult"") = ""TEST""
+                              oMessage.Save()
+                              EventLog.Write(""Port: "" & oClient.Port)
+                              EventLog.Write(""Address: "" & oClient.IPAddress)
+                              EventLog.Write(""Username: "" & oClient.Username)
+                              EventLog.Write(""SessionId: "" & oClient.SessionID)
+                           End Sub";
 
          Scripting scripting = _settings.Scripting;
          string file = scripting.CurrentScriptFile;
@@ -207,8 +537,9 @@ namespace RegressionTests.API
          Assert.IsTrue(message.Contains("Port: 25"));
          Assert.IsTrue(message.Contains("Address: 127"));
          Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         //RvdH
+         StringAssert.IsMatch(".*\"SessionId: \\d+\"", message);
       }
-
 
       [Test]
       public void TestOnBackupCompletedJScript()
@@ -692,5 +1023,238 @@ namespace RegressionTests.API
             Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 3);
          }
       }
+
+      //RvdH
+      [Test]
+      public void TestOnClientLogon_POP3()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientLogon(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnClientLogin-POP3\")" + Environment.NewLine +
+                         " EventLog.Write(\"IsAuthenticated: \" & oClient.Authenticated) " + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 0);
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnClientLogin-POP3"));
+         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+      }
+
+      //RvdH
+      [Test]
+      public void TestOnClientLogon_IMAP()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientLogon(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnClientLogin-IMAP\")" + Environment.NewLine +
+                         " EventLog.Write(\"IsAuthenticated: \" & oClient.Authenticated) " + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         ImapClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 0);
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnClientLogin-IMAP"));
+         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+      }
+
+      //RvdH
+      [Test]
+      public void TestOnClientLogon_SMTP()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnClientLogon(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnClientLogin-SMTP\")" + Environment.NewLine +
+                         " EventLog.Write(\"IsAuthenticated: \" & oClient.Authenticated) " + Environment.NewLine +
+                         " EventLog.Write(\"Username: \" & oClient.Username) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+
+         string base64Username = System.Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes("test@test.com"));
+         string base64Password = System.Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes("test"));
+
+         var clientSimulator = new SmtpClientSimulator();
+         string errMsg;
+         clientSimulator.ConnectAndLogon(base64Username, base64Password, out errMsg);
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnClientLogin-SMTP"));
+         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+      }
+
+      //RvdH
+      [Test]
+      public void TestOnHelo_WithHelo()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnHelo(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnHelo\")" + Environment.NewLine +
+                         " EventLog.Write(\"HeloHost: \" & oClient.HELO) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         var clientSimulator = new SmtpClientSimulator();
+         clientSimulator.Connect();
+         clientSimulator.SendAndReceive("HELO WORLD\r\n");
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnHelo"));
+         Assert.IsTrue(message.Contains("HeloHost: WORLD"));
+      }
+
+      //RvdH
+      [Test]
+      public void TestOnHelo_WithEhlo()
+      {
+         var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
+         SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
+
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script = "Sub OnHelo(oClient) " + Environment.NewLine +
+                         " EventLog.Write(\"OnHelo\")" + Environment.NewLine +
+                         " EventLog.Write(\"HeloHost: \" & oClient.HELO) " + Environment.NewLine +
+                         "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         string eventLogFile = app.Settings.Logging.CurrentEventLog;
+         if (File.Exists(eventLogFile))
+            File.Delete(eventLogFile);
+
+         // Log on once to trigger event.
+         var clientSimulator = new SmtpClientSimulator();
+         clientSimulator.Connect();
+         clientSimulator.SendAndReceive("EHLO WORLD2\r\n");
+
+         // Check that the message exists
+         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+
+         Assert.IsNotEmpty(message);
+         Assert.IsTrue(message.Contains("OnHelo"));
+         Assert.IsTrue(message.Contains("HeloHost: WORLD2"));
+      }
+
+      //RvdH
+      [Test]
+      [Ignore("This event is not in 5.6.x")]
+      public void TestOnClientValidatePasswordVBScript_ValidPassword()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         // First verify log on works with proper password ("test") but fails with incorrect ("MySecretPassword")
+         Assert.IsTrue(ImapClientSimulator.ValidatePassword("test@test.com", "test"));
+         Assert.IsFalse(ImapClientSimulator.ValidatePassword("test@test.com", "MySecretPassword"));
+
+         // Create a script which override password validation to allow MySecretPassword as valid password
+         Application app = SingletonProvider<TestSetup>.Instance.GetApp();
+         Scripting scripting = app.Settings.Scripting;
+
+         string script =
+            @"Sub OnClientValidatePassword(account, password)  
+                 EventLog.Write(""Account: "" & account.Address)
+                 EventLog.Write(""Password: "" & password)
+                 If password = ""MySecretPassword"" Then
+                   Result.Value = 0
+                 Else
+                   Result.Value = 1
+                 End If
+              End Sub";
+
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         // Now verify we can log on using the new password
+         Assert.IsTrue(ImapClientSimulator.ValidatePassword("test@test.com", "MySecretPassword"));
+         Assert.IsFalse(ImapClientSimulator.ValidatePassword("test@test.com", "test"));
+
+         string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
+         Assert.IsTrue(eventLogText.Contains("Account: test@test.com"));
+         Assert.IsTrue(eventLogText.Contains("Password: MySecretPassword"));
+      }
+
    }
 }

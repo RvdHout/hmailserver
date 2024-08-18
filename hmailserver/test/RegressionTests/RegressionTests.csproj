@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\StatusTests.cs" />
     <Compile Include="Infrastructure\AccountProperties.cs" />
     <Compile Include="Infrastructure\AccountServices.cs" />
     <Compile Include="AntiSpam\Combinations.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Infrastructure\Persistence\AccountNameValidation.cs" />
     <Compile Include="Infrastructure\Persistence\AliasNameValidation.cs" />
     <Compile Include="Infrastructure\Persistence\DomainNameValidation.cs" />
+    <Compile Include="Shared\AWStatsLoggingTests.cs" />
     <Compile Include="Shared\DeliveryFailedException.cs" />
     <Compile Include="Shared\ServiceRestartDetector.cs" />
     <Compile Include="Shared\SslVersions.cs" />

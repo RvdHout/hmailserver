@@ -78,6 +78,11 @@ namespace RegressionTests.Shared
          return true;
       }
 
+      public void Connect()
+      {
+         _tcpConnection.Connect(_port);
+      }
+
       public void Disconnect()
       {
          _tcpConnection.Disconnect();

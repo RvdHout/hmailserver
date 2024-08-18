@@ -505,6 +505,18 @@ namespace RegressionTests.AntiSpam
          Pop3ClientSimulator.AssertMessageCount("whitelist@test.com", "test", 1);
       }
 
+      [Test]
+      public void TestSpamScoreHeadersAreNotCreatedIfNoSpamMatch()
+      {
+         // Send a messages to this account.
+         var smtpClientSimulator = new SmtpClientSimulator();
+
+         smtpClientSimulator.Send("whitelist@microsoft.com", "whitelist@test.com", "SURBL-Match",
+                                  "Message body");
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText("whitelist@test.com", "test");
+         Assert.IsFalse(message.Contains("X-hMailServer-Reason-Score"));
+      }
 
       private string[] GetAllLocalAddresses(System.Net.Sockets.AddressFamily family)
       {
