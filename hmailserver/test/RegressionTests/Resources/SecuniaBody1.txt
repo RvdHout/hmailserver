@@ -2,7 +2,7 @@
 
 The final version of the CSI 6.0 has been released. 
 Find out why this is not just another Patch Management solution:
-http://secunia.com/blog/325/
+http://www.secunia.com/blog/325/
 
 ----------------------------------------------------------------------
 

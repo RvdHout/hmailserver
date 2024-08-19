@@ -724,11 +724,13 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Active = false;
          oSURBLServer.Save();
 
-
-         Assert.IsTrue(LogHandler.DefaultLogContains("SURBL: 2 unique addresses found."));
+         //RvdH
+         Assert.IsTrue(LogHandler.DefaultLogContains("SURBL: 3 unique addresses found."));
          Assert.IsTrue(LogHandler.DefaultLogContains("SURBL: Found URL: secunia.com"));
-         Assert.IsFalse(LogHandler.DefaultLogContains("SURBL: Found URL: ecunia.com"));
+         Assert.IsTrue(LogHandler.DefaultLogContains("SURBL: Found URL: ca.secunia.com"));
+         Assert.IsFalse(LogHandler.DefaultLogContains("SURBL: Found URL: www.secunia.com"));
          Assert.IsTrue(LogHandler.DefaultLogContains("SURBL: Lookup: secunia.com.multi.surbl.org"));
+         Assert.IsTrue(LogHandler.DefaultLogContains("SURBL: Lookup: ca.secunia.com.multi.surbl.org"));
          Assert.IsTrue(LogHandler.DefaultLogContains("SURBL: Lookup: ubuntu.com.multi.surbl.org"));
       }
    }
