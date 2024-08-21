@@ -38,14 +38,24 @@ namespace RegressionTests.AntiSpam.DKIM
          return Path.Combine(sslPath, "example.key");
       }
 
-      private string SendMessage()
+      private string SendMessage(bool? sendAsAlias = false)
       {
-         return SendMessage("Test message");
+         return SendMessage("Test message", sendAsAlias);
       }
 
-      private string SendMessage(string body)
+      private string SendMessage(string body, bool? sendAsAlias = false)
       {
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         
+         // setup DomainAlias
+         if (sendAsAlias.HasValue && sendAsAlias.Value.Equals(true))
+         {
+            var domainAlias = _domain.DomainAliases.Add();
+            domainAlias.DomainID = _domain.ID;
+            domainAlias.AliasName = "test.org";
+            domainAlias.Save();
+            _domain.Save();
+         }
 
          var deliveryResults = new Dictionary<string, int>();
          deliveryResults["test@example.com"] = 250;
@@ -64,7 +74,12 @@ namespace RegressionTests.AntiSpam.DKIM
             var smtp = new SmtpClientSimulator();
             var recipients = new List<string>();
             recipients.Add("test@example.com");
-            smtp.Send("test@test.com", recipients, "Test", body);
+            
+            // send as primary or domain alias?
+            if (sendAsAlias.HasValue && sendAsAlias.Value.Equals(true))
+               smtp.Send("test@test.org", recipients, "Test", body);
+            else
+               smtp.Send("test@test.com", recipients, "Test", body);
 
             // Wait for the client to disconnect.
             server.WaitForCompletion();
@@ -177,6 +192,23 @@ namespace RegressionTests.AntiSpam.DKIM
          string result = SendMessage();
          Assert.IsTrue(result.ToLower().Contains("dkim-signature"), result);
          Assert.IsTrue(result.ToLower().Contains("d=" + _domain.Name.ToLower()), result);
+      }
+
+      //RvdH
+      [Test]
+      [Description("Test that senders domain alias is specified in the d=tag.")]
+      public void TestDomainDomainAliasInHeader()
+      {
+         // Enable DomainAlias Signing
+         _domain.DKIMSignAliasesEnabled = true;
+         _domain.DKIMPrivateKeyFile = GetPrivateKeyFile();
+         _domain.DKIMSelector = "TestSelector";
+         _domain.DKIMSignEnabled = true;
+         _domain.Save();
+
+         string result = SendMessage("Test Message", true);
+         Assert.IsTrue(result.ToLower().Contains("dkim-signature"), result);
+         Assert.IsTrue(result.ToLower().Contains("d=" + _domain.DomainAliases[0].AliasName.ToLower()), result);
       }
 
       [Test]

@@ -907,7 +907,7 @@ namespace RegressionTests.SMTP
 
          Assert.Fail("Wasn't disconnected");
       }
-      
+
       [Test]
       public void TestTooManyInvalidCommandsHELO()
       {
@@ -990,6 +990,72 @@ namespace RegressionTests.SMTP
          Assert.IsTrue(result.Contains("Too many invalid commands"), result);
       }
 
+      //RvdH
+      [Test]
+      public void TestTooManyInvalidCommandsHELOLastCommandOK()
+      {
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         var result = sim.SendAndReceive("HELO test.com\r\n");
+         Assert.IsTrue(result.Contains("250 Hello."), result);
+      }
+
+      //RvdH
+      [Test]
+      public void TestTooManyInvalidCommandsHELOSuccesfullCommandDoesNotResetCounter()
+      {
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         sim.SendAndReceive("HELO\r\n");
+         var result = sim.SendAndReceive("HELO test.com\r\n");
+         Assert.IsTrue(result.Contains("250 Hello."), result);
+
+         result = sim.SendAndReceive("HELO\r\n");
+         Assert.IsTrue(result.Contains("Too many invalid commands"), result);
+      }
+
+      //RvdH
+      [Test]
+      public void TestTooManyInvalidCommandsUnknownRcptShouldBeCounted()
+      {
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("HELO example.com\r\n");
+         sim.SendAndReceive("MAIL FROM: example@example.com\r\n");
+         var result = sim.SendAndReceive("RCPT TO: unknown@test.com\r\n");
+         Assert.IsTrue(result.Contains("550 Unknown user"), result);
+         result = sim.SendAndReceive("RCPT TO: unknown@test.com\r\n");
+         Assert.IsTrue(result.Contains("550 Unknown user"), result);
+         result = sim.SendAndReceive("RCPT TO: unknown@test.com\r\n");
+         Assert.IsTrue(result.Contains("550 Unknown user"), result);
+         result = sim.SendAndReceive("RCPT TO: unknown@test.com\r\n");
+         Assert.IsTrue(result.Contains("Too many invalid commands"), result);
+      }
+      */
+ 
       /// <summary>
       /// If an error is rejected with a temp-error (4xx), that should not be counted
       /// as an error which makes the client get disconnected.
@@ -1064,6 +1130,17 @@ namespace RegressionTests.SMTP
 
          // Lines may not end with space if they are QP-encoded.
          Assert.IsTrue(content.Contains("  Subject:=20"));
+      }
+
+      [Test]
+      public void TestTooLongEmailAddress()
+      {
+         var senderAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sender@test.com", "test");
+
+         var tooLongAddress = new string('i', 260) + "@example.com";
+         var ex = Assert.Throws<DeliveryFailedException>(() => SmtpClientSimulator.StaticSend(senderAccount.Address, tooLongAddress, "", "foobar"));
+
+         StringAssert.Contains("550 A valid address is required.", ex.Message);
       }
 
       [Test]
