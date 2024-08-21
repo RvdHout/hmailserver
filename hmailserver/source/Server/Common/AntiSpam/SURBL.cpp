@@ -67,7 +67,12 @@ namespace HM
             CleanURL_(sURL);
 
             // ignore some HTML doctype url's, which are default in for example Outlook composed mails
-            sRegex = "(?=.*)(w3\\.org|schemas\\.microsoft\\.com)";
+            // www.w3.org
+            // www.w3c.org
+            // schemas.microsoft.com
+            // fonts.googleapis.com
+            // fonts.gstatic.com
+            sRegex = "(?=.*)(w3(?:c)?\\.org|(?:schemas\\.microsoft|fonts\\.(?:googleapis|gstatic))\\.com)";
             boost::wregex expr(sRegex, boost::wregex::icase);
             if (boost::regex_match(sURL, expr))
             {
