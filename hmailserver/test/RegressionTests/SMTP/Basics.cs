@@ -1054,7 +1054,6 @@ namespace RegressionTests.SMTP
          result = sim.SendAndReceive("RCPT TO: unknown@test.com\r\n");
          Assert.IsTrue(result.Contains("Too many invalid commands"), result);
       }
-      */
  
       /// <summary>
       /// If an error is rejected with a temp-error (4xx), that should not be counted
