@@ -634,6 +634,26 @@ namespace RegressionTests.SMTP
          Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
       }
 
+      //RvdH
+      [Test]
+      [Category("SMTP")]
+      public void MailFromWithAuthParameterShouldBeAccepted()
+      {
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         var smtpClientSimulator = new TcpConnection();
+         smtpClientSimulator.Connect(25);
+
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("220"));
+         smtpClientSimulator.Send("HELO test\r\n");
+         Assert.IsTrue(smtpClientSimulator.Receive().StartsWith("250"));
+
+         // A few tests of invalid syntax.
+         Assert.IsTrue(smtpClientSimulator.SendAndReceive("MAIL FROM: <test@test.com> AUTH=<>\r\n").StartsWith("250"));
+
+         smtpClientSimulator.Disconnect();
+      }
+
       [Test]
       [Category("SMTP")]
       [Description("Confirm that it's OK to send MAIL FROM without the < and >")]
@@ -724,6 +744,23 @@ namespace RegressionTests.SMTP
 
             Assert.IsTrue(server.MessageData.Contains("Test message"));
          }
+      }
+
+      //RvdH
+      [Test]
+      [Description("Test send email from internal address to external. When not allowed, error message should state this (and not bring up authentication).")]
+      public void TestSendExternalToExternalNotPermitted_ErrorMessage()
+      {
+         SecurityRange range =
+            SingletonProvider<TestSetup>.Instance.GetApp().Settings.SecurityRanges.get_ItemByName("My computer");
+         range.AllowDeliveryFromRemoteToRemote = false;
+         range.Save();
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+         var ex = Assert.Throws<DeliveryFailedException>(() => smtpClientSimulator.Send("test@sdag532sdfagdsa12fsdafdsa1.com",
+            "test2@dummy-example.com", "Mail 1", "Test message"));
+
+         StringAssert.Contains("550 Delivery is not allowed to this address.", ex.Message, ex.Message);
       }
 
       [Test]
