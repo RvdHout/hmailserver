@@ -86,8 +86,8 @@ namespace RegressionTests.AntiSpam
          _settings.AntiSpam.PrependSubject = true;
          _settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
 
-         _settings.AntiSpam.CheckHostInHelo = true;
-         _settings.AntiSpam.CheckHostInHeloScore = 5;
+         _settings.AntiSpam.UseMXChecks = true;
+         _settings.AntiSpam.UseMXChecksScore = 5;
 
          // Enable SURBL.
          SURBLServer oSURBLServer = _settings.AntiSpam.SURBLServers[0];
@@ -95,7 +95,7 @@ namespace RegressionTests.AntiSpam
          oSURBLServer.Score = 5;
          oSURBLServer.Save();
 
-         // Send a messages to this account, containing both incorrect MX records and SURBL-hits.
+         // Send a messages to this account, containing both incorrect MX records (NullMX) and SURBL-hits.
          // We should only detect one of these two:
          var smtpClientSimulator = new SmtpClientSimulator();
 

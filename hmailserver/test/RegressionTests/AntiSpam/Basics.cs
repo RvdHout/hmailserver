@@ -244,8 +244,9 @@ namespace RegressionTests.AntiSpam
 
          smtpClientSimulator.Send("test@microsoft.com", "missingmxrecords@test.com", "INBOX", "This is a test message.");
 
+         //RvdH
          CustomAsserts.Throws<DeliveryFailedException>(
-            () => smtpClientSimulator.Send("test@domain_without_mx_records421dfsam430sasd.com", oAccount1.Address, "INBOX",
+            () => smtpClientSimulator.Send("test@domain-without-mx-records421dfsam430sasd.com", oAccount1.Address, "INBOX",
                "This is a test message."));
 
          _antiSpam.UseMXChecks = false;
