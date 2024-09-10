@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.71"
+#define HMAILSERVER_BUILD "2641.72"
 
 /*
 [list=1]
@@ -78,5 +78,6 @@
 [*]Experimental: improved SA winsock 2 error fix, ignore all boost::asio::error::eof errors which probably are related to IMAP FETCH HM5136 errors
 [*]Fix: Improved AUTH PLAIN base64 encoded username and password masking, retain client command format for troubleshooting purposes
 [*]Fix: SURBL modification to check full URI's and trimmed down URI's
+[*]Fix: Strip possible spaces in DKIM 'p' parameter, there shouldn't be any spaces but it's a common mistake so we act lenient and strip any spaces found
 [/list]
 */

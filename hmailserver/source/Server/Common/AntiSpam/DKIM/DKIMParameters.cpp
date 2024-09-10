@@ -33,7 +33,9 @@ namespace HM
          paramName.Trim();
          paramValue.Trim();
 
-         if (paramName == "h")
+         if (paramName == "p")
+            paramValue.Replace(" ", "");
+         else if (paramName == "h")
             paramValue.Replace(" ", "");
          else if (paramName == "i")
             paramValue = DKIMQPDecode_(paramValue);
