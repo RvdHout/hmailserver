@@ -50,12 +50,14 @@ namespace HM
          bool GetShowBodyHeader() { return show_body_header_; }
          bool GetShowBodyText() { return show_body_text_; }
          bool GetShowBodyFull() { return show_body_full_; }
+         bool GetShowMime() { return show_mime_; }
 
          void SetShowBodyHeaderFields(bool bValue) {show_body_header_fields_ = bValue; }
          void SetShowBodyHeaderFieldsNOT(bool bValue) {show_body_header_fields_NOT = bValue; }
          void SetShowBodyHeader(bool bValue) {show_body_header_ = bValue; }
          void SetShowBodyText(bool bValue) {show_body_text_ = bValue; }
          void SetShowBodyFull(bool bValue) {show_body_full_ = bValue; }
+         void SetShowMime(bool bValue) { show_mime_ = bValue; }
          
          std::vector<String> &GetHeaderFields() { return header_fields_; }
          std::vector<String> &GetHeaderFieldsNOT() { return header_fields_NOT; }
@@ -78,6 +80,7 @@ namespace HM
          bool show_body_header_;
          bool show_body_text_;
          bool show_body_full_;
+         bool show_mime_;
 
          std::vector<String> header_fields_;
          std::vector<String> header_fields_NOT;
