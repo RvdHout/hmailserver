@@ -55,6 +55,10 @@ namespace HM
 
       bool bAddSpace = false;
 
+      // We cannot send " or \ directly in the response.
+      // We must escape those:
+      IMAPFolder::EscapeFolderString(sFolderName);
+
       sResponse = "* STATUS \"" + sFolderName + "\" ";
 
       sResponse+= "(";
