@@ -432,10 +432,14 @@ namespace HM
          int iSize = FileUtilities::FileSize(messageFileName);
          GetBytesToSend_(iSize, oPart, iByteStart, iByteCount);
 
-         BYTE *pBuf = new BYTE[iByteCount];
-         FileUtilities::ReadFileToBuf(messageFileName, pBuf, iByteStart, iByteCount);
-         pOutBuf->Add(pBuf, iByteCount);
-         delete [] pBuf;
+         //read message, but only if we need any data request
+         if (iByteCount > 0)
+         {
+            BYTE *pBuf = new BYTE[iByteCount];
+            FileUtilities::ReadFileToBuf(messageFileName, pBuf, iByteStart, iByteCount);
+            pOutBuf->Add(pBuf, iByteCount);
+            delete[] pBuf;
+         }
       }
       else if (oPart.GetShowBodyHeaderFields())
       {
