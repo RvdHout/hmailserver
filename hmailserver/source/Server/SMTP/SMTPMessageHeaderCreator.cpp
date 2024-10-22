@@ -147,6 +147,8 @@ namespace HM
 
          if (MessageUtilities::RetrieveOriginatingAddress(receivedHeaders, hostName, address))
             return SPF::Instance()->ReceivedSPFHeader(sHostname, address.ToString(), envelopeFrom_, hostName, sReceivedSPFHeader);
+         else
+            return sReceivedSPFHeader;
       }
 
       return SPF::Instance()->ReceivedSPFHeader(sHostname, address.ToString(), envelopeFrom_, helo_host_, sReceivedSPFHeader);
