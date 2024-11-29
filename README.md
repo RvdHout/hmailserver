@@ -42,14 +42,15 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 
 Building OpenSSL
 ----------------
-1. Download OpenSSL 1.1.1* from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>.
-   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-1.1.1l
+1. Download OpenSSL 3.0.15 from http://www.openssl.org/source/ and put it into %hMailServerLibs%\<OpenSSL-Version>.
+   You should now have a folder named %hMailServerLibs%\<OpenSSL-version>, for example C:\Dev\hMailLibs\openssl-3.0.15
 2. Start a VS2013 x86 Native Tools Command Prompt
 3. Change dir to %hMailServerLibs%\<OpenSSL-version>.
 3. Run the following commands:
 
    <pre>
-   Perl Configure no-asm VC-WIN32 --prefix=%cd%\out32 --openssldir=%cd%\out32 -D_WIN32_WINNT=0x501 enable-weak-ssl-ciphers
+   SET CFLAGS=-DOPENSSL_TLS_SECURITY_LEVEL=0
+   Perl Configure no-asm VC-WIN32 --prefix=%cd%\out32 --openssldir=%cd%\out32 -D_WIN32_WINNT=0x501 --api=1.1.1 no-deprecated
    nmake install_sw
    </pre>
 
