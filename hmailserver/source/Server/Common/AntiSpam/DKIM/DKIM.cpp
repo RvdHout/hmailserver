@@ -84,6 +84,8 @@ namespace HM
 
       // Addition for CSA-Compliant Mail Headers
       recommendedHeaderFields_.push_back("X-CSA-Complaints");
+      // Addition for Google Feedback Loop
+      recommendedHeaderFields_.push_back("Feedback-ID");
    }
 
    // helper.
@@ -122,7 +124,7 @@ namespace HM
 
       if (FileUtilities::FileSize(fileName) > MaxFileSize)
       {
-         LOG_DEBUG("Message was not signed using DKIM since the size of the message exceeded the max DKIM size of 10MB.");
+         LOG_DEBUG("Message was not signed using DKIM since the size of the message exceeded the max DKIM size of 50MB.");
          return true;
       }
 

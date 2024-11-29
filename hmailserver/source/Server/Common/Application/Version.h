@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.74"
+#define HMAILSERVER_BUILD "2641.75"
 
 /*
 [list=1]
@@ -81,5 +81,6 @@
 [*]Fix: Strip possible spaces in DKIM 'p' parameter, there shouldn't be any spaces but it's a common mistake so we act lenient and strip any spaces found
 [*]Fix: Apple IOS related HM5136, HM4208 and subsequent "OutOfMemoryHandler" errors [url=https://github.com/hmailserver/hmailserver/issues/475]issue 475[/url], credits to Rado https://github.com/hunterius-prime
 [*]Fix: IMAP FETCH on message/rfc822 MIME part [url=https://github.com/hmailserver/hmailserver/issues/459]issue 459[/url], credits to Rado https://github.com/hunterius-prime
+[*]Added: Google Feedback Loop header Feedback-ID in DKIM signing [url=https://github.com/hmailserver/hmailserver/pull/492]pull 492[/url]
 [/list]
 */
