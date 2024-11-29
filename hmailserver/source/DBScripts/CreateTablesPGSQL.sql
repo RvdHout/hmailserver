@@ -325,9 +325,10 @@ create table hm_fetchaccounts
 	faprocessmimerecipients smallint not null,
 	faprocessmimedate smallint not null,
 	faconnectionsecurity smallint not null,
-    fauseantispam smallint not null,
-    fauseantivirus smallint not null,
-    faenablerouterecipients smallint not null
+	fauseantispam smallint not null,
+	fauseantivirus smallint not null,
+	faenablerouterecipients smallint not null,
+   famimerecipientheaders varchar(255) not null DEFAULT 'To,CC,X-RCPT-TO,X-Envelope-To'   
 );
 
 create table hm_fetchaccounts_uids
@@ -382,7 +383,7 @@ create table hm_rule_actions
 	actionscriptfunction varchar(255) not null,
 	actionheader varchar(80) not null,
 	actionvalue varchar(255) not null,
-    actionrouteid int not null
+	actionrouteid int not null
 );
 
 CREATE INDEX idx_rules_actions ON hm_rule_actions (actionruleid);
@@ -792,4 +793,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5605);
+insert into hm_dbversion values (5606);
