@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.75"
+#define HMAILSERVER_BUILD "2641.77"
 
 /*
 [list=1]
@@ -82,5 +82,7 @@
 [*]Fix: Apple IOS related HM5136, HM4208 and subsequent "OutOfMemoryHandler" errors [url=https://github.com/hmailserver/hmailserver/issues/475]issue 475[/url], credits to Rado https://github.com/hunterius-prime
 [*]Fix: IMAP FETCH on message/rfc822 MIME part [url=https://github.com/hmailserver/hmailserver/issues/459]issue 459[/url], credits to Rado https://github.com/hunterius-prime
 [*]Added: Google Feedback Loop header Feedback-ID in DKIM signing [url=https://github.com/hmailserver/hmailserver/pull/492]pull 492[/url]
+[*]Fix: Better log on forward failures, https://github.com/maxsnts/hmailserver/commit/7e285c3a1abe11ad4605aa71bd64176989c473a1
+[*]Fix: Spam scoring/marking/count inconsistencies
 [/list]
 */

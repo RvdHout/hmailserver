@@ -17,6 +17,7 @@
 #include "../SMTP/RecipientParser.h"
 #include "../Common/Util/Parsing/AddressListParser.h"
 #include "../Common/Util/Utilities.h"
+#include "../Common/Util/ServerStatus.h"
 #include "../Common/Mime/Mime.h"
 #include "../Common/BO/FetchAccountUID.h"
 #include "../Common/BO/MessageRecipients.h"
@@ -834,36 +835,31 @@ namespace HM
 
       setSpamTestResults.insert(setResult.begin(), setResult.end());
 
-      int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(setSpamTestResults);
-
-      if (iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold())
-      {
-         FileUtilities::DeleteFile(fileName);
-         return false;
-      }
-      else if (iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold())
-      {
-         std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
-         if (messageData)
-            messageData->Write(fileName);
-      }
-
       // Run PostTransmissionTests. These consists of more heavy stuff such as SURBL and SpamAssassin-
-      setResult = 
-            SpamProtection::Instance()->RunPostTransmissionTests(senderAddress, ipAddress, ipAddress, current_message_);
+      setResult =
+         SpamProtection::Instance()->RunPostTransmissionTests(senderAddress, ipAddress, ipAddress, current_message_);
 
       setSpamTestResults.insert(setResult.begin(), setResult.end());
 
-      iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(setSpamTestResults);
+      int iTotalSpamScore = SpamProtection::CalculateTotalSpamScore(setSpamTestResults);
+      int iSpamDeleteThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold();
+      int iSpamMarkThreshold = Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold();
 
-      if (iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamDeleteThreshold())
+      if (iSpamDeleteThreshold > 0 && iTotalSpamScore >= iSpamDeleteThreshold)
       {
+         // Increase the spam-counter
+         ServerStatus::Instance()->OnSpamMessageDetected();
+
          FileUtilities::DeleteFile(fileName);
          return false;
       }
-      else if (iTotalSpamScore >= Configuration::Instance()->GetAntiSpamConfiguration().GetSpamMarkThreshold())
+      
+      if (iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold)
       {
          std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
+
+         // Increase the spam-counter
+         ServerStatus::Instance()->OnSpamMessageDetected();
 
          if (messageData)
             messageData->Write(fileName);

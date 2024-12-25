@@ -42,7 +42,9 @@ namespace HM
 
       if (!pRecipientAccount->GetForwardAddress().CompareNoCase(pRecipientAccount->GetAddress()))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4334, "SMTPDeliverer::_ApplyForwarding", "Could not forward message since target address as same as account address.");
+         String sLogMessage = Formatter::Format("Could not forward message since target address as same as account address. {0}", pRecipientAccount->GetAddress());
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4334, "SMTPDeliverer::_ApplyForwarding", sLogMessage);
+
          return true;
       }
 
@@ -74,7 +76,8 @@ namespace HM
       // false = check only loop counter not AutoSubmitted header because forward not rule
       if (!RuleApplier::IsGeneratedResponseAllowed(pOldMsgData, false))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4333, "SMTPDeliverer::_ApplyForwarding", "Could not forward message. Maximum forward loop count reached.");
+         String sLogMessage = Formatter::Format("Could not forward message. Maximum forward loop count reached. {0}", pRecipientAccount->GetAddress());
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4333, "SMTPDeliverer::_ApplyForwarding", sLogMessage);
 
          return true;
       }
@@ -109,7 +112,8 @@ namespace HM
          // Delete the file since the message cannot be delivered.
          FileUtilities::DeleteFile(newFileName);
          
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4332, "SMTPDeliverer::_ApplyForwarding", "Could not forward message; no recipients.");
+         String sLogMessage = Formatter::Format("Could not forward message from {0} to empty recipient", pRecipientAccount->GetAddress());
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4332, "SMTPDeliverer::_ApplyForwarding", sLogMessage);
 
          return true;
       }
