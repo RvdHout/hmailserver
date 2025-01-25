@@ -91,6 +91,11 @@ namespace hMailServer.Administrator.Dialogs
                textHeaderValue.Text = _ruleAction.Value;
             else if (_ruleAction.Type == eRuleActionType.eRABindToAddress)
                textBindToAddress.Text = _ruleAction.Value;
+
+            if (_ruleAction.Type == eRuleActionType.eRAForwardEmail)
+                checkForwardAbortSpamFlagged.Checked = _ruleAction.AbortSpamFlagged;
+            else if (_ruleAction.Type == eRuleActionType.eRAReply)
+                checkReplyAbortSpamFlagged.Checked = _ruleAction.AbortSpamFlagged;
      
             comboAction.SelectedValue = _ruleAction.Type;
             comboRouteName.SelectedValue = _ruleAction.RouteID;
@@ -119,6 +124,12 @@ namespace hMailServer.Administrator.Dialogs
                     break;
                 case eRuleActionType.eRABindToAddress:
                     _ruleAction.Value = textBindToAddress.Text;
+                    break;
+                case eRuleActionType.eRAForwardEmail:
+                    _ruleAction.AbortSpamFlagged = checkForwardAbortSpamFlagged.Checked;
+                    break;
+                case eRuleActionType.eRAReply:
+                    _ruleAction.AbortSpamFlagged = checkReplyAbortSpamFlagged.Checked;
                     break;
             }
 

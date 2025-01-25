@@ -80,31 +80,33 @@ select hm_drop_table('hm_logon_failures');
 
 create table hm_accounts 
 (
-	accountid bigserial not null primary key,
-	accountdomainid int not null ,
-	accountadminlevel smallint not null ,
-	accountaddress varchar (255) not null unique,
-	accountpassword varchar (255) not null ,
-	accountactive smallint not null,
-	accountisad smallint not null, 
-	accountaddomain varchar (255) not null ,
-	accountadusername varchar (255) not null,
-	accountmaxsize int not null,
-	accountvacationmessageon smallint  not null,
-	accountvacationmessage text not null,
-	accountvacationsubject varchar (200) not null,
-	accountpwencryption smallint  not null,
-	accountforwardenabled smallint  not null,
-	accountforwardaddress varchar (255) not null,
-	accountforwardkeeporiginal smallint  not null,
-	accountenablesignature smallint  not null,
-	accountsignatureplaintext text not null,
-	accountsignaturehtml text not null,
-	accountlastlogontime timestamp not null,
-	accountvacationexpires smallint  not null,
-	accountvacationexpiredate timestamp not null,
-	accountpersonfirstname varchar(60) not null,
-	accountpersonlastname varchar(60) not null	
+   accountid bigserial not null primary key,
+   accountdomainid int not null,
+   accountadminlevel smallint not null,
+   accountaddress varchar (255) not null unique,
+   accountpassword varchar (255) not null,
+   accountactive smallint not null,
+   accountisad smallint not null, 
+   accountaddomain varchar (255) not null,
+   accountadusername varchar (255) not null,
+   accountmaxsize int not null,
+   accountvacationmessageon smallint  not null,
+   accountvacationmessage text not null,
+   accountvacationsubject varchar (200) not null,
+   accountpwencryption smallint  not null,
+   accountforwardenabled smallint  not null,
+   accountforwardaddress varchar (255) not null,
+   accountforwardkeeporiginal smallint  not null,
+   accountenablesignature smallint  not null,
+   accountsignatureplaintext text not null,
+   accountsignaturehtml text not null,
+   accountlastlogontime timestamp not null,
+   accountvacationexpires smallint  not null,
+   accountvacationexpiredate timestamp not null,
+   accountpersonfirstname varchar(60) not null,
+   accountpersonlastname varchar(60) not null,
+   accountvacationabortspamflagged smallint not null,
+   accountforwardabortspamflagged smallint not null
 );
 
 
@@ -113,38 +115,38 @@ CREATE INDEX idx_hm_accounts ON hm_accounts (accountaddress);
 
 create table hm_aliases 
 (
-	aliasid bigserial not null primary key,
-	aliasdomainid int not null ,
-	aliasname varchar (255) not null unique,
-	aliasvalue varchar (255) not null ,
-	aliasactive smallint not null
+   aliasid bigserial not null primary key,
+   aliasdomainid int not null,
+   aliasname varchar (255) not null unique,
+   aliasvalue varchar (255) not null,
+   aliasactive smallint not null
 );
 
 CREATE INDEX idx_hm_aliases ON hm_aliases (aliasdomainid, aliasname);
 
 create table hm_domains 
 (
-	domainid bigserial not null primary key,
-	domainname varchar (80) not null unique,
-	domainactive smallint not null,
-	domainpostmaster varchar (80) not null,
-	domainmaxsize integer not null,
-	domainaddomain varchar(255) not null,
-	domainmaxmessagesize integer not null,
-	domainuseplusaddressing  smallint not null,
-	domainplusaddressingchar varchar(1) not null,
-	domainantispamoptions integer not null,
-	domainenablesignature smallint not null,
-	domainsignaturemethod smallint not null,
-	domainsignatureplaintext text not null,
-	domainsignaturehtml text not null,
-	domainaddsignaturestoreplies smallint not null,
-	domainaddsignaturestolocalemail smallint not null,
-	domainmaxnoofaccounts int not null,
-	domainmaxnoofaliases int not null,
-	domainmaxnoofdistributionlists int not null,
-	domainlimitationsenabled int not null,
-	domainmaxaccountsize int not null,
+   domainid bigserial not null primary key,
+   domainname varchar (80) not null unique,
+   domainactive smallint not null,
+   domainpostmaster varchar (80) not null,
+   domainmaxsize integer not null,
+   domainaddomain varchar(255) not null,
+   domainmaxmessagesize integer not null,
+   domainuseplusaddressing  smallint not null,
+   domainplusaddressingchar varchar(1) not null,
+   domainantispamoptions integer not null,
+   domainenablesignature smallint not null,
+   domainsignaturemethod smallint not null,
+   domainsignatureplaintext text not null,
+   domainsignaturehtml text not null,
+   domainaddsignaturestoreplies smallint not null,
+   domainaddsignaturestolocalemail smallint not null,
+   domainmaxnoofaccounts int not null,
+   domainmaxnoofaliases int not null,
+   domainmaxnoofdistributionlists int not null,
+   domainlimitationsenabled int not null,
+   domainmaxaccountsize int not null,
    domaindkimselector varchar(255) not null,
    domaindkimprivatekeyfile varchar(255) not null   
 );
@@ -153,25 +155,25 @@ CREATE INDEX idx_hm_domains ON hm_domains (domainname);
 
 create table hm_domain_aliases
 (
-	daid bigserial not null primary key,
-	dadomainid int not null ,
-	daalias varchar(255) not null
+   daid bigserial not null primary key,
+   dadomainid int not null,
+   daalias varchar(255) not null
 );
 
 create table hm_messages 
 (
-	messageid bigserial not null primary key,
-	messageaccountid int not null ,
-	messagefolderid integer not null DEFAULT 0,
-	messagefilename varchar (255) not null ,
-	messagetype smallint not null ,
-	messagefrom varchar (255) not null ,
-	messagesize bigint not null,
-	messagecurnooftries int not null,
-	messagenexttrytime timestamp not null,
-	messageflags smallint not null,
-	messagecreatetime timestamp not null,
-	messagelocked smallint not null,
+   messageid bigserial not null primary key,
+   messageaccountid int not null,
+   messagefolderid integer not null default 0,
+   messagefilename varchar (255) not null,
+   messagetype smallint not null,
+   messagefrom varchar (255) not null,
+   messagesize bigint not null,
+   messagecurnooftries int not null,
+   messagenexttrytime timestamp not null,
+   messageflags smallint not null,
+   messagecreatetime timestamp not null,
+   messagelocked smallint not null,
    messageuid bigint not null
 );
 
@@ -198,10 +200,10 @@ CREATE INDEX idx_message_metadata_id ON hm_message_metadata (metadata_messageid)
 
 create table hm_settings 
 (
-	settingid bigserial not null primary key,
-	settingname varchar (30) not null unique,
-	settingstring varchar (4000) not null ,
-	settinginteger int not null
+   settingid bigserial not null primary key,
+   settingname varchar (30) not null unique,
+   settingstring varchar (4000) not null,
+   settinginteger int not null
 );
 
 create table hm_dbversion 
@@ -211,46 +213,46 @@ create table hm_dbversion
 
 create table hm_distributionlists 
 (
-	distributionlistid bigserial not null primary key,
-	distributionlistdomainid int not null,
-	distributionlistaddress varchar(255) not null unique,
-	distributionlistenabled smallint not null,
+   distributionlistid bigserial not null primary key,
+   distributionlistdomainid int not null,
+   distributionlistaddress varchar(255) not null unique,
+   distributionlistenabled smallint not null,
    distributionlistrequireauth smallint not null,
-	distributionlistrequireaddress varchar(255) not null,
-	distributionlistmode smallint not null
+   distributionlistrequireaddress varchar(255) not null,
+   distributionlistmode smallint not null
 );
 
 CREATE INDEX idx_hm_distributionlists ON hm_distributionlists (distributionlistdomainid);
 
 create table hm_distributionlistsrecipients
 (
-	distributionlistrecipientid bigserial not null primary key,
-	distributionlistrecipientlistid int not null,
-	distributionlistrecipientaddress varchar(255)	
+   distributionlistrecipientid bigserial not null primary key,
+   distributionlistrecipientlistid int not null,
+   distributionlistrecipientaddress varchar(255)	
 );
 
 CREATE INDEX idx_hm_distributionlistsrecipients ON hm_distributionlistsrecipients (distributionlistrecipientlistid);
 
 create table hm_messagerecipients
 (
-	recipientid bigserial not null primary key,
- 	recipientmessageid bigint not null,
-	recipientaddress varchar(255) not null,
-	recipientlocalaccountid int not null,
-	recipientoriginaladdress varchar(255) not null
+   recipientid bigserial not null primary key,
+   recipientmessageid bigint not null,
+   recipientaddress varchar(255) not null,
+   recipientlocalaccountid int not null,
+   recipientoriginaladdress varchar(255) not null
 );
 
 CREATE INDEX idx_hm_messagerecipients ON hm_messagerecipients (recipientmessageid);
 
 create table hm_imapfolders 
 (
-  folderid bigserial not null primary key,
-  folderaccountid int NOT NULL,
-  folderparentid int NOT NULL,
-  foldername varchar(255) NOT NULL,
-  folderissubscribed smallint NOT NULL,
-  foldercreationtime timestamp NOT NULL,
-  foldercurrentuid bigint NOT NULL
+   folderid bigserial not null primary key,
+   folderaccountid int not null,
+   folderparentid int not null,
+   foldername varchar(255) not null,
+   folderissubscribed smallint not null,
+   foldercreationtime timestamp not null,
+   foldercurrentuid bigint not null
 );
 
 CREATE INDEX idx_hm_imapfolders ON hm_imapfolders (folderaccountid);
@@ -259,234 +261,232 @@ CREATE UNIQUE INDEX idx_hm_imapfolders_unique ON hm_imapfolders (folderaccountid
 
 create table hm_routes
 (
-  routeid bigserial not null primary key,
-  routedomainname varchar(255) NOT NULL,
-  routedescription varchar(255) NOT NULL,
-  routetargetsmthost varchar(255) NOT NULL,
-  routetargetsmtport int NOT NULL,
-  routenooftries int NOT NULL,
-  routeminutesbetweentry int NOT NULL,
-  routealladdresses smallint NOT NULL,
-  routeuseauthentication smallint NOT NULL,
-  routeauthenticationusername varchar(255) NOT NULL,
-  routeauthenticationpassword varchar(255) NOT NULL,
-  routetreatsecurityaslocal smallint NOT NULL,
-  routeconnectionsecurity smallint not null,
-  routetreatsenderaslocaldomain smallint NOT NULL
+   routeid bigserial not null primary key,
+   routedomainname varchar(255) not null,
+   routedescription varchar(255) not null,
+   routetargetsmthost varchar(255) not null,
+   routetargetsmtport int not null,
+   routenooftries int not null,
+   routeminutesbetweentry int not null,
+   routealladdresses smallint not null,
+   routeuseauthentication smallint not null,
+   routeauthenticationusername varchar(255) not null,
+   routeauthenticationpassword varchar(255) not null,
+   routetreatsecurityaslocal smallint not null,
+   routeconnectionsecurity smallint not null,
+   routetreatsenderaslocaldomain smallint not null
 );
 
 create table hm_routeaddresses
 (
-  routeaddressid bigserial not null primary key,
-  routeaddressrouteid int NOT NULL,
-  routeaddressaddress varchar(255) NOT NULL
+   routeaddressid bigserial not null primary key,
+   routeaddressrouteid int not null,
+   routeaddressaddress varchar(255) not null
 );
 
 create table hm_securityranges
 (
-	rangeid bigserial not null primary key,
+   rangeid bigserial not null primary key,
    rangepriorityid int not null,
-	rangelowerip1 bigint not null,
+   rangelowerip1 bigint not null,
    rangelowerip2 bigint null,
-	rangeupperip1 bigint not null,
+   rangeupperip1 bigint not null,
    rangeupperip2 bigint null,
-	rangeoptions int not null,
-	rangename varchar(100) not null unique,
+   rangeoptions int not null,
+   rangename varchar(100) not null unique,
    rangeexpires smallint not null,
-	rangeexpirestime timestamp not null
-   
+   rangeexpirestime timestamp not null   
 );
 
 create table hm_dnsbl
 (
-	sblid bigserial not null primary key,
-	sblactive smallint not null,
-	sbldnshost varchar(255) not null,
-	sblresult varchar(255) not null,
-	sblrejectmessage varchar(255) not null,
-	sblscore int not null
+   sblid bigserial not null primary key,
+   sblactive smallint not null,
+   sbldnshost varchar(255) not null,
+   sblresult varchar(255) not null,
+   sblrejectmessage varchar(255) not null,
+   sblscore int not null
 );
 
 create table hm_fetchaccounts
 (	
-	faid bigserial not null primary key,
-	faactive smallint not null,
-	faaccountid int not null,
-	faaccountname varchar (255) not null,
-	faserveraddress varchar (255) not null,
-	faserverport int not null,
-	faservertype smallint not null,
-	fausername varchar (255) not null,
-	fapassword varchar (255) not null,
-	faminutes int not null,
-	fanexttry timestamp not null,
-	fadaystokeep int not null,
-	falocked smallint not null,
-	faprocessmimerecipients smallint not null,
-	faprocessmimedate smallint not null,
-	faconnectionsecurity smallint not null,
-	fauseantispam smallint not null,
-	fauseantivirus smallint not null,
-	faenablerouterecipients smallint not null,
-   famimerecipientheaders varchar(255) not null DEFAULT 'To,CC,X-RCPT-TO,X-Envelope-To'   
+   faid bigserial not null primary key,
+   faactive smallint not null,
+   faaccountid int not null,
+   faaccountname varchar (255) not null,
+   faserveraddress varchar (255) not null,
+   faserverport int not null,
+   faservertype smallint not null,
+   fausername varchar (255) not null,
+   fapassword varchar (255) not null,
+   faminutes int not null,
+   fanexttry timestamp not null,
+   fadaystokeep int not null,
+   falocked smallint not null,
+   faprocessmimerecipients smallint not null,
+   faprocessmimedate smallint not null,
+   faconnectionsecurity smallint not null,
+   fauseantispam smallint not null,
+   fauseantivirus smallint not null,
+   faenablerouterecipients smallint not null,
+   famimerecipientheaders varchar(255) not null default 'To,CC,X-RCPT-TO,X-Envelope-To'   
 );
 
 create table hm_fetchaccounts_uids
 (
-	uidid bigserial not null primary key,
-	uidfaid int not null,
-	uidvalue varchar(255) not null,
-	uidtime timestamp not null
+   uidid bigserial not null primary key,
+   uidfaid int not null,
+   uidvalue varchar(255) not null,
+   uidtime timestamp not null
 );
 
 CREATE INDEX idx_hm_fetchaccounts_uids ON hm_fetchaccounts_uids (uidfaid);
 
 create table hm_rules
 (
-	ruleid bigserial not null primary key,
-	ruleaccountid int not null,
-	rulename varchar(100) not null,
-	ruleactive smallint not null,
-	ruleuseand smallint not null,
-	rulesortorder int not null
+   ruleid bigserial not null primary key,
+   ruleaccountid int not null,
+   rulename varchar(100) not null,
+   ruleactive smallint not null,
+   ruleuseand smallint not null,
+   rulesortorder int not null
 );
 
 CREATE INDEX idx_rules ON hm_rules (ruleaccountid);
 
 create table hm_rule_criterias
 (
-	criteriaid bigserial not null primary key,
-	criteriaruleid int not null,
-	criteriausepredefined smallint not null,
-	criteriapredefinedfield smallint not null,
-	criteriaheadername varchar(255) not null,
-	criteriamatchtype smallint not null,
-	criteriamatchvalue varchar(255) not null
-	
+   criteriaid bigserial not null primary key,
+   criteriaruleid int not null,
+   criteriausepredefined smallint not null,
+   criteriapredefinedfield smallint not null,
+   criteriaheadername varchar(255) not null,
+   criteriamatchtype smallint not null,
+   criteriamatchvalue varchar(255) not null	
 );
 
 CREATE INDEX idx_rules_criterias ON hm_rule_criterias (criteriaruleid);
 
 create table hm_rule_actions
 (
-	actionid bigserial not null primary key,
-	actionruleid int not null,
-	actiontype smallint not null,
-	actionimapfolder varchar(255) not null,
-	actionsubject varchar(255) not null,
-	actionfromname varchar(255) not null,
-	actionfromaddress varchar(255) not null,
-	actionto varchar(255) not null,
-	actionbody text not null,
-	actionfilename varchar(255) not null,
-	actionsortorder int not null,
-	actionscriptfunction varchar(255) not null,
-	actionheader varchar(80) not null,
-	actionvalue varchar(255) not null,
-	actionrouteid int not null
+   actionid bigserial not null primary key,
+   actionruleid int not null,
+   actiontype smallint not null,
+   actionimapfolder varchar(255) not null,
+   actionsubject varchar(255) not null,
+   actionfromname varchar(255) not null,
+   actionfromaddress varchar(255) not null,
+   actionto varchar(255) not null,
+   actionbody text not null,
+   actionfilename varchar(255) not null,
+   actionsortorder int not null,
+   actionscriptfunction varchar(255) not null,
+   actionheader varchar(80) not null,
+   actionvalue varchar(255) not null,
+   actionrouteid int not null,
+   actionabortspamflagged smallint not null
 );
 
 CREATE INDEX idx_rules_actions ON hm_rule_actions (actionruleid);
 
 create table hm_surblservers
 (
-	surblid bigserial not null primary key,
-	surblactive smallint not null,
-	surblhost varchar(255) not null,
-	surblrejectmessage varchar(255) not null,
-	surblscore int not null
+   surblid bigserial not null primary key,
+   surblactive smallint not null,
+   surblhost varchar(255) not null,
+   surblrejectmessage varchar(255) not null,
+   surblscore int not null
 );
 
 create table hm_greylisting_triplets
 (
-	glid bigserial not null primary key,
-	glcreatetime timestamp not null,
-	glblockendtime timestamp not null,
-	gldeletetime timestamp not null,
-	glipaddress1 bigint not null,
+   glid bigserial not null primary key,
+   glcreatetime timestamp not null,
+   glblockendtime timestamp not null,
+   gldeletetime timestamp not null,
+   glipaddress1 bigint not null,
    glipaddress2 bigint null,
-	glsenderaddress varchar(200) not null,
-	glrecipientaddress varchar(200) not null,
-	glblockedcount int not null,
-	glpassedcount int not null
+   glsenderaddress varchar(200) not null,
+   glrecipientaddress varchar(200) not null,
+   glblockedcount int not null,
+   glpassedcount int not null
 );
 
 CREATE INDEX idx_greylisting_triplets ON hm_greylisting_triplets (glipaddress1, glipaddress2, glsenderaddress, glrecipientaddress);
 
 create table hm_greylisting_whiteaddresses
 (
-	whiteid bigserial not null primary key,
-	whiteipaddress varchar(255) not null,
-	whiteipdescription varchar(255) not null
+   whiteid bigserial not null primary key,
+   whiteipaddress varchar(255) not null,
+   whiteipdescription varchar(255) not null
 );
 
 create table hm_blocked_attachments
 (
-	baid bigserial not null primary key,
-	bawildcard varchar(255) not null,
-	badescription varchar(255) not null
+   baid bigserial not null primary key,
+   bawildcard varchar(255) not null,
+   badescription varchar(255) not null
 );
 
 create table hm_servermessages
 (
-	smid bigserial not null primary key,
-	smname varchar(255) not null,
-	smtext text not null
+   smid bigserial not null primary key,
+   smname varchar(255) not null,
+   smtext text not null
 );
 
 create table hm_tcpipports
 (
-	portid bigserial not null primary key,
-	portprotocol smallint not null,
-	portnumber int not null,
-	portaddress1 bigint not null,
-    portaddress2 bigint null,
-	portconnectionsecurity smallint not null,
-	portsslcertificateid bigint not null
+   portid bigserial not null primary key,
+   portprotocol smallint not null,
+   portnumber int not null,
+   portaddress1 bigint not null,
+   portaddress2 bigint null,
+   portconnectionsecurity smallint not null,
+   portsslcertificateid bigint not null
 );
 
 create table hm_whitelist
 (
-	whiteid bigserial not null primary key,
-	whiteloweripaddress1 bigint not null,
+   whiteid bigserial not null primary key,
+   whiteloweripaddress1 bigint not null,
    whiteloweripaddress2 bigint null,
-	whiteupperipaddress1 bigint not null,
+   whiteupperipaddress1 bigint not null,
    whiteupperipaddress2 bigint null,
-	whiteemailaddress varchar(255) not null,
-	whitedescription varchar(255) not null
+   whiteemailaddress varchar(255) not null,
+   whitedescription varchar(255) not null
 );
 
 create table hm_sslcertificates
 (
-	sslcertificateid bigserial not null primary key,
-	sslcertificatename varchar(255) not null,
-	sslcertificatefile varchar(255) not null,
-	sslprivatekeyfile varchar(255) not null
-	
+   sslcertificateid bigserial not null primary key,
+   sslcertificatename varchar(255) not null,
+   sslcertificatefile varchar(255) not null,
+   sslprivatekeyfile varchar(255) not null	
 );
 
 create table hm_groups
 (
-	groupid bigserial not null primary key,
-    groupname varchar(255)
+   groupid bigserial not null primary key,
+   groupname varchar(255)
 );
 
 create table hm_group_members
 (
-	memberid bigserial not null primary key,
-	membergroupid bigint not null,
-	memberaccountid bigint not null
+   memberid bigserial not null primary key,
+   membergroupid bigint not null,
+   memberaccountid bigint not null
 );
 
 create table hm_acl
 (
-	aclid bigserial not null primary key,
+   aclid bigserial not null primary key,
    aclsharefolderid bigint not null,
-	aclpermissiontype smallint not null,
-	aclpermissiongroupid bigint not null,
-	aclpermissionaccountid bigint not null,
-	aclvalue bigint not null,
-	unique(aclsharefolderid, aclpermissiontype, aclpermissiongroupid, aclpermissionaccountid)
+   aclpermissiontype smallint not null,
+   aclpermissiongroupid bigint not null,
+   aclpermissionaccountid bigint not null,
+   aclvalue bigint not null,
+   unique(aclsharefolderid, aclpermissiontype, aclpermissiongroupid, aclpermissionaccountid)
 );
 
 create table hm_incoming_relays
@@ -793,4 +793,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5606);
+insert into hm_dbversion values (5609);

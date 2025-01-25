@@ -33,7 +33,9 @@ namespace HM
       password_encryption_(0),
       admin_level_(NormalUser),
       enable_signature_(false),
-      vacation_expires_(false)
+      vacation_expires_(false),
+      vacation_abort_spam_flagged_(false),
+      forward_abort_spam_flagged_(false)
    {
       Initialize();
    }
@@ -50,7 +52,9 @@ namespace HM
       password_encryption_(0),
       admin_level_(adminLevel),
       enable_signature_(false),
-      vacation_expires_(false)
+      vacation_expires_(false),
+      vacation_abort_spam_flagged_(false),
+      forward_abort_spam_flagged_(false)
    {
       Initialize();
    }

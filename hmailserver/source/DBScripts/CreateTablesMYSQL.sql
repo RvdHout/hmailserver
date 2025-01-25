@@ -68,98 +68,100 @@ drop table if exists hm_logon_failures;
 
 create table hm_accounts 
 (
-	accountid int auto_increment not null, primary key(`accountid`), unique(`accountid`),
-	accountdomainid int not null ,
-	accountadminlevel tinyint not null ,
-	accountaddress varchar (255) not null, unique(`accountaddress`),
-	accountpassword varchar (255) not null ,
-	accountactive tinyint not null,
-	accountisad tinyint not null, 
-	accountaddomain varchar (255) not null ,
-	accountadusername varchar (255) not null,
-	accountmaxsize int not null,
-	accountvacationmessageon tinyint not null,
-	accountvacationmessage text not null,
-	accountvacationsubject varchar (200) not null,
-	accountpwencryption tinyint not null,
-	accountforwardenabled tinyint not null,
-	accountforwardaddress varchar (255) not null,
-	accountforwardkeeporiginal tinyint not null,
-	accountenablesignature tinyint not null,
-	accountsignatureplaintext text not null,
-	accountsignaturehtml text not null,
-	accountlastlogontime datetime not null,
-	accountvacationexpires tinyint unsigned not null,
-	accountvacationexpiredate datetime not null,
-	accountpersonfirstname varchar(60) not null,
-	accountpersonlastname varchar(60) not null
-) DEFAULT CHARSET=utf8;
+   accountid int auto_increment not null, primary key(`accountid`), unique(`accountid`),
+   accountdomainid int not null,
+   accountadminlevel tinyint not null,
+   accountaddress varchar (255) not null, unique(`accountaddress`),
+   accountpassword varchar (255) not null,
+   accountactive tinyint not null,
+   accountisad tinyint not null, 
+   accountaddomain varchar (255) not null,
+   accountadusername varchar (255) not null,
+   accountmaxsize int not null,
+   accountvacationmessageon tinyint not null,
+   accountvacationmessage text not null,
+   accountvacationsubject varchar (200) not null,
+   accountpwencryption tinyint not null,
+   accountforwardenabled tinyint not null,
+   accountforwardaddress varchar (255) not null,
+   accountforwardkeeporiginal tinyint not null,
+   accountenablesignature tinyint not null,
+   accountsignatureplaintext text not null,
+   accountsignaturehtml text not null,
+   accountlastlogontime datetime not null,
+   accountvacationexpires tinyint unsigned not null,
+   accountvacationexpiredate datetime not null,
+   accountpersonfirstname varchar(60) not null,
+   accountpersonlastname varchar(60) not null,
+   accountvacationabortspamflagged tinyint not null,
+   accountforwardabortspamflagged tinyint not null
+) default CHARSET=utf8;
 
 CREATE INDEX idx_hm_accounts ON hm_accounts (accountaddress);
 
 create table hm_aliases 
 (
-	aliasid int auto_increment not null, primary key(`aliasid`), unique(`aliasid`),
-	aliasdomainid int not null ,
-	aliasname varchar (255) not null, unique(`aliasname`),
-	aliasvalue varchar (255) not null ,
-	aliasactive tinyint not null
-) DEFAULT CHARSET=utf8;
+   aliasid int auto_increment not null, primary key(`aliasid`), unique(`aliasid`),
+   aliasdomainid int not null,
+   aliasname varchar (255) not null, unique(`aliasname`),
+   aliasvalue varchar (255) not null,
+   aliasactive tinyint not null
+) default CHARSET=utf8;
 
 CREATE INDEX idx_hm_aliases ON hm_aliases (aliasdomainid, aliasname);
 
 create table hm_domains 
 (
-	domainid int auto_increment not null, primary key(`domainid`), unique(`domainid`),
-	domainname varchar (80) not null, unique(`domainname`),
-	domainactive tinyint not null,
-	domainpostmaster varchar (80) not null,
-	domainmaxsize integer not null,
-	domainaddomain varchar(255) not null,
-	domainmaxmessagesize integer not null,
-	domainuseplusaddressing  tinyint not null,
-	domainplusaddressingchar varchar(1) not null,
-	domainantispamoptions integer not null,
-	domainenablesignature tinyint not null,
-	domainsignaturemethod tinyint not null,
-	domainsignatureplaintext text not null,
-	domainsignaturehtml text not null,
-	domainaddsignaturestoreplies tinyint not null,
-	domainaddsignaturestolocalemail tinyint not null,
-	domainmaxnoofaccounts int not null,
-	domainmaxnoofaliases int not null,
-	domainmaxnoofdistributionlists int not null,
-	domainlimitationsenabled int not null,
-	domainmaxaccountsize int not null,
+   domainid int auto_increment not null, primary key(`domainid`), unique(`domainid`),
+   domainname varchar (80) not null, unique(`domainname`),
+   domainactive tinyint not null,
+   domainpostmaster varchar (80) not null,
+   domainmaxsize integer not null,
+   domainaddomain varchar(255) not null,
+   domainmaxmessagesize integer not null,
+   domainuseplusaddressing  tinyint not null,
+   domainplusaddressingchar varchar(1) not null,
+   domainantispamoptions integer not null,
+   domainenablesignature tinyint not null,
+   domainsignaturemethod tinyint not null,
+   domainsignatureplaintext text not null,
+   domainsignaturehtml text not null,
+   domainaddsignaturestoreplies tinyint not null,
+   domainaddsignaturestolocalemail tinyint not null,
+   domainmaxnoofaccounts int not null,
+   domainmaxnoofaliases int not null,
+   domainmaxnoofdistributionlists int not null,
+   domainlimitationsenabled int not null,
+   domainmaxaccountsize int not null,
    domaindkimselector varchar(255) not null,
    domaindkimprivatekeyfile varchar(255) not null
-)  DEFAULT CHARSET=utf8;
+)  default CHARSET=utf8;
 
 CREATE INDEX idx_hm_domains ON hm_domains (domainname);
 
 create table hm_domain_aliases
 (
-	daid int auto_increment not null, primary key(`daid`), unique(`daid`),
-	dadomainid int not null ,
-	daalias varchar(255) not null
-)  DEFAULT CHARSET=utf8;
+   daid int auto_increment not null, primary key(`daid`), unique(`daid`),
+   dadomainid int not null,
+   daalias varchar(255) not null
+)  default CHARSET=utf8;
 
 create table hm_messages 
 (
-	messageid bigint auto_increment not null, primary key(`messageid`), unique(`messageid`),
-	messageaccountid int not null ,
-	messagefolderid integer not null DEFAULT 0,
-	messagefilename varchar (255) not null ,
-	messagetype tinyint not null ,
-	messagefrom varchar (255) not null ,
-	messagesize bigint not null,
-	messagecurnooftries int not null,
-	messagenexttrytime datetime not null,
-	messageflags tinyint not null,
-	messagecreatetime datetime not null,
-	messagelocked tinyint not null,
+   messageid bigint auto_increment not null, primary key(`messageid`), unique(`messageid`),
+   messageaccountid int not null,
+   messagefolderid integer not null default 0,
+   messagefilename varchar (255) not null,
+   messagetype tinyint not null,
+   messagefrom varchar (255) not null,
+   messagesize bigint not null,
+   messagecurnooftries int not null,
+   messagenexttrytime datetime not null,
+   messageflags tinyint unsigned not null,
+   messagecreatetime datetime not null,
+   messagelocked tinyint not null,
    messageuid bigint not null
-) DEFAULT CHARSET=utf8;
+) default CHARSET=utf8;
 
 CREATE INDEX idx_hm_messages ON hm_messages (messageaccountid, messagefolderid);
 
@@ -176,7 +178,7 @@ create table hm_message_metadata
    metadata_subject varchar(255) not null,
    metadata_to varchar(255) not null,
    metadata_cc varchar(255) not null
-) DEFAULT CHARSET=utf8;
+) default CHARSET=utf8;
 
 CREATE UNIQUE INDEX idx_message_metadata_unique ON hm_message_metadata (`metadata_accountid`,  `metadata_folderid`, `metadata_messageid`);
 
@@ -184,60 +186,60 @@ CREATE INDEX idx_message_metadata_id ON hm_message_metadata (`metadata_messageid
 
 create table hm_settings 
 (
-	settingid int auto_increment not null, primary key(`settingid`), unique(`settingid`),
-	settingname varchar (30) not null, unique(`settingname`),
-	settingstring varchar (4000) not null ,
-	settinginteger int not null
-) DEFAULT CHARSET=utf8;
+   settingid int auto_increment not null, primary key(`settingid`), unique(`settingid`),
+   settingname varchar (30) not null, unique(`settingname`),
+   settingstring varchar (4000) not null,
+   settinginteger int not null
+) default CHARSET=utf8;
 
 create table hm_dbversion 
 (
 	value int not null
-) DEFAULT CHARSET=utf8;
+) default CHARSET=utf8;
 
 create table hm_distributionlists 
 (
-	distributionlistid int auto_increment not null, primary key(distributionlistid), unique(distributionlistid),
-	distributionlistdomainid int not null,
-	distributionlistaddress varchar(255) not null,unique(`distributionlistaddress`),
-	distributionlistenabled tinyint not null,
+   distributionlistid int auto_increment not null, primary key(distributionlistid), unique(distributionlistid),
+   distributionlistdomainid int not null,
+   distributionlistaddress varchar(255) not null,unique(`distributionlistaddress`),
+   distributionlistenabled tinyint not null,
    distributionlistrequireauth tinyint not null,
-	distributionlistrequireaddress varchar(255) not null,
-	distributionlistmode tinyint not null
-) DEFAULT CHARSET=utf8;
+   distributionlistrequireaddress varchar(255) not null,
+   distributionlistmode tinyint not null
+) default CHARSET=utf8;
 
 CREATE INDEX idx_hm_distributionlists ON hm_distributionlists (distributionlistdomainid);
 
 create table hm_distributionlistsrecipients
 (
-	distributionlistrecipientid int auto_increment not null, primary key(distributionlistrecipientid), unique(distributionlistrecipientid),
-	distributionlistrecipientlistid int not null,
-	distributionlistrecipientaddress varchar(255)	
+   distributionlistrecipientid int auto_increment not null, primary key(distributionlistrecipientid), unique(distributionlistrecipientid),
+   distributionlistrecipientlistid int not null,
+   distributionlistrecipientaddress varchar(255)	
 );
 
 CREATE INDEX idx_hm_distributionlistsrecipients ON hm_distributionlistsrecipients (distributionlistrecipientlistid);
 
 create table hm_messagerecipients
 (
-	recipientid bigint auto_increment not null, primary key(recipientid), unique(recipientid),
- 	recipientmessageid bigint not null,
-	recipientaddress varchar(255) not null,
-	recipientlocalaccountid int not null,
-	recipientoriginaladdress varchar(255) not null
-) DEFAULT CHARSET=utf8;
+   recipientid bigint auto_increment not null, primary key(recipientid), unique(recipientid),
+   recipientmessageid bigint not null,
+   recipientaddress varchar(255) not null,
+   recipientlocalaccountid int not null,
+   recipientoriginaladdress varchar(255) not null
+) default CHARSET=utf8;
 
 CREATE INDEX idx_hm_messagerecipients ON hm_messagerecipients (recipientmessageid);
 
 create table hm_imapfolders 
 (
-  folderid int NOT NULL auto_increment, primary key(folderid), unique(folderid),
-  folderaccountid int unsigned NOT NULL,
-  folderparentid int NOT NULL,
-  foldername varchar(255) NOT NULL,
-  folderissubscribed tinyint unsigned NOT NULL,
-  foldercreationtime datetime NOT NULL,
-  foldercurrentuid bigint NOT NULL
-) DEFAULT CHARSET=utf8;
+   folderid int not null auto_increment, primary key(folderid), unique(folderid),
+   folderaccountid int unsigned not null,
+   folderparentid int not null,
+   foldername varchar(255) not null,
+   folderissubscribed tinyint unsigned not null,
+   foldercreationtime datetime not null,
+   foldercurrentuid bigint not null
+) default CHARSET=utf8;
 
 CREATE INDEX idx_hm_imapfolders ON hm_imapfolders (folderaccountid);
 
@@ -245,234 +247,233 @@ CREATE UNIQUE INDEX idx_hm_imapfolders_unique ON hm_imapfolders (`folderaccounti
 
 create table hm_routes
 (
-  routeid int NOT NULL auto_increment, primary key(routeid), unique(routeid),
-  routedomainname varchar(255) NOT NULL,
-  routedescription varchar(255) NOT NULL,
-  routetargetsmthost varchar(255) NOT NULL,
-  routetargetsmtport int NOT NULL,
-  routenooftries int NOT NULL,
-  routeminutesbetweentry int NOT NULL,
-  routealladdresses tinyint unsigned NOT NULL,
-  routeuseauthentication tinyint NOT NULL,
-  routeauthenticationusername varchar(255) NOT NULL,
-  routeauthenticationpassword varchar(255) NOT NULL,
-  routetreatsecurityaslocal tinyint NOT NULL,
-  routeconnectionsecurity tinyint not null,
-  routetreatsenderaslocaldomain tinyint NOT NULL
-) DEFAULT CHARSET=utf8;
+   routeid int not null auto_increment, primary key(routeid), unique(routeid),
+   routedomainname varchar(255) not null,
+   routedescription varchar(255) not null,
+   routetargetsmthost varchar(255) not null,
+   routetargetsmtport int not null,
+   routenooftries int not null,
+   routeminutesbetweentry int not null,
+   routealladdresses tinyint unsigned not null,
+   routeuseauthentication tinyint not null,
+   routeauthenticationusername varchar(255) not null,
+   routeauthenticationpassword varchar(255) not null,
+   routetreatsecurityaslocal tinyint not null,
+   routeconnectionsecurity tinyint not null,
+   routetreatsenderaslocaldomain tinyint not null
+) default CHARSET=utf8;
 
 create table hm_routeaddresses
 (
-  routeaddressid mediumint(9) NOT NULL auto_increment, primary key(routeaddressid), unique(routeaddressid),
-  routeaddressrouteid int NOT NULL,
-  routeaddressaddress varchar(255) NOT NULL
-) DEFAULT CHARSET=utf8;
+   routeaddressid mediumint(9) not null auto_increment, primary key(routeaddressid), unique(routeaddressid),
+   routeaddressrouteid int not null,
+   routeaddressaddress varchar(255) not null
+) default CHARSET=utf8;
 
 create table hm_securityranges
 (
-	rangeid int auto_increment not null, primary key(rangeid), unique(rangeid),
+   rangeid int auto_increment not null, primary key(rangeid), unique(rangeid),
    rangepriorityid int not null,
-	rangelowerip1 bigint not null,
+   rangelowerip1 bigint not null,
    rangelowerip2 bigint null,
-	rangeupperip1 bigint not null,
+   rangeupperip1 bigint not null,
    rangeupperip2 bigint null,
-	rangeoptions int not null,
-	rangename varchar (100) not null, unique(`rangename`),
+   rangeoptions int not null,
+   rangename varchar (100) not null, unique(`rangename`),
    rangeexpires tinyint not null,
-	rangeexpirestime datetime not null
-) DEFAULT CHARSET=utf8;
+   rangeexpirestime datetime not null
+) default CHARSET=utf8;
 
 create table hm_dnsbl
 (
-	sblid int auto_increment not null, primary key(sblid), unique(sblid),
-	sblactive tinyint not null,
-	sbldnshost varchar(255) not null,
-	sblresult varchar(255) not null,
-	sblrejectmessage varchar(255) not null,
-	sblscore int not null
-) DEFAULT CHARSET=utf8;
+   sblid int auto_increment not null, primary key(sblid), unique(sblid),
+   sblactive tinyint not null,
+   sbldnshost varchar(255) not null,
+   sblresult varchar(255) not null,
+   sblrejectmessage varchar(255) not null,
+   sblscore int not null
+) default CHARSET=utf8;
 
 create table hm_fetchaccounts
 (	
-	faid int auto_increment not null, primary key(`faid`), unique(`faid`),
-	faactive tinyint not null,
-	faaccountid int not null,
-	faaccountname varchar (255) not null,
-	faserveraddress varchar (255) not null,
-	faserverport int not null,
-	faservertype tinyint not null,
-	fausername varchar (255) not null,
-	fapassword varchar (255) not null,
-	faminutes int not null,
-	fanexttry datetime not null,
-	fadaystokeep int not null,
-	falocked tinyint not null,
-	faprocessmimerecipients tinyint not null,
-	faprocessmimedate tinyint not null,
-	faconnectionsecurity tinyint not null,
+   faid int auto_increment not null, primary key(`faid`), unique(`faid`),
+   faactive tinyint not null,
+   faaccountid int not null,
+   faaccountname varchar (255) not null,
+   faserveraddress varchar (255) not null,
+   faserverport int not null,
+   faservertype tinyint not null,
+   fausername varchar (255) not null,
+   fapassword varchar (255) not null,
+   faminutes int not null,
+   fanexttry datetime not null,
+   fadaystokeep int not null,
+   falocked tinyint not null,
+   faprocessmimerecipients tinyint not null,
+   faprocessmimedate tinyint not null,
+   faconnectionsecurity tinyint not null,
    fauseantispam tinyint not null,
    fauseantivirus tinyint not null,
    faenablerouterecipients tinyint not null,
-   famimerecipientheaders varchar(255) not null DEFAULT 'To,CC,X-RCPT-TO,X-Envelope-To'
-) DEFAULT CHARSET=utf8;
+   famimerecipientheaders varchar(255) not null default 'To,CC,X-RCPT-TO,X-Envelope-To'
+) default CHARSET=utf8;
 
 create table hm_fetchaccounts_uids
 (
-	uidid int auto_increment not null, primary key(`uidid`), unique(`uidid`),
-	uidfaid int not null,
-	uidvalue varchar(255) not null,
-	uidtime datetime not null
-) DEFAULT CHARSET=utf8;
+   uidid int auto_increment not null, primary key(`uidid`), unique(`uidid`),
+   uidfaid int not null,
+   uidvalue varchar(255) not null,
+   uidtime datetime not null
+) default CHARSET=utf8;
 
 CREATE INDEX idx_hm_fetchaccounts_uids ON hm_fetchaccounts_uids (uidfaid);
 
 create table hm_rules
 (
-	ruleid int auto_increment not null, primary key(`ruleid`), unique(`ruleid`),
-	ruleaccountid int not null,
-	rulename varchar(100) not null,
-	ruleactive tinyint not null,
-	ruleuseand tinyint not null,
-	rulesortorder int not null
-) DEFAULT CHARSET=utf8;
+   ruleid int auto_increment not null, primary key(`ruleid`), unique(`ruleid`),
+   ruleaccountid int not null,
+   rulename varchar(100) not null,
+   ruleactive tinyint not null,
+   ruleuseand tinyint not null,
+   rulesortorder int not null
+) default CHARSET=utf8;
 
 CREATE INDEX idx_rules ON hm_rules (ruleaccountid);
 
 create table hm_rule_criterias
 (
-	criteriaid int auto_increment not null, primary key(`criteriaid`), unique(`criteriaid`),
-	criteriaruleid int not null,
-	criteriausepredefined tinyint not null,
-	criteriapredefinedfield tinyint not null,
-	criteriaheadername varchar(255) not null,
-	criteriamatchtype tinyint not null,
-	criteriamatchvalue varchar(255) not null
-	
-) DEFAULT CHARSET=utf8;
+   criteriaid int auto_increment not null, primary key(`criteriaid`), unique(`criteriaid`),
+   criteriaruleid int not null,
+   criteriausepredefined tinyint not null,
+   criteriapredefinedfield tinyint not null,
+   criteriaheadername varchar(255) not null,
+   criteriamatchtype tinyint not null,
+   criteriamatchvalue varchar(255) not null	
+) default CHARSET=utf8;
 
 CREATE INDEX idx_rules_criterias ON hm_rule_criterias (criteriaruleid);
 
 create table hm_rule_actions
 (
-	actionid int auto_increment not null, primary key(`actionid`), unique(`actionid`),
-	actionruleid int not null,
-	actiontype tinyint not null,
-	actionimapfolder varchar(255) not null,
-	actionsubject varchar(255) not null,
-	actionfromname varchar(255) not null,
-	actionfromaddress varchar(255) not null,
-	actionto varchar(255) not null,
-	actionbody text not null,
-	actionfilename varchar(255) not null,
-	actionsortorder int not null,
-	actionscriptfunction varchar(255) not null,
-	actionheader varchar(80) not null,
-	actionvalue varchar(255) not null,
-    actionrouteid int not null
-) DEFAULT CHARSET=utf8;
+   actionid int auto_increment not null, primary key(`actionid`), unique(`actionid`),
+   actionruleid int not null,
+   actiontype tinyint not null,
+   actionimapfolder varchar(255) not null,
+   actionsubject varchar(255) not null,
+   actionfromname varchar(255) not null,
+   actionfromaddress varchar(255) not null,
+   actionto varchar(255) not null,
+   actionbody text not null,
+   actionfilename varchar(255) not null,
+   actionsortorder int not null,
+   actionscriptfunction varchar(255) not null,
+   actionheader varchar(80) not null,
+   actionvalue varchar(255) not null,
+   actionrouteid int not null,
+   actionabortspamflagged tinyint not null
+) default CHARSET=utf8;
 
 CREATE INDEX idx_rules_actions ON hm_rule_actions (actionruleid);
 
 create table hm_surblservers
 (
-	surblid int auto_increment not null, primary key(surblid), unique(surblid),
-	surblactive tinyint not null,
-	surblhost varchar(255) not null,
-	surblrejectmessage varchar(255) not null,
-	surblscore int not null
-) DEFAULT CHARSET=utf8;
+   surblid int auto_increment not null, primary key(surblid), unique(surblid),
+   surblactive tinyint not null,
+   surblhost varchar(255) not null,
+   surblrejectmessage varchar(255) not null,
+   surblscore int not null
+) default CHARSET=utf8;
 
 create table hm_greylisting_triplets
 (
-	glid bigint auto_increment not null, primary key(glid), unique(glid),
-	glcreatetime datetime not null,
-	glblockendtime datetime not null,
-	gldeletetime datetime not null,
-	glipaddress1 bigint not null,
+   glid bigint auto_increment not null, primary key(glid), unique(glid),
+   glcreatetime datetime not null,
+   glblockendtime datetime not null,
+   gldeletetime datetime not null,
+   glipaddress1 bigint not null,
    glipaddress2 bigint null,
-	glsenderaddress varchar(255) not null,
-	glrecipientaddress varchar(255) not null,
-	glblockedcount int not null,
-	glpassedcount int not null
-) DEFAULT CHARSET=utf8;
+   glsenderaddress varchar(255) not null,
+   glrecipientaddress varchar(255) not null,
+   glblockedcount int not null,
+   glpassedcount int not null
+) default CHARSET=utf8;
 
 CREATE INDEX idx_greylisting_triplets ON hm_greylisting_triplets (glipaddress1, glipaddress2, glsenderaddress(40), glrecipientaddress(40));
 
 create table hm_greylisting_whiteaddresses
 (
-	whiteid bigint auto_increment not null, primary key(whiteid), unique(whiteid),
-	whiteipaddress varchar(255) not null,
-	whiteipdescription varchar(255) not null
-) DEFAULT CHARSET=utf8;
+   whiteid bigint auto_increment not null, primary key(whiteid), unique(whiteid),
+   whiteipaddress varchar(255) not null,
+   whiteipdescription varchar(255) not null
+) default CHARSET=utf8;
 
 create table hm_blocked_attachments
 (
-	baid bigint auto_increment not null, primary key(baid), unique(baid),
-	bawildcard varchar(255) not null,
-	badescription varchar(255) not null
-) DEFAULT CHARSET=utf8;
+   baid bigint auto_increment not null, primary key(baid), unique(baid),
+   bawildcard varchar(255) not null,
+   badescription varchar(255) not null
+) default CHARSET=utf8;
 
 create table hm_servermessages
 (
-	smid int auto_increment not null, primary key(smid), unique(smid), 
-	smname varchar(255) not null,
-	smtext text not null
-) DEFAULT CHARSET=utf8;
+   smid int auto_increment not null, primary key(smid), unique(smid), 
+   smname varchar(255) not null,
+   smtext text not null
+) default CHARSET=utf8;
 
 create table hm_tcpipports
 (
-	portid bigint auto_increment not null, primary key(portid), unique(portid),
-	portprotocol tinyint not null,
-	portnumber int not null,
-	portaddress1 bigint not null,
+   portid bigint auto_increment not null, primary key(portid), unique(portid),
+   portprotocol tinyint not null,
+   portnumber int not null,
+   portaddress1 bigint not null,
    portaddress2 bigint null,
-	portconnectionsecurity tinyint not null,
-	portsslcertificateid bigint not null
-) DEFAULT CHARSET=utf8;
+   portconnectionsecurity tinyint not null,
+   portsslcertificateid bigint not null
+) default CHARSET=utf8;
 
 create table hm_whitelist
 (
-	whiteid bigint auto_increment not null, primary key(whiteid), unique(whiteid),
-	whiteloweripaddress1 bigint not null,
+   whiteid bigint auto_increment not null, primary key(whiteid), unique(whiteid),
+   whiteloweripaddress1 bigint not null,
    whiteloweripaddress2 bigint null,
-	whiteupperipaddress1 bigint not null,
+   whiteupperipaddress1 bigint not null,
    whiteupperipaddress2 bigint null,
-	whiteemailaddress varchar(255) not null,
-	whitedescription varchar(255) not null
-) DEFAULT CHARSET=utf8;
+   whiteemailaddress varchar(255) not null,
+   whitedescription varchar(255) not null
+) default CHARSET=utf8;
 
 create table hm_sslcertificates
 (
-	sslcertificateid bigint auto_increment not null, primary key(sslcertificateid), unique(sslcertificateid),
-	sslcertificatename varchar(255) not null,
-	sslcertificatefile varchar(255) not null,
-	sslprivatekeyfile varchar(255) not null
-	
-) DEFAULT CHARSET=utf8;
+   sslcertificateid bigint auto_increment not null, primary key(sslcertificateid), unique(sslcertificateid),
+   sslcertificatename varchar(255) not null,
+   sslcertificatefile varchar(255) not null,
+   sslprivatekeyfile varchar(255) not null
+) default CHARSET=utf8;
 
 create table hm_groups
 (
-	groupid bigint auto_increment not null, primary key(`groupid`), unique(`groupid`),
-    groupname varchar(255)
-) DEFAULT CHARSET=utf8;
+   groupid bigint auto_increment not null, primary key(`groupid`), unique(`groupid`),
+   groupname varchar(255)
+) default CHARSET=utf8;
 
 create table hm_group_members
 (
-	memberid bigint auto_increment not null, primary key(`memberid`), unique(`memberid`),
-	membergroupid bigint not null,
-	memberaccountid bigint not null
-) DEFAULT CHARSET=utf8;
+   memberid bigint auto_increment not null, primary key(`memberid`), unique(`memberid`),
+   membergroupid bigint not null,
+   memberaccountid bigint not null
+) default CHARSET=utf8;
 
 create table hm_acl
 (
-	aclid bigint auto_increment not null, primary key(`aclid`), unique(`aclid`),
+   aclid bigint auto_increment not null, primary key(`aclid`), unique(`aclid`),
    aclsharefolderid bigint not null,
-	aclpermissiontype tinyint not null,
-	aclpermissiongroupid bigint not null,
-	aclpermissionaccountid bigint not null,
-	aclvalue bigint not null,
-	unique(aclsharefolderid, aclpermissiontype, aclpermissiongroupid, aclpermissionaccountid)
-) DEFAULT CHARSET=utf8;
+   aclpermissiontype tinyint not null,
+   aclpermissiongroupid bigint not null,
+   aclpermissionaccountid bigint not null,
+   aclvalue bigint not null,
+   unique(aclsharefolderid, aclpermissiontype, aclpermissiongroupid, aclpermissionaccountid)
+) default CHARSET=utf8;
 
 create table hm_incoming_relays
 (
@@ -482,14 +483,14 @@ create table hm_incoming_relays
    relaylowerip2 bigint null,
    relayupperip1 bigint not null,
    relayupperip2 bigint null
-) DEFAULT CHARSET=utf8; 
+) default CHARSET=utf8; 
 
 create table hm_logon_failures
 (
    ipaddress1 bigint not null,
    ipaddress2 bigint null,
    failuretime datetime not null
-) DEFAULT CHARSET=utf8;
+) default CHARSET=utf8;
 
 CREATE INDEX idx_hm_logon_failures_ipaddress ON hm_logon_failures (ipaddress1, ipaddress2);
 
@@ -777,4 +778,4 @@ insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2,
 
 insert into hm_tcpipports (portprotocol, portnumber, portaddress1, portaddress2, portconnectionsecurity, portsslcertificateid) values (5, 143, 0, NULL, 0, 0);
 
-insert into hm_dbversion values (5606);
+insert into hm_dbversion values (5609);

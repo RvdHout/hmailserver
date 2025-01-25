@@ -347,6 +347,13 @@ namespace HM
       if (pAccount->GetAddress().CompareNoCase(pMessage->GetFromAddress()) == 0)
          return;
 
+      // Don't deliver vacation message when the message is classified as spam
+      if (pAccount->GetVacationAbortSpamFlagged() && pMessage->GetFlagSpam())
+      {
+         LOG_DEBUG("LocalDelivery::SendAutoReplyMessage_ aborted, message marked as spam");
+         return;
+      }
+
       // Save a new message with the vacation message in it.
       SMTPVacationMessageCreator::Instance()->CreateVacationMessage(pAccount, 
          pMessage->GetFromAddress(), 

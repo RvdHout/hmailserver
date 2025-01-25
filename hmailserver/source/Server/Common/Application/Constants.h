@@ -144,4 +144,13 @@ I added 5 setting properties so REQUIRED_DB_VERSION 5601 + 5 = 5606
 [/list]
 */
 
-#define REQUIRED_DB_VERSION            5606
+/*
+I added 3 more setting properties so REQUIRED_DB_VERSION 5606 + 3 = 5609
+[list]
+[*]hm_accounts -> accountvacationabortspamflagged
+[*]hm_accounts -> accountforwardabortspamflagged
+[*]hm_rule_actions -> actionabortspamflagged
+[/list]
+*/
+
+#define REQUIRED_DB_VERSION            5609

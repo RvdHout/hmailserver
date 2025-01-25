@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.77"
+#define HMAILSERVER_BUILD "2641.81"
 
 /*
 [list=1]
@@ -84,5 +84,9 @@
 [*]Added: Google Feedback Loop header Feedback-ID in DKIM signing [url=https://github.com/hmailserver/hmailserver/pull/492]pull 492[/url]
 [*]Fix: Better log on forward failures, https://github.com/maxsnts/hmailserver/commit/7e285c3a1abe11ad4605aa71bd64176989c473a1
 [*]Fix: Spam scoring/marking/count inconsistencies
+[*]Added: eMessageFlag Spam = 128
+[*]Added: Abort forwarding if original message is marked as Spam
+[*]Added: Abort vacationmessage if original message is marked as Spam
+[*]Added: Abort autoreply/forwarding through rules if original message is marked as Spam
 [/list]
 */

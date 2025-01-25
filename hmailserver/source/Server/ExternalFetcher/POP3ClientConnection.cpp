@@ -853,9 +853,14 @@ namespace HM
          FileUtilities::DeleteFile(fileName);
          return false;
       }
-      
-      if (iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold)
+
+      bool classifiedAsSpam = iSpamMarkThreshold > 0 && iTotalSpamScore >= iSpamMarkThreshold;
+
+      if (classifiedAsSpam)
       {
+         // Set message SPAM Flag
+         current_message_->SetFlagSpam(classifiedAsSpam);
+
          std::shared_ptr<MessageData> messageData = SpamProtection::TagMessageAsSpam(current_message_, setSpamTestResults);
 
          // Increase the spam-counter
