@@ -88,11 +88,13 @@ namespace HM
       vacation_subject_ = oldAccount.vacation_subject_;
       vacation_expires_ = oldAccount.vacation_expires_;
       vacation_expires_date_ = oldAccount.vacation_expires_date_;
+      vacation_abort_spam_flagged_ = oldAccount.vacation_abort_spam_flagged_;
       signature_plain_text_ = oldAccount.signature_plain_text_;
       signature_html_ = oldAccount.signature_html_;
       forward_address_ = oldAccount.forward_address_;
       forward_enabled_ = oldAccount.forward_enabled_;
       forward_keep_original_ = oldAccount.forward_keep_original_;
+      forward_abort_spam_flagged_ = oldAccount.forward_abort_spam_flagged_;
       active_ = oldAccount.active_;
       is_ad_ = oldAccount.is_ad_;
       vacation_message_is_on_ = oldAccount.vacation_message_is_on_;
