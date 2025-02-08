@@ -295,13 +295,12 @@ namespace HM
    }
 
    std::shared_ptr<MimeBody> 
-   IMAPFetch::GetBodyPartByRecursiveIdentifier_(std::shared_ptr<MimeBody> pBody, IMAPFetchParser::BodyPart &oPart)
+   IMAPFetch::GetBodyPartByRecursiveIdentifier_(std::shared_ptr<MimeBody> pBody, const String &sName)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Returns a body part by a given identifier. An identifier can be 1, 2, 1.2 etc.
    //---------------------------------------------------------------------------()
    {
-      String sName = oPart.GetName();
       if (!pBody || sName.IsEmpty())
       {
          std::shared_ptr<MimeBody> pEmpty;
@@ -333,8 +332,7 @@ namespace HM
                return pBody;
             }
 
-            //load encapsulated RFC message only if we are not requesting MIME
-            if (pBody->IsEncapsulatedRFC822Message() && !oPart.GetShowMime())
+            if (pBody->IsEncapsulatedRFC822Message())
             {
                try
                {
@@ -380,7 +378,7 @@ namespace HM
       if (!oPart.GetName().IsEmpty())
       {
          String sMimePart;
-         pBodyPart = GetBodyPartByRecursiveIdentifier_(pBodyPart, oPart);
+         pBodyPart = GetBodyPartByRecursiveIdentifier_(pBodyPart, oPart.GetName());
 
          if (!pBodyPart)
             return pOutBuf;

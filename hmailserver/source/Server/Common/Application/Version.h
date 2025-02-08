@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.81"
+#define HMAILSERVER_BUILD "2641.82"
 
 /*
 [list=1]
@@ -80,7 +80,7 @@
 [*]Fix: SURBL modification to check full URI's and trimmed down URI's
 [*]Fix: Strip possible spaces in DKIM 'p' parameter, there shouldn't be any spaces but it's a common mistake so we act lenient and strip any spaces found
 [*]Fix: Apple IOS related HM5136, HM4208 and subsequent "OutOfMemoryHandler" errors [url=https://github.com/hmailserver/hmailserver/issues/475]issue 475[/url], credits to Rado https://github.com/hunterius-prime
-[*]Fix: IMAP FETCH on message/rfc822 MIME part [url=https://github.com/hmailserver/hmailserver/issues/459]issue 459[/url], credits to Rado https://github.com/hunterius-prime
+[*]F̶i̶x̶:̶ ̶I̶M̶A̶P̶ ̶F̶E̶T̶C̶H̶ ̶o̶n̶ ̶m̶e̶s̶s̶a̶g̶e̶/̶r̶f̶c̶8̶2̶2̶ ̶M̶I̶M̶E̶ ̶p̶a̶r̶t̶ [url=https://github.com/hmailserver/hmailserver/issues/459]i̶s̶s̶u̶e̶ ̶4̶5̶9̶[/url],̶ ̶c̶r̶e̶d̶i̶t̶s̶ ̶t̶o̶ ̶R̶a̶d̶o̶ ̶h̶t̶t̶p̶s̶:̶/̶/̶g̶i̶t̶h̶u̶b̶.̶c̶o̶m̶/̶h̶u̶n̶t̶e̶r̶i̶u̶s̶-̶p̶r̶i̶m̶e̶
 [*]Added: Google Feedback Loop header Feedback-ID in DKIM signing [url=https://github.com/hmailserver/hmailserver/pull/492]pull 492[/url]
 [*]Fix: Better log on forward failures, https://github.com/maxsnts/hmailserver/commit/7e285c3a1abe11ad4605aa71bd64176989c473a1
 [*]Fix: Spam scoring/marking/count inconsistencies
@@ -88,5 +88,6 @@
 [*]Added: Abort forwarding if original message is marked as Spam
 [*]Added: Abort vacationmessage if original message is marked as Spam
 [*]Added: Abort autoreply/forwarding through rules if original message is marked as Spam
+[*]Undo: .74
 [/list]
 */
