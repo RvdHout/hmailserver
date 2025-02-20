@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.82"
+#define HMAILSERVER_BUILD "2641.83"
 
 /*
 [list=1]
@@ -89,5 +89,6 @@
 [*]Added: Abort vacationmessage if original message is marked as Spam
 [*]Added: Abort autoreply/forwarding through rules if original message is marked as Spam
 [*]Undo: .74
+[*]Fix: IMAP FETCH on message/rfc822 MIME part (roundcube specific when messages are forwarded as attachment)
 [/list]
 */

@@ -394,8 +394,9 @@ namespace HM
          if (lTemp >= 0)
          {
             oPart.SetShowBodyHeader(true);
+
             String sBefore = sBody.Mid(0, lTemp);
-            String sAfter = sBody.Mid(lTemp + 7);
+            String sAfter = sBody.Mid(lTemp + 5);
             sBody = sBefore + sAfter;
          }
 

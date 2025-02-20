@@ -316,12 +316,16 @@ namespace HM
       // Iterate over the vector to find the part.
       auto iterPart = vecPartPath.begin();
 
+      std::size_t iDepth = 0;
+
       while (iterPart != vecPartPath.end())
       {
          String sSubPart = *iterPart;
 
          if (StringParser::IsNumeric(sSubPart))
          {
+            iDepth++;
+
             int iRequestPartNo = _ttoi(sSubPart);
 
             pBody = GetMessagePartByPartNo_(pBody, iRequestPartNo);
@@ -332,7 +336,7 @@ namespace HM
                return pBody;
             }
 
-            if (pBody->IsEncapsulatedRFC822Message())
+            if (pBody->IsEncapsulatedRFC822Message() && vecPartPath.size() > 1 && iDepth < vecPartPath.size())
             {
                try
                {
