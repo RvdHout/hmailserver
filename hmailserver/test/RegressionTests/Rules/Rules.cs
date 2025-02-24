@@ -1438,6 +1438,59 @@ namespace RegressionTests.Rules
          ImapClientSimulator.AssertMessageCount(account3.Address, "test", "Inbox", 1);
          ImapClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
       }
+      
+      //RvdH
+      [Test]
+      [Description("Test forward rule when spam flagged.")]
+      public void TestForwardAbortSpamFlagged()
+      {
+         // Add an account
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest1@test.com", "test");
+         Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest2@test.com", "test");
+
+         // Set up a rule to forward from account1 to 2 and 3.
+         Rule oRule = account1.Rules.Add();
+         oRule.Name = "Criteria test";
+         oRule.Active = true;
+
+         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
+         oRuleCriteria.UsePredefined = true;
+         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         oRuleCriteria.MatchValue = "0";
+         oRuleCriteria.Save();
+
+         // Set up the actions to forward.
+         RuleAction oRuleAction = oRule.Actions.Add();
+         oRuleAction.Type = eRuleActionType.eRAForwardEmail;
+         oRuleAction.To = "ruletest2@test.com";
+         oRuleAction.AbortSpamFlagged = true;
+         oRuleAction.Save();
+
+         // Save the rule in the database
+         oRule.Save();
+
+         // Set Thresholds
+         _settings.AntiSpam.SpamMarkThreshold = 5;
+         _settings.AntiSpam.SpamDeleteThreshold = 20;
+
+         // Enable SpamAssassin
+         _settings.AntiSpam.SpamAssassinEnabled = true;
+         _settings.AntiSpam.SpamAssassinHost = "localhost";
+         _settings.AntiSpam.SpamAssassinPort = 783;
+         _settings.AntiSpam.SpamAssassinMergeScore = false;
+         _settings.AntiSpam.SpamAssassinScore = 5;
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+
+         // Test to send the messge to account 1.
+         smtpClientSimulator.Send(account1.Address, account1.Address, "Test message", "This is a test message with spam.\r\n XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X.");
+
+         ImapClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 1);
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         ImapClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 0);
+      }
 
       [Test]
       [Description("Test to move to a public folder without permission.")]
@@ -1597,6 +1650,65 @@ namespace RegressionTests.Rules
          Assert.AreEqual("ruletest2@test.com", message.FromAddress);
          Assert.AreEqual("auto-replied", message.get_HeaderValue("Auto-Submitted"));
       }
+      
+      //RvdH
+      [Test]
+      [Description("Test reply rule when spam flagged.")]
+      public void TestReplyAbortSpamFlagged()
+      {
+         // Add accounts
+         Account account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest1@test.com", "test");
+         Account account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "ruletest2@test.com", "test");
+
+         // Set up a rule to reply to any message sent to account2.
+         Rule oRule = account2.Rules.Add();
+         oRule.Name = "Criteria test";
+         oRule.Active = true;
+
+         RuleCriteria oRuleCriteria = oRule.Criterias.Add();
+         oRuleCriteria.UsePredefined = true;
+         oRuleCriteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         oRuleCriteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         oRuleCriteria.MatchValue = "0";
+         oRuleCriteria.Save();
+
+         // Set up the actions to forward.
+         RuleAction oRuleAction = oRule.Actions.Add();
+         oRuleAction.Type = eRuleActionType.eRAReply;
+         oRuleAction.FromAddress = account2.Address;
+         oRuleAction.FromName = "Rule Test 2";
+         oRuleAction.Subject = "Autoreply";
+         oRuleAction.AbortSpamFlagged = true;
+         oRuleAction.Save();
+
+         // Save the rule in the database
+         oRule.Save();
+
+         // Set Thresholds
+         _settings.AntiSpam.SpamMarkThreshold = 5;
+         _settings.AntiSpam.SpamDeleteThreshold = 20;
+
+         // Enable SpamAssassin
+         _settings.AntiSpam.SpamAssassinEnabled = true;
+         _settings.AntiSpam.SpamAssassinHost = "localhost";
+         _settings.AntiSpam.SpamAssassinPort = 783;
+         _settings.AntiSpam.SpamAssassinMergeScore = false;
+         _settings.AntiSpam.SpamAssassinScore = 5;
+
+         var smtpClientSimulator = new SmtpClientSimulator();
+
+         // Test to send the message to account 2.
+         smtpClientSimulator.Send(account1.Address, account2.Address, "Test message", "This is a test message with spam.\r\n XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X.");
+         ImapClientSimulator.AssertMessageCount(account2.Address, "test", "Inbox", 1);
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         // Make sure a reply is not sent back to account 1.
+         ImapClientSimulator.AssertMessageCount(account1.Address, "test", "Inbox", 0);
+
+         oRuleAction.AbortSpamFlagged = false;
+         oRuleAction.Save();
+      }      
 
       private void AddExactMatchRule(Account oAccount)
       {

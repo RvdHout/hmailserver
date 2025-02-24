@@ -165,6 +165,53 @@ namespace RegressionTests.Infrastructure
          oAccount2.VacationMessageIsOn = false;
          oAccount2.Save();
       }
+      
+      // RvdH
+      [Test]
+      [Category("Accounts")]
+      [Description("Test account reply when spam flagged")]
+      public void TestAutoReplyAbortSpamFlagged()
+      {
+         // Create a test account
+         // Fetch the default domain
+         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain,
+                                                                              TestSetup.UniqueString() + "@test.com",
+                                                                              "test");
+         Account oAccount2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain,
+                                                                              TestSetup.UniqueString() + "@test.com",
+                                                                              "test");
+
+         oAccount2.VacationMessageIsOn = true;
+         oAccount2.VacationMessage = "I'm on vacation";
+         oAccount2.VacationSubject = "Out of office!";
+         oAccount2.VacationMessageAbortSpamFlagged = true;
+         oAccount2.Save();
+
+         // Set Thresholds
+         _settings.AntiSpam.SpamMarkThreshold = 5;
+         _settings.AntiSpam.SpamDeleteThreshold = 20;
+
+         // Enable SpamAssassin
+         _settings.AntiSpam.SpamAssassinEnabled = true;
+         _settings.AntiSpam.SpamAssassinHost = "localhost";
+         _settings.AntiSpam.SpamAssassinPort = 783;
+         _settings.AntiSpam.SpamAssassinMergeScore = false;
+         _settings.AntiSpam.SpamAssassinScore = 5;
+
+         // Send a messages this account.
+         var smtpClientSimulator = new SmtpClientSimulator();
+         smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is a test message with spam.\r\n XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X.");
+
+         var pop3ClientSimulator = new Pop3ClientSimulator();
+
+         Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 0);
+
+         Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 1);
+
+         oAccount2.VacationMessageAbortSpamFlagged = false;
+         oAccount2.VacationMessageIsOn = false;
+         oAccount2.Save();
+      }
 
       [Test]
       [Category("Accounts")]
@@ -296,6 +343,48 @@ namespace RegressionTests.Infrastructure
          SingletonProvider<TestSetup>.Instance.GetApp().SubmitEMail();
 
          Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 2);
+      }
+      
+      // RvdH
+      [Test]
+      [Category("Accounts")]
+      [Description("Test account forwarding when spam flagged")]
+      public void TestForwardingAbortSpamFlagged()
+      {
+         // Create a test account
+         // Fetch the default domain
+         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "Forward1@test.com", "test");
+         Account oAccount2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "Forward2@test.com", "test");
+
+         // Set Thresholds
+         _settings.AntiSpam.SpamMarkThreshold = 5;
+         _settings.AntiSpam.SpamDeleteThreshold = 20;
+
+         // Enable SpamAssassin
+         _settings.AntiSpam.SpamAssassinEnabled = true;
+         _settings.AntiSpam.SpamAssassinHost = "localhost";
+         _settings.AntiSpam.SpamAssassinPort = 783;
+         _settings.AntiSpam.SpamAssassinMergeScore = false;
+         _settings.AntiSpam.SpamAssassinScore = 5;
+
+         // Set up account 1 to forward to account2.
+         oAccount1.ForwardEnabled = true;
+         oAccount1.ForwardAddress = "Forward2@test.com";
+         oAccount1.ForwardKeepOriginal = true;
+         oAccount1.ForwardAbortSpamFlagged = true;
+         oAccount1.Save();
+
+         // Send 2 messages to this account.
+         var smtpClientSimulator = new SmtpClientSimulator();
+         for (int i = 0; i < 2; i++)
+            smtpClientSimulator.Send("Forward1@test.com", "Forward1@test.com", "Test message", "This is a test message with spam.\r\n XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X.");
+
+         Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 2);
+
+         // Tell hMailServer to deliver now, so that the forward takes effect.
+         SingletonProvider<TestSetup>.Instance.GetApp().SubmitEMail();
+
+         Pop3ClientSimulator.AssertMessageCount(oAccount2.Address, "test", 0);
       }
 
       [Test]
