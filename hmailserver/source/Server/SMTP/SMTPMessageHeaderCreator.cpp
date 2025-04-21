@@ -146,7 +146,13 @@ namespace HM
          }
 
          if (MessageUtilities::RetrieveOriginatingAddress(receivedHeaders, hostName, address))
+         {
+            // skip for localhost/loopback clients
+            if (LocalIPAddresses::Instance()->IsWithinLoopbackRange(address))
+               return sReceivedSPFHeader;
+
             return SPF::Instance()->ReceivedSPFHeader(sHostname, address.ToString(), envelopeFrom_, hostName, sReceivedSPFHeader);
+         }
          else
             return sReceivedSPFHeader;
       }
