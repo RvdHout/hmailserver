@@ -98,7 +98,7 @@ Source: "..\source\tools\shared\bin\Release\Shared.dll"; DestDir: "{app}\Bin"; F
 ; Data directory synchronizer
 Source: "..\source\Tools\DataDirectorySynchronizer\Bin\Release\*.exe"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion recursesubdirs;Components: server;
 Source: "..\source\tools\Administrator\bin\Release\Interop.hMailServer.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion; Components: admintools;
-Source: "..\source\Tools\Shared\Bin\Release\*.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion recursesubdirs;Components: server;
+Source: "..\source\Tools\Shared\Bin\Release\Shared.dll"; DestDir: "{app}\Addons\DataDirectorySynchronizer"; Flags: ignoreversion recursesubdirs;Components: server;
 
 Source: "..\source\Addons\*.*"; DestDir: "{app}\Addons"; Flags: onlyifdoesntexist recursesubdirs; Excludes: "Events";  Components: server;
 Source: "..\source\Addons\Events\*.*"; DestDir: "{app}\Events"; Flags: onlyifdoesntexist uninsneveruninstall; Components: server;
