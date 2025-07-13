@@ -18,13 +18,11 @@ namespace RegressionTests.API
       [Test]
       public void OnClientHELOTestClientPropertiesVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          // set ssl & tls ports
          RegressionTests.SSL.SslSetup.SetupSSLPorts(app);
-
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
 
          Scripting scripting = app.Settings.Scripting;
 
@@ -57,21 +55,20 @@ namespace RegressionTests.API
          smtpClientSimulator.HandshakeAsClient();
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25002"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
-         Assert.IsFalse(message.Contains("Authenticated: True"));
-         Assert.IsFalse(message.Contains("Encrypted: True"));
-         Assert.IsFalse(message.Contains("CipherVersion: TLSv1"));
-         StringAssert.DoesNotMatch(".*\"CipherName: [\\w\\-]+\"", message);
-         StringAssert.DoesNotMatch(".*\"CipherBits: \\d+\"", message);
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25002"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsFalse(eventLogText.Contains("Authenticated: True"));
+         Assert.IsFalse(eventLogText.Contains("Encrypted: True"));
+         Assert.IsFalse(eventLogText.Contains("CipherVersion: TLSv1"));
+         StringAssert.DoesNotMatch(".*\"CipherName: [\\w\\-]+\"", eventLogText);
+         StringAssert.DoesNotMatch(".*\"CipherBits: \\d+\"", eventLogText);
 
          // Delete the log after swithing to StartTLS
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
+         LogHandler.DeleteEventLog();
 
          var capabilities2 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
          Assert.IsFalse(capabilities2.Contains("STARTTLS"));
@@ -79,17 +76,17 @@ namespace RegressionTests.API
          smtpClientSimulator.SendAndReceive("QUIT\r\n");
 
          // Check that the message exists
-         message = TestSetup.ReadExistingTextFile(eventLogFile);
+         eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25002"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
-         Assert.IsTrue(message.Contains("Authenticated: False"));
-         Assert.IsTrue(message.Contains("Encrypted: True"));
-         Assert.IsTrue(message.Contains("CipherVersion: TLSv1"));
-         StringAssert.IsMatch(".*\"CipherName: [\\w\\-]+\"", message);
-         StringAssert.IsMatch(".*\"CipherBits: \\d+\"", message);
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25002"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsTrue(eventLogText.Contains("Authenticated: False"));
+         Assert.IsTrue(eventLogText.Contains("Encrypted: True"));
+         Assert.IsTrue(eventLogText.Contains("CipherVersion: TLSv1"));
+         StringAssert.IsMatch(".*\"CipherName: [\\w\\-]+\"", eventLogText);
+         StringAssert.IsMatch(".*\"CipherBits: \\d+\"", eventLogText);
          
          // reset ports
          var settings = app.Settings;
@@ -103,15 +100,13 @@ namespace RegressionTests.API
       [Test]
       public void OnClientHELOTestClientPropertiesJScript()
       {
+         LogHandler.DeleteEventLog();
+
          _settings.Scripting.Language = "JScript";
          
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          // set ssl & tls ports
          RegressionTests.SSL.SslSetup.SetupSSLPorts(app);
-
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
 
          Scripting scripting = app.Settings.Scripting;
 
@@ -144,21 +139,20 @@ namespace RegressionTests.API
          smtpClientSimulator.HandshakeAsClient();
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25002"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
-         Assert.IsFalse(message.Contains("Authenticated: true"));
-         Assert.IsFalse(message.Contains("Encrypted: true"));
-         Assert.IsFalse(message.Contains("CipherVersion: TLSv1"));
-         StringAssert.DoesNotMatch(".*\"CipherName: [\\w\\-]+\"", message);
-         StringAssert.DoesNotMatch(".*\"CipherBits: \\d+\"", message);
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25002"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsFalse(eventLogText.Contains("Authenticated: true"));
+         Assert.IsFalse(eventLogText.Contains("Encrypted: true"));
+         Assert.IsFalse(eventLogText.Contains("CipherVersion: TLSv1"));
+         StringAssert.DoesNotMatch(".*\"CipherName: [\\w\\-]+\"", eventLogText);
+         StringAssert.DoesNotMatch(".*\"CipherBits: \\d+\"", eventLogText);
 
          // Delete the log after swithing to StartTLS
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
+         LogHandler.DeleteEventLog();
 
          var capabilities2 = smtpClientSimulator.SendAndReceive("EHLO example.com\r\n");
          Assert.IsFalse(capabilities2.Contains("STARTTLS"));
@@ -166,17 +160,17 @@ namespace RegressionTests.API
          smtpClientSimulator.SendAndReceive("QUIT\r\n");
 
          // Check that the message exists
-         message = TestSetup.ReadExistingTextFile(eventLogFile);
+         eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25002"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
-         Assert.IsTrue(message.Contains("Authenticated: false"));
-         Assert.IsTrue(message.Contains("Encrypted: true"));
-         Assert.IsTrue(message.Contains("CipherVersion: TLSv1"));
-         StringAssert.IsMatch(".*\"CipherName: [\\w\\-]+\"", message);
-         StringAssert.IsMatch(".*\"CipherBits: \\d+\"", message);
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25002"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsTrue(eventLogText.Contains("Authenticated: false"));
+         Assert.IsTrue(eventLogText.Contains("Encrypted: true"));
+         Assert.IsTrue(eventLogText.Contains("CipherVersion: TLSv1"));
+         StringAssert.IsMatch(".*\"CipherName: [\\w\\-]+\"", eventLogText);
+         StringAssert.IsMatch(".*\"CipherBits: \\d+\"", eventLogText);
 
          // reset ports
          var settings = app.Settings;
@@ -190,9 +184,7 @@ namespace RegressionTests.API
       [Test]
       public void TestOnHeloRejectVBScript()
       {
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
+         LogHandler.DeleteEventLog();
 
          // First set up a script
          string script =
@@ -229,12 +221,10 @@ namespace RegressionTests.API
       [Test]
       public void TestOnHeloRejectJScript()
       {
+         LogHandler.DeleteEventLog();
+
          _settings.Scripting.Language = "JScript";
          
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
-
          // First set up a script
          string script =
             @"function OnHELO(oClient) {
@@ -270,9 +260,7 @@ namespace RegressionTests.API
       [Test]
       public void TestOnRecipientUnknownVBScript()
       {
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
+         LogHandler.DeleteEventLog();
 
          // First set up a script
          string script = 
@@ -299,19 +287,17 @@ namespace RegressionTests.API
          }
 
          // Check that the event was triggered
-         var message = TestSetup.ReadExistingTextFile(eventLogFile);
-         Assert.IsTrue(message.Contains("OnRecipientUnknown"));
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("OnRecipientUnknown"));
       }
 
       //RvdH
       [Test]
       public void TestOnRecipientUnknownJScript()
       {
-         _settings.Scripting.Language = "JScript";
+         LogHandler.DeleteEventLog();
 
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
+         _settings.Scripting.Language = "JScript";
 
          // First set up a script
          string script =
@@ -338,22 +324,20 @@ namespace RegressionTests.API
          }
 
          // Check that the event was triggered
-         var message = TestSetup.ReadExistingTextFile(eventLogFile);
-         Assert.IsTrue(message.Contains("OnRecipientUnknown"));
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("OnRecipientUnknown"));
       }
 
       //RvdH
       [Test]
       public void TestOnTooManyInvalidCommandsVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          int maxInvalid = 5;
 
          _settings.MaxNumberOfInvalidCommands = maxInvalid;
          _settings.DisconnectInvalidClients = true;
-
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
 
          // First set up a script
          string script =
@@ -378,24 +362,22 @@ namespace RegressionTests.API
          }
 
          // Check that the event was triggered
-         var message = TestSetup.ReadExistingTextFile(eventLogFile);
-         Assert.IsTrue(message.Contains("OnTooManyInvalidCommands"));
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("OnTooManyInvalidCommands"));
       }
 
       //RvdH
       [Test]
       public void TestOnTooManyInvalidCommandsJScript()
       {
+         LogHandler.DeleteEventLog();
+
          _settings.Scripting.Language = "JScript";
          
          int maxInvalid = 5;
 
          _settings.MaxNumberOfInvalidCommands = maxInvalid;
          _settings.DisconnectInvalidClients = true;
-
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
 
          // First set up a script
          string script =
@@ -420,18 +402,16 @@ namespace RegressionTests.API
          }
 
          // Check that the event was triggered
-         var message = TestSetup.ReadExistingTextFile(eventLogFile);
-         Assert.IsTrue(message.Contains("OnTooManyInvalidCommands"));
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
+         Assert.IsTrue(eventLogText.Contains("OnTooManyInvalidCommands"));
       }
 
       [Test]
       public void TestOnAcceptMessageJScript()
       {
-         _settings.Scripting.Language = "JScript";
+         LogHandler.DeleteEventLog();
 
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
+         _settings.Scripting.Language = "JScript";
 
          // First set up a script
          /*
@@ -474,22 +454,20 @@ namespace RegressionTests.API
          Assert.Less(0, message.IndexOf("X-SpamResult: TEST"));
 
          // Check that the message exists
-         message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
          //RvdH
-         StringAssert.IsMatch(".*\"SessionId: \\d+\"", message);
+         StringAssert.IsMatch(".*\"SessionId: \\d+\"", eventLogText);
       }
 
       [Test]
       public void TestOnAcceptMessageVBScript()
       {
-         string eventLogFile = _settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
+         LogHandler.DeleteEventLog();
 
          // First set up a script
          /*
@@ -531,19 +509,21 @@ namespace RegressionTests.API
 
 
          // Check that the message exists
-         message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
          //RvdH
-         StringAssert.IsMatch(".*\"SessionId: \\d+\"", message);
+         StringAssert.IsMatch(".*\"SessionId: \\d+\"", eventLogText);
       }
 
       [Test]
       public void TestOnBackupCompletedJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -572,6 +552,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnBackupCompletedVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          // First set up a script
          string script =
             @"Sub OnBackupCompleted()
@@ -596,6 +578,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnBackupFailedJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -625,6 +609,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnBackupFailedVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          // First set up a script
          string script =
             @"Sub OnBackupFailed(reason)
@@ -650,6 +636,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnClientConnectJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
 
@@ -667,25 +655,23 @@ namespace RegressionTests.API
          scripting.Enabled = true;
          scripting.Reload();
 
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
-
          var socket = new TcpConnection();
          Assert.IsTrue(socket.IsPortOpen(25));
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
       }
 
       [Test]
       public void TestOnClientConnectVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
 
@@ -700,25 +686,23 @@ namespace RegressionTests.API
          scripting.Enabled = true;
          scripting.Reload();
 
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
-
          var socket = new TcpConnection();
          Assert.IsTrue(socket.IsPortOpen(25));
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("Port: 25"));
-         Assert.IsTrue(message.Contains("Address: 127"));
-         Assert.IsTrue(message.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("Port: 25"));
+         Assert.IsTrue(eventLogText.Contains("Address: 127"));
+         Assert.IsTrue(eventLogText.Contains("Username: \"")); // Should be empty, Username isn't available at this time.
       }
 
       [Test]
       public void TestOnDeliverMessageJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
          // First set up a script
@@ -750,6 +734,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnDeliveryFailedJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Scripting scripting = _settings.Scripting;
          scripting.Language = "JScript";
 
@@ -774,14 +760,16 @@ namespace RegressionTests.API
          CustomAsserts.AssertRecipientsInDeliveryQueue(0);
 
          string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
-         Assert.IsTrue(eventLogText.Contains("File: "), eventLogText);
-         Assert.IsTrue(eventLogText.Contains("Recipient: user@dummy.example.com"), eventLogText);
-         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"), eventLogText);
+         Assert.IsTrue(eventLogText.Contains("File: "));
+         Assert.IsTrue(eventLogText.Contains("Recipient: user@dummy.example.com"));
+         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists") || eventLogText.Contains("Unable to find the recipient's email server"));
       }
 
       [Test]
       public void TestOnDeliveryFailedVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          // First set up a script
          string script = "Sub OnDeliveryFailed(oMessage, sRecipient, sErrorMessage)" + Environment.NewLine +
                          " EventLog.Write(\"File: \" & oMessage.FileName) " + Environment.NewLine +
@@ -805,12 +793,14 @@ namespace RegressionTests.API
          string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
          Assert.IsTrue(eventLogText.Contains("File: "));
          Assert.IsTrue(eventLogText.Contains("Recipient: user@dummy.example.com"));
-         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists"));
+         Assert.IsTrue(eventLogText.Contains("No mail servers appear to exists") || eventLogText.Contains("Unable to find the recipient's email server"));
       }
 
       [Test]
       public void TestOnDeliveryStartVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
 
@@ -836,6 +826,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnErrorJScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
          scripting.Language = "JScript";
@@ -872,6 +864,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnErrorVBScript()
       {
+         LogHandler.DeleteEventLog();
+
          Application app = SingletonProvider<TestSetup>.Instance.GetApp();
          Scripting scripting = app.Settings.Scripting;
 
@@ -983,16 +977,13 @@ namespace RegressionTests.API
 
             pop3Server.WaitForCompletion();
 
-            string eventLogFile = _settings.Logging.CurrentEventLog;
-            string logContents = TestSetup.ReadExistingTextFile(eventLogFile);
+            string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-            Assert.IsTrue(logContents.Contains("FetchAccount: " + fa.Name));
+            Assert.IsTrue(eventLogText.Contains("FetchAccount: " + fa.Name));
 
-            Assert.IsTrue(logContents.Contains("From: Martin@example1.com"));
-            Assert.IsTrue(logContents.Contains("From: Martin@example2.com"));
-            Assert.IsTrue(logContents.Contains("From: Martin@example3.com"));
-
-            string appLogContent = LogHandler.ReadCurrentDefaultLog();
+            Assert.IsTrue(eventLogText.Contains("From: Martin@example1.com"));
+            Assert.IsTrue(eventLogText.Contains("From: Martin@example2.com"));
+            Assert.IsTrue(eventLogText.Contains("From: Martin@example3.com"));
 
             Assert.IsTrue(pop3Server.DeletedMessages.Contains(1));
             Assert.IsFalse(pop3Server.DeletedMessages.Contains(2));
@@ -1028,6 +1019,8 @@ namespace RegressionTests.API
       [Test]
       public void TestOnClientLogon_POP3()
       {
+         LogHandler.DeleteEventLog();
+
          var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
          SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
 
@@ -1045,26 +1038,24 @@ namespace RegressionTests.API
          scripting.Enabled = true;
          scripting.Reload();
 
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
-
          // Log on once to trigger event.
          Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 0);
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("OnClientLogin-POP3"));
-         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
-         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("OnClientLogin-POP3"));
+         Assert.IsTrue(eventLogText.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(eventLogText.Contains("Username: test@test.com"));
       }
 
       //RvdH
       [Test]
       public void TestOnClientLogon_IMAP()
       {
+         LogHandler.DeleteEventLog();
+
          var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
          SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
 
@@ -1082,26 +1073,24 @@ namespace RegressionTests.API
          scripting.Enabled = true;
          scripting.Reload();
 
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
-
          // Log on once to trigger event.
          ImapClientSimulator.AssertMessageCount("test@test.com", "test", "Inbox", 0);
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("OnClientLogin-IMAP"));
-         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
-         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("OnClientLogin-IMAP"));
+         Assert.IsTrue(eventLogText.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(eventLogText.Contains("Username: test@test.com"));
       }
 
       //RvdH
       [Test]
       public void TestOnClientLogon_SMTP()
       {
+         LogHandler.DeleteEventLog();
+
          var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
          SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
 
@@ -1119,10 +1108,6 @@ namespace RegressionTests.API
          scripting.Enabled = true;
          scripting.Reload();
 
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
-
          // Log on once to trigger event.
 
          string base64Username = System.Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes("test@test.com"));
@@ -1133,18 +1118,20 @@ namespace RegressionTests.API
          clientSimulator.ConnectAndLogon(base64Username, base64Password, out errMsg);
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("OnClientLogin-SMTP"));
-         Assert.IsTrue(message.Contains("IsAuthenticated: True"));
-         Assert.IsTrue(message.Contains("Username: test@test.com")); // Should be empty, Username isn't available at this time.
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("OnClientLogin-SMTP"));
+         Assert.IsTrue(eventLogText.Contains("IsAuthenticated: True"));
+         Assert.IsTrue(eventLogText.Contains("Username: test@test.com"));
       }
 
       //RvdH
       [Test]
       public void TestOnHelo_WithHelo()
       {
+         LogHandler.DeleteEventLog();
+
          var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
          SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
 
@@ -1160,10 +1147,6 @@ namespace RegressionTests.API
 
          scripting.Enabled = true;
          scripting.Reload();
-
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
 
          // Log on once to trigger event.
          var clientSimulator = new SmtpClientSimulator();
@@ -1171,17 +1154,19 @@ namespace RegressionTests.API
          clientSimulator.SendAndReceive("HELO WORLD\r\n");
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("OnHelo"));
-         Assert.IsTrue(message.Contains("HeloHost: WORLD"));
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("OnHelo"));
+         Assert.IsTrue(eventLogText.Contains("HeloHost: WORLD"));
       }
 
       //RvdH
       [Test]
       public void TestOnHelo_WithEhlo()
       {
+         LogHandler.DeleteEventLog();
+
          var domain = SingletonProvider<TestSetup>.Instance.AddTestDomain();
          SingletonProvider<TestSetup>.Instance.AddAccount(domain, "test@test.com", "test");
 
@@ -1198,21 +1183,17 @@ namespace RegressionTests.API
          scripting.Enabled = true;
          scripting.Reload();
 
-         string eventLogFile = app.Settings.Logging.CurrentEventLog;
-         if (File.Exists(eventLogFile))
-            File.Delete(eventLogFile);
-
          // Log on once to trigger event.
          var clientSimulator = new SmtpClientSimulator();
          clientSimulator.Connect();
          clientSimulator.SendAndReceive("EHLO WORLD2\r\n");
 
          // Check that the message exists
-         string message = TestSetup.ReadExistingTextFile(eventLogFile);
+         string eventLogText = TestSetup.ReadExistingTextFile(LogHandler.GetEventLogFileName());
 
-         Assert.IsNotEmpty(message);
-         Assert.IsTrue(message.Contains("OnHelo"));
-         Assert.IsTrue(message.Contains("HeloHost: WORLD2"));
+         Assert.IsNotEmpty(eventLogText);
+         Assert.IsTrue(eventLogText.Contains("OnHelo"));
+         Assert.IsTrue(eventLogText.Contains("HeloHost: WORLD2"));
       }
 
       //RvdH
@@ -1220,6 +1201,8 @@ namespace RegressionTests.API
       [Ignore("This event is not in 5.6.x")]
       public void TestOnClientValidatePasswordVBScript_ValidPassword()
       {
+         LogHandler.DeleteEventLog();
+
          SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
 
          // First verify log on works with proper password ("test") but fails with incorrect ("MySecretPassword")

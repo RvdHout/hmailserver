@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.83"
+#define HMAILSERVER_BUILD "2641.85"
 
 /*
 [list=1]
@@ -90,5 +90,7 @@
 [*]Added: Abort autoreply/forwarding through rules if original message is marked as Spam
 [*]Undo: .74
 [*]Fix: IMAP FETCH on message/rfc822 MIME part (roundcube specific when messages are forwarded as attachment)
+[*]Added: Optionally add X-Original-Rcpt-To-header to incoming email [url=https://github.com/hmailserver/hmailserver/issues/498]issue 498[/url]
+[*]Restructure SMTPMessageHeaderCreator
 [/list]
 */

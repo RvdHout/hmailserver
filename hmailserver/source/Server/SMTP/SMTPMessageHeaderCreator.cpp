@@ -5,6 +5,10 @@
 
 #include "SMTPMessageHeaderCreator.h"
 
+#include "../Common/BO/Message.h"
+#include "../Common/BO/MessageRecipients.h"
+#include "../Common/BO/MessageRecipient.h"
+
 #include "../Common/TCPIP/CipherInfo.h"
 #include "../Common/TCPIP/DNSResolver.h"
 
@@ -24,15 +28,14 @@
 
 namespace HM
 {
-   SMTPMessageHeaderCreator::SMTPMessageHeaderCreator(const String &username, const String &envelopeFrom, const String &envelopeTo, const AnsiString &remote_ip_address, bool is_authenticated, String helo_host, std::shared_ptr<MimeHeader> original_headers) :
+   SMTPMessageHeaderCreator::SMTPMessageHeaderCreator(const String &username, const AnsiString &remote_ip_address, bool is_authenticated, String helo_host, std::shared_ptr<MimeHeader> original_headers, std::shared_ptr<Message> message) :
       username_(username),
-      envelopeFrom_(envelopeFrom),
-      envelopeTo_(envelopeTo),
       remote_ip_address_(remote_ip_address),
       is_authenticated_(is_authenticated),
       original_headers_(original_headers),
       helo_host_(helo_host),
-      is_tls_(false)
+      is_tls_(false),
+      message_(message)
    {
 
    }
@@ -89,6 +92,36 @@ namespace HM
       {
          if (!original_headers_->FieldExists("X-AuthUser"))
             new_header_lines += "X-AuthUser: " + username_ + "\r\n";
+      }
+
+      if (IniFileSettings::Instance()->GetAddXOriginalRcptToHeader() && message_)
+      {
+         auto recipients = message_->GetRecipients()->GetVector();
+
+         std::set<String> originalLocalAddresses;
+
+         for (auto recipientIter = recipients.begin(); recipientIter != recipients.end(); ++recipientIter)
+         {
+            auto recipient = *recipientIter;
+
+            if (recipient->GetIsLocalName())
+            {
+               auto originalAddress = recipient->GetOriginalAddress();
+
+               if (!originalAddress.IsEmpty())
+               {
+                  originalLocalAddresses.insert(originalAddress);
+               }
+            }
+         }
+
+         if (originalLocalAddresses.size() > 0)
+         {
+            String header = "X-Original-Rcpt-To: ";
+
+            String sRcptToAddresses = JoinWithFolding_(originalLocalAddresses, ",", header.GetLength());
+            new_header_lines += header + sRcptToAddresses + "\r\n";
+         }
       }
 
       // Now add x- header for AUTH user if enabled since it was replaced above if so
@@ -151,13 +184,13 @@ namespace HM
             if (LocalIPAddresses::Instance()->IsWithinLoopbackRange(address))
                return sReceivedSPFHeader;
 
-            return SPF::Instance()->ReceivedSPFHeader(sHostname, address.ToString(), envelopeFrom_, hostName, sReceivedSPFHeader);
+            return SPF::Instance()->ReceivedSPFHeader(sHostname, address.ToString(), message_->GetFromAddress(), hostName, sReceivedSPFHeader);
          }
          else
             return sReceivedSPFHeader;
       }
 
-      return SPF::Instance()->ReceivedSPFHeader(sHostname, address.ToString(), envelopeFrom_, helo_host_, sReceivedSPFHeader);
+      return SPF::Instance()->ReceivedSPFHeader(sHostname, address.ToString(), message_->GetFromAddress(), helo_host_, sReceivedSPFHeader);
    }
 
    String
@@ -189,12 +222,13 @@ namespace HM
          esmtp_additions += "A";
 
       String envelopeFrom = " ";
-      if (!envelopeFrom_.IsEmpty() && !is_authenticated_)
-         envelopeFrom.Format(_T(" (envelope-from <%s>)\r\n\t"), envelopeFrom_.c_str());
+      if (!message_->GetFromAddress().IsEmpty() && !is_authenticated_)
+         envelopeFrom.Format(_T(" (envelope-from <%s>)\r\n\t"), message_->GetFromAddress().c_str());
 
       String envelopeTo;
-      if (!envelopeTo_.IsEmpty())
-         envelopeTo.Format(_T(" for <%s>"), envelopeTo_.c_str());
+      auto recipients = message_->GetRecipients()->GetVector();
+      if (recipients.size() > 0 && recipients.size() < 2)
+         envelopeTo.Format(_T(" for <%s>"), (*recipients.begin())->GetOriginalAddress().c_str());
 
       String cipher_line;
 
@@ -218,6 +252,44 @@ namespace HM
 
       return sResult;
 
+   }
+
+   String
+   SMTPMessageHeaderCreator::JoinWithFolding_(const std::set<String> &items, const String &separator, int initialLineLength)
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Joins contents of a vector into a string, with a separator. If the join string exceeds the max
+   // line length, it will be split across multiple lines.
+   //---------------------------------------------------------------------------()
+   {
+      String result;
+
+      const int maxLineLength = 70;
+      int currentLineLength = initialLineLength;
+
+      for (auto iterVec = items.begin(); iterVec != items.end(); iterVec++)
+      {
+         if (!result.IsEmpty())
+         {
+            result += separator;
+            currentLineLength += separator.GetLength();
+         }
+
+         String value = (*iterVec);
+         int valueLength = value.GetLength();
+
+         if (result.GetLength() > 0 && currentLineLength + value.GetLength() > maxLineLength)
+         {
+            // Break the line
+            result += "\r\n\t";
+            currentLineLength = 1;
+         }
+
+         result += value;
+         currentLineLength += valueLength;
+      }
+
+      return result;
    }
 
 }

@@ -14,7 +14,7 @@ namespace RegressionTests.SMTP
       private Logging _logging;
 
       [SetUp]
-      public void SetUp()
+      public new void SetUp()
       {
          Settings settings = SingletonProvider<TestSetup>.Instance.GetApp().Settings;
          _logging = settings.Logging;

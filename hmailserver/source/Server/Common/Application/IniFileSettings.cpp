@@ -21,6 +21,7 @@ namespace HM
       dbport_(0),
       no_of_dbconnections_(5),
       add_xauth_user_header_(false),
+      add_xoriginal_rcpt_to_header_(false),
       no_of_dbconnection_attempts_(6),
       no_of_dbconnection_attempts_Delay(5),
       max_no_of_external_fetch_threads_(15),
@@ -141,7 +142,7 @@ namespace HM
 
       max_no_of_external_fetch_threads_ = ReadIniSettingInteger_("Settings", "MaxNumberOfExternalFetchThreads", 15);
       add_xauth_user_header_ = ReadIniSettingInteger_("Settings", "AddXAuthUserHeader", 0) == 1;
-      
+      add_xoriginal_rcpt_to_header_ = ReadIniSettingInteger_("Settings", "AddXOriginalRcptTo", 0) == 1;
       daemonaddress_domain_ = ReadIniSettingString_("Settings", "DaemonAddressDomain", "");
       
       greylisting_enabled_during_record_expiration_ = ReadIniSettingInteger_("Settings", "GreylistingEnabledDuringRecordExpiration", 1) == 1;

@@ -1021,13 +1021,12 @@ namespace RegressionTests.POP3.Fetching
 
          var messages = new List<string>();
 
-         //RvdH
-         string message = "Received: from example.com (mail.hmailserver.com [" + TestSetup.GethMailServerCOMIPaddress() + "]) by mail.example.com\r\n" +
-                          "From: test@hmailserver.com\r\n" +
+         string message = "Received: from nonexistent.hmailserver.com (nonexistent.hmailserver.com [1.2.3]) by nonexistent.hmailserver.com\r\n" +
+                          "From: example@nonexistent.hmailserver.com\r\n" +
                           "To: Martin@example.com\r\n" +
                           "Subject: Test\r\n" +
                           "\r\n" +
-                          "Should not be blocked.";
+                          "Should NOT be blocked by SPF.";
 
          messages.Add(message);
 

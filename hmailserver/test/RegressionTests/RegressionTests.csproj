@@ -99,6 +99,7 @@
     <Compile Include="SMTP\Basics.cs" />
     <Compile Include="SMTP\RcptToParsing.cs" />
     <Compile Include="SMTP\MailFromParsing.cs" />
+    <Compile Include="SMTP\XOriginalRcptHeaderTests.cs" />
     <Compile Include="SSL\SslTlsVersionTests.cs" />
     <Compile Include="SSL\SslServerTests.cs" />
     <Compile Include="Infrastructure\TCPIP.cs" />
@@ -224,11 +225,14 @@
     <EmbeddedResource Include="TestResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\EmailWith-TextPlainBody-TextPlainContentType.txt" />
     <None Include="Resources\SecuniaBody1.txt" />
+    <None Include="Resources\MessageWithInvalidDkim.txt" />
+    <None Include="Resources\MessageWithValidDkim.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\EmailWith-TextPlainBody+TextHtmlBody+TextPlainAttachment.txt" />

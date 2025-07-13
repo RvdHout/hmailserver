@@ -906,15 +906,7 @@ namespace HM
       {
          std::shared_ptr<MimeHeader> original_headers = Utilities::GetMimeHeader(transmission_buffer_->GetBuffer()->GetBuffer(), transmission_buffer_->GetBuffer()->GetSize());
 
-         String sEnvelopFrom = current_message_->GetFromAddress();
-         String sEnvelopTo;
-
-         std::shared_ptr<MessageRecipients> pRecipients = current_message_->GetRecipients();
-         std::vector<std::shared_ptr<MessageRecipient> > &recipients = pRecipients->GetVector();
-         if (recipients.size() > 0 && recipients.size() < 2)
-            sEnvelopTo = (*recipients.begin())->GetOriginalAddress();
-
-         SMTPMessageHeaderCreator header_creator(username_, sEnvelopFrom, sEnvelopTo, GetIPAddressString(), isAuthenticated_, helo_host_, original_headers);
+         SMTPMessageHeaderCreator header_creator(username_, GetIPAddressString(), isAuthenticated_, helo_host_, original_headers, current_message_);
          
          if (IsSSLConnection())
             header_creator.SetCipherInfo(GetCipherInfo());
