@@ -209,6 +209,7 @@ namespace HM
    {
       SSL_CTX* ssl = context.native_handle();
 
+#if (OPENSSL_VERSION_MAJOR < 3)
       EC_KEY *ecdh = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
       if (!ecdh)
       {
@@ -223,6 +224,15 @@ namespace HM
       }
       
       EC_KEY_free(ecdh);
+#else
+      //if (1 != SSL_CTX_set1_curves(ssl, new int[1] { NID_X9_62_prime256v1 }, 1))
+      if (1 != SSL_CTX_set1_curves_list(ssl, "prime256v1"))
+      {
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5511, "SslContextInitializer::EnableEllipticCurveCrypto_", "Failed to enable TLS EC");
+         SSL_CTX_free(ssl);
+         return;
+      }
+#endif
    }
 
 }
