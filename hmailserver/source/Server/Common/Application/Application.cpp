@@ -67,7 +67,7 @@ namespace HM
       unique_id_(0)
    {
       prod_name_ = _T("hMailServer");
-      version_ = Formatter::Format("{0}-B{1}", HMAILSERVER_VERSION, HMAILSERVER_BUILD);
+      version_ = Formatter::Format("{0}-B{1}.{2}", HMAILSERVER_VERSION, HMAILSERVER_BUILD, HMAILSERVER_MOD);
       start_time_ = Time::GetCurrentDateTime();
    }
 
