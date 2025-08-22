@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #define HMAILSERVER_VERSION "5.6.9"
-#define HMAILSERVER_BUILD "2641.85"
+#define HMAILSERVER_BUILD "2641.86"
 
 /*
 [list=1]
@@ -92,5 +92,6 @@
 [*]Fix: IMAP FETCH on message/rfc822 MIME part (roundcube specific when messages are forwarded as attachment)
 [*]Added: Optionally add X-Original-Rcpt-To-header to incoming email [url=https://github.com/hmailserver/hmailserver/issues/498]issue 498[/url]
 [*]Restructure SMTPMessageHeaderCreator
+[*]Added: Support for secp384r1:x25519 Server Key Exchange Groups, if prefer server ciphers is enabled secp384r1:x25519:secp256r1 is now the prefered order
 [/list]
 */

@@ -225,8 +225,10 @@ namespace HM
       
       EC_KEY_free(ecdh);
 #else
-      //if (1 != SSL_CTX_set1_curves(ssl, new int[1] { NID_X9_62_prime256v1 }, 1))
-      if (1 != SSL_CTX_set1_curves_list(ssl, "prime256v1"))
+      // For a TLS 1.2 server, the groups determine the selected group.
+      // If SSL_OP_CIPHER_SERVER_PREFERENCE is set, the order of the elements in the array determines the selected group.
+      // Otherwise, the order is ignored and the client's order determines the selection.
+      if (1 != SSL_CTX_set1_curves_list(ssl, "secp384r1:x25519:secp256r1"))
       {
          ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5511, "SslContextInitializer::EnableEllipticCurveCrypto_", "Failed to enable TLS EC");
          SSL_CTX_free(ssl);
