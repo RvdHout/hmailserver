@@ -201,7 +201,14 @@ namespace HM
       // not having a PTR in the Received header.
       String ptr_record_host;
       DNSResolver dns_resolver;
-      if (!dns_resolver.GetPTRRecords(remote_ip_address_, results) || results.size() == 0)
+
+      // Could not retrieve PTR record from local mail client
+      // https://www.hmailserver.com/forum/viewtopic.php?p=258078
+      // skip for localhost/loopback clients
+      IPAddress address;
+      if (address.TryParse(remote_ip_address_) && LocalIPAddresses::Instance()->IsWithinLoopbackRange(address))
+         ptr_record_host = "localhost";
+      else if (!dns_resolver.GetPTRRecords(remote_ip_address_, results) || results.size() == 0)
       {
          LOG_DEBUG("Could not retrieve PTR record for IP (false)! " + remote_ip_address_);
          ptr_record_host = "Unknown";
