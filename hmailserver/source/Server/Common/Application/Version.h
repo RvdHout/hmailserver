@@ -3,7 +3,7 @@
 #define HMAILSERVER_VERSION "5.6.9"
 #define HMAILSERVER_VERSION_NUMERIC 5,6,9,2641
 #define HMAILSERVER_BUILD "2641"
-#define HMAILSERVER_MOD "87"
+#define HMAILSERVER_MOD "88"
 
 /*
 [list=1]
@@ -96,5 +96,6 @@
 [*]Restructure SMTPMessageHeaderCreator
 [*]Added: Support for secp384r1:x25519 Server Key Exchange Groups, if prefer server ciphers is enabled secp384r1:x25519:secp256r1 is now the prefered order
 [*]Fix: Could not retrieve PTR record from local mail client https://www.hmailserver.com/forum/viewtopic.php?p=258078
+[*]Fix: Improve SUBRL lookup efficiency
 [/list]
 */
