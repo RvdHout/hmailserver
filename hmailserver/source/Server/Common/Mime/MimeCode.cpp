@@ -214,8 +214,7 @@ namespace HM
    void MimeCode7bit::Encode(AnsiString &output) const
    {
 	   const unsigned char* pbData = input_;
-	   const unsigned char* pbEnd = input_ + input_size_;
-	   unsigned char* pbSpace = NULL;
+      const unsigned char* pbEnd = pbData + input_size_;
 	   int nLineLen = 0;
       int lastSpacePos = -1;
 	   
@@ -803,7 +802,7 @@ namespace HM
 
 			   while (pszData < pszEnd)
 			   {
-				   char ch = *pszData++;
+				   char ch = *pszData;
 				   if (ch == '\r' || ch == '\n')
 				   {
 					   nLineLen = -1;
@@ -832,7 +831,8 @@ namespace HM
 				   
                output.append(1, ch);
 
-				   nLineLen++;
+               pszData++;
+               nLineLen++;
 			   }
 		   }
 

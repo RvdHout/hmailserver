@@ -211,7 +211,7 @@ namespace HM
       unsigned int siglen = EVP_PKEY_size(private_key);
       unsigned char *sig = (unsigned char*) OPENSSL_malloc(siglen);
       
-	  EVP_MD_CTX* headerSigningContext = EVP_MD_CTX_create();
+      EVP_MD_CTX* headerSigningContext = EVP_MD_CTX_create();
       EVP_SignInit( headerSigningContext, hashType == HashCreator::SHA256 ? EVP_sha256() : EVP_sha1());
       
       String result;
@@ -233,7 +233,7 @@ namespace HM
       }
 
       EVP_PKEY_free(private_key);
-	  EVP_MD_CTX_destroy(headerSigningContext);
+      EVP_MD_CTX_destroy(headerSigningContext);
       OPENSSL_free(sig);
 
       return result;
@@ -288,6 +288,13 @@ namespace HM
       // Unfold the value before trying to parse it. Otherwise it will contain
       // \t, \r\n which DKIMParameters doesn't take into account.
       MimeField::UnfoldField(headerValue);
+
+      // workaround for change in MimeField::UnfoldField, Mime.cpp line 347, eg: line may start with crlf
+      char linefeed[] = "\r\n";
+      size_t linefeedLength = strlen(linefeed);
+      string::size_type pos = headerValue.find(linefeed, 0, linefeedLength);
+      if (pos != string::npos)
+         headerValue.erase(pos, linefeedLength);
 
       DKIMParameters signatureParams;
       signatureParams.Load (headerValue);
@@ -397,7 +404,7 @@ namespace HM
          return result;
       }
 
-	  EVP_MD_CTX* hdr__ctx = EVP_MD_CTX_create();
+      EVP_MD_CTX* hdr__ctx = EVP_MD_CTX_create();
       EVP_MD_CTX_init( hdr__ctx );
 
       if (tagA == "rsa-sha256")

@@ -3,7 +3,7 @@
 #define HMAILSERVER_VERSION "5.6.9"
 #define HMAILSERVER_VERSION_NUMERIC 5,6,9,2641
 #define HMAILSERVER_BUILD "2641"
-#define HMAILSERVER_MOD "88"
+#define HMAILSERVER_MOD "90"
 
 /*
 [list=1]
@@ -97,5 +97,7 @@
 [*]Added: Support for secp384r1:x25519 Server Key Exchange Groups, if prefer server ciphers is enabled secp384r1:x25519:secp256r1 is now the prefered order
 [*]Fix: Could not retrieve PTR record from local mail client https://www.hmailserver.com/forum/viewtopic.php?p=258078
 [*]Fix: Improve SUBRL lookup efficiency
+[*]Fix: Do not unwrap Content-* mime headers as this can possibly break DKIM validation when forwarding
+[*]Fix: Do not unwrap X-Spam-* mime headers, eg: retain SpamAssassin X-Spam-* headers formatting
 [/list]
 */
