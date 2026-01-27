@@ -158,7 +158,7 @@ namespace HM
 	   for (auto it=field_coders_.begin(); it!=field_coders_.end(); it++)
 	   {
 		   ASSERT((*it).first != NULL);
-		   if (::_stricmp(pszFieldName, (*it).first))
+         if (!::_stricmp(pszFieldName, (*it).first))
 		   {
 			   FIELD_CODER_FACTORY pfnCreateObject = (*it).second;
 			   ASSERT(pfnCreateObject != NULL);

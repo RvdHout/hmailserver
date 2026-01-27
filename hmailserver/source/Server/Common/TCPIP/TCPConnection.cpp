@@ -169,6 +169,10 @@ namespace HM
 
       connection_state_ = StateConnected;
 
+      boost::system::error_code ec;
+      socket_.set_option(boost::asio::ip::tcp::no_delay(true), ec);
+      if (ec) { LOG_DEBUG(Formatter::Format(_T("Failed to set TCP_NODELAY, session {0}, code {1}"), session_id_, ec.value())); }
+
       OnConnected();
 
       if (connection_security_ == CSSSL)
@@ -203,7 +207,7 @@ namespace HM
         }
       case IOOperation::BCTWrite:
          {
-               std::shared_ptr<ByteBuffer> pBuf = operation->GetBuffer();
+            std::shared_ptr<ByteBuffer> pBuf = operation->GetBuffer();
             AsyncWrite(pBuf);
             break;
          }
@@ -250,8 +254,8 @@ namespace HM
 
       connection_state_ = StatePendingDisconnect;
 
-         std::shared_ptr<ByteBuffer> pBuf;
-         std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
+      std::shared_ptr<ByteBuffer> pBuf;
+      std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTDisconnect, pBuf));
       operation_queue_.Push(operation);
 
       ProcessOperationQueue_(0);
@@ -284,8 +288,8 @@ namespace HM
    {
       ThrowIfNotConnected_();
 
-         std::shared_ptr<ByteBuffer> pBuf;
-         std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTHandshake, pBuf));
+      std::shared_ptr<ByteBuffer> pBuf;
+      std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTHandshake, pBuf));
       operation_queue_.Push(operation);
 
       ProcessOperationQueue_(0);
@@ -354,7 +358,7 @@ namespace HM
             String error_message = Formatter::Format(_T("Failed to configure OpenSSL SNI. Expected remote host name: {0}."), expected_remote_hostname_);
             ErrorManager::Instance()->ReportError(ErrorManager::Medium, 5604, "TCPConnection::AsyncHandshake", error_message, sni_error_code);
 
-            HandshakeFailed_(error_code);
+            HandshakeFailed_(sni_error_code);
             return;
          }
       }
@@ -436,7 +440,7 @@ namespace HM
    {
       ThrowIfNotConnected_();
 
-         std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTRead, delimitor));
+      std::shared_ptr<IOOperation> operation = std::shared_ptr<IOOperation>(new IOOperation(IOOperation::BCTRead, delimitor));
       operation_queue_.Push(operation);
 
       ProcessOperationQueue_(0);
@@ -929,13 +933,13 @@ namespace HM
    void
    TCPConnection::OnTimeout(std::weak_ptr<TCPConnection> connection, boost::system::error_code const& err)
    {
-         std::shared_ptr<TCPConnection> conn = connection.lock();
+      std::shared_ptr<TCPConnection> conn = connection.lock();
       if (!conn)
       {
          return;
       }
 
-         if (err == boost::asio::error::operation_aborted) 
+      if (err == boost::asio::error::operation_aborted) 
       {
          // the timeout operation was cancelled.
          return;
@@ -991,13 +995,13 @@ namespace HM
       ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage, error);
    }
 
-	void
-	TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::error_code &error)
-	{
-		String formattedMessage;
+   void
+   TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message, const boost::system::error_code &error)
+   {
+      String formattedMessage;
       formattedMessage.Format(_T("%s Remote IP: %s"), message.c_str(), SafeGetIPAddress().c_str());
       ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage, error);
-	}
+   }
 
    void 
    TCPConnection::ReportError(ErrorManager::eSeverity sev, int code, const String &context, const String &message)
@@ -1006,6 +1010,7 @@ namespace HM
       formattedMessage.Format(_T("%s Remote IP: %s"), message.c_str(), SafeGetIPAddress().c_str());
       ErrorManager::Instance()->ReportError(sev, code, context, formattedMessage);         
    }
+
    void 
    TCPConnection::ReportDebugMessage(const String &message, const boost::system::error_code &error)
    {

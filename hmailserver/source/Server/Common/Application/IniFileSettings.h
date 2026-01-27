@@ -11,8 +11,8 @@ namespace HM
    {
    public:
 
-	   IniFileSettings();
-	   virtual ~IniFileSettings();
+      IniFileSettings();
+      virtual ~IniFileSettings();
 
       void LoadSettings();
 
@@ -113,6 +113,7 @@ namespace HM
       bool GetRewriteEnvelopeFromWhenForwarding() const { return rewrite_envelope_from_when_forwarding_; }
       bool GetUseDNSCache() const { return use_dns_cache_; }
       bool GetAddReceivedSPFHeader() const { return add_received_spf_header_; }
+      bool GetLocalToLocalByPassAuthOnSPFPass() const { return local_to_local_bypass_auth_on_spf_pass_; }
       String GetDNSServer() const { return dns_server_; }
       std::set<int> GetAuthDisabledOnPorts();
 
@@ -195,6 +196,7 @@ namespace HM
       bool rewrite_envelope_from_when_forwarding_;
       bool use_dns_cache_;
       bool add_received_spf_header_;
+      bool local_to_local_bypass_auth_on_spf_pass_;
       String dns_server_;
       String database_provider_;
 

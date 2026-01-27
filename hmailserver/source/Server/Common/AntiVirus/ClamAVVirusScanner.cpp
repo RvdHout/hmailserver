@@ -78,6 +78,14 @@ namespace HM
 
       const int STREAM_BLOCK_SIZE = 4096;
       const int maxIterations = 100000;
+      auto writeStreamLength = [&](uint32_t length) -> bool
+      {
+         bArray.integer = htonl(length);
+         ByteBuffer lengthBuffer;
+         lengthBuffer.Add(reinterpret_cast<const BYTE*>(bArray.byte), sizeof(bArray.byte));
+         return commandConnection.Write(lengthBuffer);
+      };
+
       for (int i = 0; i < maxIterations; i++)
       {
          std::shared_ptr<ByteBuffer> pBuf = oFile.ReadChunk(STREAM_BLOCK_SIZE);
@@ -85,8 +93,7 @@ namespace HM
          if (!pBuf)
             break;
 
-         bArray.integer = htonl(static_cast<uint32_t>(pBuf->GetSize()));
-         if (!commandConnection.Write(to_string(bArray.byte[0]) + to_string(bArray.byte[1]) + to_string(bArray.byte[2]) + to_string(bArray.byte[3])))
+         if (!writeStreamLength(static_cast<uint32_t>(pBuf->GetSize())))
             return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write packet size to stream port.");
 
          if (!commandConnection.Write(*pBuf))
@@ -94,8 +101,7 @@ namespace HM
 
       }
 
-      bArray.integer = 0;
-      if (!commandConnection.Write(to_string(bArray.byte[0]) + to_string(bArray.byte[1]) + to_string(bArray.byte[2]) + to_string(bArray.byte[3])))
+      if (!writeStreamLength(0))
          return VirusScanningResult("ClamAVVirusScanner::Scan", "Unable to write end of stream.");
 
       AnsiString readData;

@@ -52,6 +52,7 @@
 
 #include "../Common/AntiSpam/AntiSpamConfiguration.h"
 #include "../Common/AntiSpam/SpamProtection.h"
+#include "../Common/AntiSpam/SpamTestSPF.h"
 
 #include "../Common/Application/TimeoutCalculator.h"
 #include "../Common/Scripting/ScriptServer.h"
@@ -710,7 +711,7 @@ namespace HM
       if (dp != RecipientParser::DP_Possible)
       {
          AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
-		   
+         
          SendErrorResponse_(550, sErrMsg);
          return;
       }
@@ -719,27 +720,41 @@ namespace HM
 
       int iRelayOption = 0;
       if (localSender && localDelivery)
-	      iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_LOCAL;
+         iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_LOCAL;
       else if (localSender && !localDelivery)
-	      iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_REMOTE;
+         iRelayOption = SecurityRange::IPRANGE_RELAY_LOCAL_TO_REMOTE;
       else if (!localSender && localDelivery)
-	      iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_LOCAL;
+         iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_LOCAL;
       else if (!localSender && !localDelivery)
-	      iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_REMOTE;
+         iRelayOption = SecurityRange::IPRANGE_RELAY_REMOTE_TO_REMOTE;
 
       bool bAllowRelay = GetSecurityRange()->GetAllowOption(iRelayOption);
 
       if (bAllowRelay == false)
       {
-	      // User is not allowed to send this email.
-	      SendErrorResponse_(550, "Delivery is not allowed to this address.");
-	      AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
-	      return;
+         // User is not allowed to send this email.
+         SendErrorResponse_(550, "Delivery is not allowed to this address.");
+         AWStats::LogDeliveryFailure(GetIPAddressString(), current_message_->GetFromAddress(), sRecipientAddress, 550);
+         return;
       }
 
       bool authenticationRequired = true;
       if (localSender && localDelivery)
+      {
          authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthLocalToLocal();
+         if (authenticationRequired && IniFileSettings::Instance()->GetLocalToLocalByPassAuthOnSPFPass())
+         {
+            for (std::shared_ptr<SpamTestResult> testResult : spam_test_results_)
+            {
+               if (testResult->GetTestName() == SpamTestSPF::GetTestName() && testResult->GetResult() == SpamTestResult::Pass)
+               {
+                  LOG_DEBUG("SPF passed, allow unauthenticated delivery from local to local e-mail addresses.");
+                  authenticationRequired = false;
+                  break;
+               }
+            }
+         }
+      }
       else if (localSender && !localDelivery)
          authenticationRequired = GetSecurityRange()->GetRequireSMTPAuthLocalToExternal();
       else if (!localSender && localDelivery)
@@ -1971,12 +1986,12 @@ namespace HM
       if (GetConnectionSecurity() == CSSTARTTLSOptional ||
           GetConnectionSecurity() == CSSTARTTLSRequired)
       {
-		 const int commandLength = 8;
+         const int commandLength = 8;
 
-		 auto trimmedRequest = sRequest;
-		 trimmedRequest.Trim();
+         auto trimmedRequest = sRequest;
+         trimmedRequest.Trim();
 
-		 bool hasParameters = trimmedRequest.GetLength() > commandLength;
+         bool hasParameters = trimmedRequest.GetLength() > commandLength;
 
          if (hasParameters)
          {
@@ -2159,12 +2174,12 @@ namespace HM
 
       if (pAccount)
       {
-	      EnqueueWrite_("235 authenticated.");
-	      current_state_ = HEADER;
+         EnqueueWrite_("235 authenticated.");
+         current_state_ = HEADER;
       }
       else
       {
-	      RestartAuthentication_();
+         RestartAuthentication_();
       }
    }
 
@@ -2209,17 +2224,17 @@ namespace HM
    void 
    SMTPConnection::SendErrorResponse_(int iErrorCode, const String &sResponse)
    {
-		if (iErrorCode >= 500 && iErrorCode <= 599)
-		{
-			cur_no_of_invalid_commands_++;
+      if (iErrorCode >= 500 && iErrorCode <= 599)
+      {
+         cur_no_of_invalid_commands_++;
 
-			if (Configuration::Instance()->GetDisconnectInvalidClients() &&
-				cur_no_of_invalid_commands_ > Configuration::Instance()->GetMaximumIncorrectCommands())
-			{
-				// Disconnect
-				EnqueueWrite_("Too many invalid commands. Bye!");
-				pending_disconnect_ = true;
-				EnqueueDisconnect();
+         if (Configuration::Instance()->GetDisconnectInvalidClients() &&
+            cur_no_of_invalid_commands_ > Configuration::Instance()->GetMaximumIncorrectCommands())
+         {
+            // Disconnect
+            EnqueueWrite_("Too many invalid commands. Bye!");
+            pending_disconnect_ = true;
+            EnqueueDisconnect();
 
             if (Configuration::Instance()->GetUseScriptServer())
             {
@@ -2248,8 +2263,8 @@ namespace HM
                ScriptServer::Instance()->FireEvent(ScriptServer::EventOnTooManyInvalidCommands, sEventCaller, pContainer);
             }
 
-				return;
-			}
+            return;
+         }
          else 
          {
             if (!sResponse.compare(CONST_UNKNOWN_USER))
@@ -2282,12 +2297,12 @@ namespace HM
                }
             }
          }
-		}
+      }
 
-		String sData;
-		sData.Format(_T("%d %s"), iErrorCode, sResponse.c_str());
+      String sData;
+      sData.Format(_T("%d %s"), iErrorCode, sResponse.c_str());
 
-		EnqueueWrite_(sData);
+      EnqueueWrite_(sData);
    }
 
    bool
