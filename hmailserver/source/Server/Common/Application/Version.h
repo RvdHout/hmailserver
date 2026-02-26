@@ -3,7 +3,7 @@
 #define HMAILSERVER_VERSION "5.6.9"
 #define HMAILSERVER_VERSION_NUMERIC 5,6,9,2641
 #define HMAILSERVER_BUILD "2641"
-#define HMAILSERVER_MOD "90"
+#define HMAILSERVER_MOD "93"
 
 /*
 [list=1]
@@ -99,5 +99,8 @@
 [*]Fix: Improve SUBRL lookup efficiency
 [*]Fix: Do not unwrap Content-* mime headers as this can possibly break DKIM validation when forwarding
 [*]Fix: Do not unwrap X-Spam-* mime headers, eg: retain SpamAssassin X-Spam-* headers formatting
+[*]Added: Allow unauthenticated local to local e-mail delivery on SPF Pass controlled with INI setting LocalToLocalByPassAuthOnSPFPass=1, see: [url=https://www.hmailserver.com/forum/viewtopic.php?p=258436]this[/url] forum topic
+[*]Fix: Various other (small) fixes and improvements
+[*]Fix: Prevent EHLO/HELO bypass via SMTP RSET, see: [url=https://github.com/cybercode3/hmailserver/commit/88ec404b05550bd4879e153439bf6a7f14eb6638]this[/url] commit
 [/list]
 */
