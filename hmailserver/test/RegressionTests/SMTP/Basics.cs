@@ -1029,6 +1029,23 @@ namespace RegressionTests.SMTP
 
       //RvdH
       [Test]
+      public void TestPreventByPassHELO()
+      {
+         Settings settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("RSET\r\n");
+         var result = sim.SendAndReceive("MAIL FROM:<test@example.com>\r\n");
+         Assert.IsTrue(result.Contains("503 Bad sequence of command"), result);
+      }
+
+      //RvdH
+      [Test]
       public void TestTooManyInvalidCommandsHELOLastCommandOK()
       {
          Settings settings = _settings;
