@@ -131,13 +131,15 @@ namespace HM
    //
    //---------------------------------------------------------------------------()   
    {
+      iHours = 0;
+      iMinutes = 0;
+
       if (sTimeZone.IsEmpty())
       {
          // No timezone
          return false;
       }
 
-      double dRetVal = 0;
       wchar_t s = sTimeZone.GetAt(0);
       
       if (s == '+' || s == '-' || isdigit(s))

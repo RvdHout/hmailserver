@@ -3,7 +3,7 @@
 #define HMAILSERVER_VERSION "5.6.9"
 #define HMAILSERVER_VERSION_NUMERIC 5,6,9,2641
 #define HMAILSERVER_BUILD "2641"
-#define HMAILSERVER_MOD "93"
+#define HMAILSERVER_MOD "94"
 
 /*
 [list=1]
@@ -15,7 +15,6 @@
 [*]Fix: SMTP server error "550 Unsupported ESMTP extension" on MAIL FROM:... AUTH=<> [with fix] [url=https://github.com/hmailserver/hmailserver/issues/164]issue #164[/url]
 [*]Fix: Removed warning if backup was more than 1,5GB and 15GB limit. There's no longer a recommended max-size - the time will vary with the installation size. [url=https://github.com/hmailserver/hmailserver/issues/69]issue #69[/url]
 [*]Fix: Speed up 'update hm_messages set messageflags' [url=https://github.com/hmailserver/hmailserver/issues/221]issue  #221[/url]
-[*]A̶d̶d̶e̶d̶:̶ ̶t̶h̶r̶e̶a̶t̶ ̶a̶u̶t̶h̶e̶n̶t̶i̶c̶a̶t̶e̶d̶ ̶u̶s̶e̶r̶s̶ ̶a̶s̶ ̶l̶o̶c̶a̶l̶s̶e̶n̶d̶e̶r̶ ̶i̶f̶ ̶t̶h̶e̶ ̶s̶e̶n̶d̶e̶r̶ ̶i̶s̶ ̶a̶u̶t̶h̶e̶n̶t̶i̶c̶a̶t̶e̶d̶ ̶a̶n̶d̶ ̶A̶u̶t̶h̶U̶s̶e̶r̶I̶s̶L̶o̶c̶a̶l̶=̶1̶ ̶I̶N̶I̶ ̶s̶e̶t̶t̶i̶n̶g̶ ̶[url=https://www.hmailserver.com/forum/viewtopic.php?f=7&p=196733#p196733]O̶f̶f̶i̶c̶e̶ ̶2̶0̶1̶6̶/̶2̶0̶1̶9̶ ̶B̶u̶g̶[/url]
 [*]Added: [url=https://www.hmailserver.com/forum/viewtopic.php?p=177487#p177487]Return-Path header[/url] as topmost header before sending the message to SA (+ delete Return-Path header after the SA check completes) [url=https://github.com/hmailserver/hmailserver/issues/116]issue #116[/url]
 [*]Added: Event OnClientLogon(oClient), New ClientInfo property oClient.Authenticated (Boolean)
 [*]Fix: Handling of long UIDL response lists was too slow. [url=https://github.com/hmailserver/hmailserver/issues/93]issue #93[/url]
@@ -31,7 +30,6 @@
 [*]Added: ability to DKIM sign NDR messages (forwarded to external) [url=https://github.com/hmailserver/hmailserver/pull/301]pull #301[/url]
 [*]Added: Use custom daemonaddressdomain from INI [url=https://github.com/hmailserver/hmailserver/pull/301]pull #301[/url]
 [*]Fix: SURBL regex [url=https://github.com/hmailserver/hmailserver/pull/320]pull #320[/url]
-[*]A̶d̶d̶e̶d̶:̶ ̶R̶M̶S̶P̶F̶ ̶l̶i̶b̶r̶a̶r̶y̶ ̶S̶p̶a̶m̶T̶e̶s̶t̶S̶P̶F̶ ̶R̶e̶s̶u̶l̶t̶ ̶t̶o̶ ̶D̶E̶B̶U̶G̶ ̶l̶o̶g̶g̶i̶n̶g̶,̶ ̶s̶e̶e̶ ̶[url=https://www.hmailserver.com/forum/viewtopic.php?p=218710#p218710]t̶h̶i̶s̶[/url] ̶f̶o̶r̶u̶m̶ ̶t̶o̶p̶i̶c̶
 [*]Fix: Ignore SpamTestSPF and SpamTestHeloHost when send thru local IP Address, see [url=https://www.hmailserver.com/forum/viewtopic.php?f=10&t=34865]this[/url] forum topic 
 [*]Added: SPF test to include "HELO/EHLO host" used by DNS macros [url=https://github.com/hmailserver/hmailserver/pull/353]pull 353[/url]
 [*]Fix: 'Unencrypted Cleartext Login' vulnerability detection [url=https://github.com/hmailserver/hmailserver/pull/342]pull 242[/url]
@@ -68,7 +66,6 @@
 [*]Fix: DKIM (header) verification fails when an email is received with no subject [url=https://github.com/hmailserver/hmailserver/issues/245]issue #245[/url]
 [*]Added: DKIM signing support for CSA-Compliant Mail Headers, eg: X-CSA-Complaints and List-Unsubscribe-Post headers
 [*]Fix: Prefer IPv6 over IPv4 didn't do anything, added the missing part (sorting of found IP Addresses)
-[*]Removed: X-hMailServer-Envelope-From as it had no practical use
 [*]Added: Received-SPF: diagnostic header controlled with INI setting "AddReceivedSPFHeader" (skip for authenticated client connections or localhost!)
 [*]Added: (envelope-from <user@domain.com>), for <user@domain.com> to Received: header (if single recipient!)
 [*]Fix: All 5xx errors are permanent errors and should be treated as such, eg: contributing to invalid commands counter
@@ -82,7 +79,6 @@
 [*]Fix: SURBL modification to check full URI's and trimmed down URI's
 [*]Fix: Strip possible spaces in DKIM 'p' parameter, there shouldn't be any spaces but it's a common mistake so we act lenient and strip any spaces found
 [*]Fix: Apple IOS related HM5136, HM4208 and subsequent "OutOfMemoryHandler" errors [url=https://github.com/hmailserver/hmailserver/issues/475]issue 475[/url], credits to Rado https://github.com/hunterius-prime
-[*]F̶i̶x̶:̶ ̶I̶M̶A̶P̶ ̶F̶E̶T̶C̶H̶ ̶o̶n̶ ̶m̶e̶s̶s̶a̶g̶e̶/̶r̶f̶c̶8̶2̶2̶ ̶M̶I̶M̶E̶ ̶p̶a̶r̶t̶ [url=https://github.com/hmailserver/hmailserver/issues/459]i̶s̶s̶u̶e̶ ̶4̶5̶9̶[/url],̶ ̶c̶r̶e̶d̶i̶t̶s̶ ̶t̶o̶ ̶R̶a̶d̶o̶ ̶h̶t̶t̶p̶s̶:̶/̶/̶g̶i̶t̶h̶u̶b̶.̶c̶o̶m̶/̶h̶u̶n̶t̶e̶r̶i̶u̶s̶-̶p̶r̶i̶m̶e̶
 [*]Added: Google Feedback Loop header Feedback-ID in DKIM signing [url=https://github.com/hmailserver/hmailserver/pull/492]pull 492[/url]
 [*]Fix: Better log on forward failures, https://github.com/maxsnts/hmailserver/commit/7e285c3a1abe11ad4605aa71bd64176989c473a1
 [*]Fix: Spam scoring/marking/count inconsistencies
@@ -90,17 +86,20 @@
 [*]Added: Abort forwarding if original message is marked as Spam
 [*]Added: Abort vacationmessage if original message is marked as Spam
 [*]Added: Abort autoreply/forwarding through rules if original message is marked as Spam
-[*]Undo: .74
 [*]Fix: IMAP FETCH on message/rfc822 MIME part (roundcube specific when messages are forwarded as attachment)
 [*]Added: Optionally add X-Original-Rcpt-To-header to incoming email [url=https://github.com/hmailserver/hmailserver/issues/498]issue 498[/url]
 [*]Restructure SMTPMessageHeaderCreator
 [*]Added: Support for secp384r1:x25519 Server Key Exchange Groups, if prefer server ciphers is enabled secp384r1:x25519:secp256r1 is now the prefered order
 [*]Fix: Could not retrieve PTR record from local mail client https://www.hmailserver.com/forum/viewtopic.php?p=258078
 [*]Fix: Improve SUBRL lookup efficiency
-[*]Fix: Do not unwrap Content-* mime headers as this can possibly break DKIM validation when forwarding
-[*]Fix: Do not unwrap X-Spam-* mime headers, eg: retain SpamAssassin X-Spam-* headers formatting
 [*]Added: Allow unauthenticated local to local e-mail delivery on SPF Pass controlled with INI setting LocalToLocalByPassAuthOnSPFPass=1, see: [url=https://www.hmailserver.com/forum/viewtopic.php?p=258436]this[/url] forum topic
 [*]Fix: Various other (small) fixes and improvements
 [*]Fix: Prevent EHLO/HELO bypass via SMTP RSET, see: [url=https://github.com/cybercode3/hmailserver/commit/88ec404b05550bd4879e153439bf6a7f14eb6638]this[/url] commit
+[*]Fix: POP3 Return -ERR instead of +ERR when inbox message fetch fails, see: [url=https://github.com/cybercode3/hmailserver/commit/bc31f5eedd2d39ac320caf9870e5191eb835067c]this[/url] commit
+[*]Fix: Prevent rewrite of message untouched message parts, , see: [url=https://github.com/hmailserver/hmailserver/pull/506]pull 506[/url]
+[*]Fix: Stop SMTPDeliveryManager gracefully, see: [url=https://github.com/hmailserver/hmailserver/pull/507]pull 507[/url]
+[*]Fix: Fix false positives in line ending check, see: [url=https://github.com/hmailserver/hmailserver/pull/508]pull 508[/url]
+[*]Fix: Improved regex for validation of email addresses & domains, see [url=https://github.com/hmailserver/hmailserver/pull/509]pull 509[/url]
+[*]Fix: Scheduled Expiry of Auto-reply doesnt clear the 'already replied' cache, see: [url=https://github.com/hmailserver/hmailserver/pull/510]pull 510[/url]
 [/list]
 */

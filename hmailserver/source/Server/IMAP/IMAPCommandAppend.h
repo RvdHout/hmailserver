@@ -34,7 +34,7 @@ namespace HM
       String current_tag_;
       String flags_to_set_;
       String create_time_to_set_;
-      long bytes_left_to_receive_;
+      size_t bytes_left_to_receive_;
 
       String message_file_name_;
 

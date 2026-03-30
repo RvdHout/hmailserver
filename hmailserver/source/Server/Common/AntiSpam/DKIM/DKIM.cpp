@@ -289,13 +289,6 @@ namespace HM
       // \t, \r\n which DKIMParameters doesn't take into account.
       MimeField::UnfoldField(headerValue);
 
-      // workaround for change in MimeField::UnfoldField, Mime.cpp line 347, eg: line may start with crlf
-      char linefeed[] = "\r\n";
-      size_t linefeedLength = strlen(linefeed);
-      string::size_type pos = headerValue.find(linefeed, 0, linefeedLength);
-      if (pos != string::npos)
-         headerValue.erase(pos, linefeedLength);
-
       DKIMParameters signatureParams;
       signatureParams.Load (headerValue);
 

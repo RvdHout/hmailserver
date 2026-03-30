@@ -195,6 +195,45 @@ namespace RegressionTests.SSL
          string error = LogHandler.ReadCurrentDefaultLog();
          Assert.IsTrue(error.Contains("no protocols available"));
       }
-   
+
+      [Test]
+      public void Tls12ShouldWork()
+      {
+         SetSslVersions(false, false, true, false);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls12, 25001, IPAddress.Parse("127.0.0.1"));
+
+         string errorMessage;
+         smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test",
+            out errorMessage);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
+         Assert.IsTrue(message.Contains("version=TLSv1.2"), message);
+      }
+
+      [Test]
+      public void WhenTls12IsDisabled_ConnectionWithTls12ShouldFail()
+      {
+         SetSslVersions(false, false, false, true);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls12, 25001, IPAddress.Parse("127.0.0.1"));
+
+         try
+         {
+            string errorMessage;
+            smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test",
+               "test",
+               out errorMessage);
+
+            Assert.Fail("Was able to establish TLS 1.2 connection when TLS 1.2 was disabled");
+         }
+         catch (AuthenticationException)
+         {
+         }
+         catch (Win32Exception)
+         {
+         }
+         catch (System.IO.IOException)
+         {
+         }
+      }
    }
 }

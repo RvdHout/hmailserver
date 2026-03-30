@@ -201,6 +201,7 @@
     <Compile Include="Infrastructure\RetryHelper.cs" />
     <Compile Include="Infrastructure\SessionLimitingTests.cs" />
     <Compile Include="MIME\MessageParsing.cs" />
+    <Compile Include="MIME\RoundTrip.cs" />
     <Compile Include="Infrastructure\Persistence\Maintenance.cs" />
     <Compile Include="POP3\Fetching\ExternalAccountSslTests.cs" />
     <Compile Include="POP3\Fetching\LockHelper.cs" />
@@ -248,6 +249,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\EmailWith-TextPlainBody+TextHtmlBody+TextHtmlAttachment.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

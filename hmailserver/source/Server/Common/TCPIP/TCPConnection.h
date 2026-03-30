@@ -74,7 +74,7 @@ namespace HM
 
       ConnectionState GetConnectionState() { return connection_state_;  }
 
-      int GetBufferSize() {return BufferSize; }
+      size_t GetBufferSize() {return BufferSize; }
 
       void SetTimeout(int seconds);
       AnsiString GetIPAddressString();

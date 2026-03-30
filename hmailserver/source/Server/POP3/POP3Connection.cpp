@@ -503,7 +503,7 @@ namespace HM
   
       if (!Application::Instance()->GetFolderManager()->GetInboxMessages((int) account_->GetID(), messages_))
       {
-         EnqueueWrite_("+ERR Server error: Failed to fetch messages in Inbox.");
+         EnqueueWrite_("-ERR Server error: Failed to fetch messages in Inbox.");
          return ResultNormalResponse;
       }
 
@@ -715,9 +715,9 @@ namespace HM
    POP3Connection::ReadAndSend_()
    {
       // Continue sending the file..
-      int bufferSize = GetBufferSize();
+      size_t bufferSize = GetBufferSize();
 
-         std::shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
+      std::shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
 
       while (pBuffer)
       {

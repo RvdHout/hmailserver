@@ -62,13 +62,13 @@ namespace HM
    }
 
    void 
-   TransparentTransmissionBuffer::SetMaxSizeKB(int maxSize)
+   TransparentTransmissionBuffer::SetMaxSizeKB(size_t maxSize)
    {
       max_size_kb_ = maxSize;
    }
 
    void 
-   TransparentTransmissionBuffer::Append(const BYTE *pBuffer, int iBufferSize)
+   TransparentTransmissionBuffer::Append(const BYTE *pBuffer, size_t iBufferSize)
    {
       if (iBufferSize == 0)
       {
@@ -97,7 +97,7 @@ namespace HM
       if (buffer_->GetSize() >= 3 && !is_sending_)
       {
          // If receiving, we should check for end-of-data
-         int iSize = buffer_->GetSize();
+         size_t iSize = buffer_->GetSize();
          const char *pCharBuffer = buffer_->GetCharBuffer();
 
          // Check if the buffer only contains a dot on an empty line.
@@ -130,7 +130,7 @@ namespace HM
          return false;
    }
 
-   int 
+   size_t
    TransparentTransmissionBuffer::GetSize()
    {  
       return data_sent_;

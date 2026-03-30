@@ -653,7 +653,7 @@ namespace HM
          return;
 
       BYTE *pSendBuffer = (BYTE*) pBuf->GetBuffer();
-      int iSendBufferSize = pBuf->GetSize();
+      size_t iSendBufferSize = pBuf->GetSize();
 
       // Append the transmission buffer
       transmission_buffer_.Append(pSendBuffer, iSendBufferSize);
@@ -665,7 +665,7 @@ namespace HM
    SMTPClientConnection::ReadAndSend_()
    {
       // Continue sending the file..
-      int bufferSize = GetBufferSize();
+      size_t bufferSize = GetBufferSize();
       std::shared_ptr<ByteBuffer> pBuffer = current_file_.ReadChunk(bufferSize);
 
       while (pBuffer)

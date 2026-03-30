@@ -23,7 +23,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (x64)|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v120</PlatformToolset>
-	<PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -31,7 +31,7 @@
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>MultiByte</CharacterSet>
     <CLRSupport>false</CLRSupport>
-	<PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -39,7 +39,7 @@
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>MultiByte</CharacterSet>
     <CLRSupport>false</CLRSupport>
-	<PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -93,7 +93,7 @@ EXIT 0
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_70_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-3.0.17\out32\include;..\..\..\..\Libraries\pgsql8.2.4\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_70_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-3.5.5\out32\include;..\..\..\..\Libraries\pgsql8.2.4\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;UNICODE;_UNICODE;BOOST_DATE_TIME_NO_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -103,6 +103,7 @@ EXIT 0
       <WarningLevel>Level3</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -114,7 +115,7 @@ EXIT 0
       <AdditionalDependencies>Adsiid.lib;activeds.lib;IPHlpAPI.lib;Dnsapi.lib;Ws2_32.lib;libpq.lib;libcrypto.lib;libssl.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>$(OutDir)hMailServer.exe</OutputFile>
-      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_70_0\stage\lib;$(hMailServerLibs)\openssl-3.0.17\out32\lib;..\..\..\..\Libraries\pgsql8.2.4;%$(ProjectDir);(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_70_0\stage\lib;$(hMailServerLibs)\openssl-3.5.5\out32\lib;..\..\..\..\Libraries\pgsql8.2.4;%$(ProjectDir);(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>true</AssemblyDebug>
@@ -125,8 +126,8 @@ EXIT 0
     </Link>
     <PostBuildEvent>
       <Message>Performing registration</Message>
-      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-3.0.17\out32\bin\libcrypto-3.dll $(OutDir)
-xcopy /F /Y $(hMailServerLibs)\openssl-3.0.17\out32\bin\libssl-3.dll $(OutDir)
+      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-3.5.5\out32\bin\libcrypto-3.dll $(OutDir)
+xcopy /F /Y $(hMailServerLibs)\openssl-3.5.5\out32\bin\libssl-3.dll $(OutDir)
 "$(TargetPath)" /Register
 </Command>
     </PostBuildEvent>
@@ -151,7 +152,7 @@ EXIT 0
     <ClCompile>
       <AdditionalOptions>/MP
  %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_70_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-3.0.17\out32\include;..\..\..\..\Libraries\pgsql8.2.4\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(hMailServerLibs)\boost_1_70_0;..\..\..\..\Libraries\mssqlce3.5;$(hMailServerLibs)\openssl-3.5.5\out32\include;..\..\..\..\Libraries\pgsql8.2.4\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;UNICODE;_UNICODE;NDEBUG;BOOST_DATE_TIME_NO_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -159,6 +160,7 @@ EXIT 0
       <WarningLevel>Level3</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -169,7 +171,7 @@ EXIT 0
       <AdditionalOptions>/SAFESEH /ignore:4098 /ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libcrypto.lib;libssl.lib;Adsiid.lib;activeds.lib;IPHlpAPI.lib;Dnsapi.lib;Ws2_32.lib;libpq.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)hMailServer.exe</OutputFile>
-      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_70_0\stage\lib;$(hMailServerLibs)\openssl-3.0.17\out32\lib;..\..\..\..\Libraries\pgsql8.2.4;$(ProjectDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(hMailServerLibs)\boost_1_70_0\stage\lib;$(hMailServerLibs)\openssl-3.5.5\out32\lib;..\..\..\..\Libraries\pgsql8.2.4;$(ProjectDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -179,11 +181,16 @@ EXIT 0
     </Link>
     <PostBuildEvent>
       <Message>Performing registration</Message>
-      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-3.0.17\out32\bin\libcrypto-3.dll $(OutDir)
-xcopy /F /Y $(hMailServerLibs)\openssl-3.0.17\out32\bin\libssl-3.dll $(OutDir)
+      <Command>xcopy /F /Y $(hMailServerLibs)\openssl-3.5.5\out32\bin\libcrypto-3.dll $(OutDir)
+xcopy /F /Y $(hMailServerLibs)\openssl-3.5.5\out32\bin\libssl-3.dll $(OutDir)
 "$(TargetPath)" /Register
 </Command>
     </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (x64)|Win32'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\AntiSpam\AntiSpamConfiguration.cpp" />

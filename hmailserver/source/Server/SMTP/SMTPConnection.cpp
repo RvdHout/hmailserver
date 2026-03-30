@@ -544,7 +544,7 @@ namespace HM
       std::vector<String>::iterator iterParam = vecParams.begin();
 
       String sAuthParam;
-      int iEstimatedMessageSize = 0;
+      size_t iEstimatedMessageSize = 0;
       while (iterParam != vecParams.end())
       {
          String sParam = (*iterParam);
@@ -1391,46 +1391,39 @@ namespace HM
          return false;
 
       const int iChunkSize = 10000;
-         std::shared_ptr<ByteBuffer> pBuffer = oFile.ReadChunk(iChunkSize);
+      std::shared_ptr<ByteBuffer> pBuffer = oFile.ReadChunk(iChunkSize);
+
+      char prevChar = 0;  // last byte of the previous chunk (0 = none yet)
+
       while (pBuffer)
       {
          // Check that buffer contains correct line endings.
          const char *pChar = pBuffer->GetCharBuffer();
-         int iBufferSize = pBuffer->GetSize();
+         size_t iBufferSize = pBuffer->GetSize();
 
-         // Check from pos 3 to size-3. Not 100% sure, but
-         // we don't have to worry about buffer start/endings.
-
-         for (int i = 3; i < iBufferSize - 3; i++)
+         for (size_t i = 0; i < iBufferSize; i++)
          {
-            const char *pCurrentChar = pChar + i;
+            char currentChar = pChar[i];
+            char prev = (i == 0) ? prevChar : pChar[i - 1];
 
-            // Check chars.
-            if (*pCurrentChar == '\r')
-            {
-               // Check next character
-               if (i >= iBufferSize)
-                  return false;
+            // \r must be immediately followed by \n
+            if (prev == '\r' && currentChar != '\n')
+               return false;
 
-               const char *pNextChar = pCurrentChar + 1;
-               if (*pNextChar != '\n')
-                  return false;
-            }
-            else if (*pCurrentChar == '\n')
-            {
-               // Check previous char
-               if (i == 0)
-                  return false;
-
-               const char *pPreviousChar = pCurrentChar - 1;
-               if (*pPreviousChar != '\r')
-                  return false;
-            }
+            // \n must be immediately preceded by \r
+            if (currentChar == '\n' && prev != '\r')
+               return false;
          }
+
+         prevChar = pChar[iBufferSize - 1];
 
          // Read next chunk
          pBuffer = oFile.ReadChunk(iChunkSize);
       }
+
+      // A trailing \r with nothing after it is a bare CR
+      if (prevChar == '\r')
+         return false;
 
       return true;
    }

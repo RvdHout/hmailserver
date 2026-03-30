@@ -171,6 +171,9 @@ namespace HM
       if (sCharacterSet.size() == 0)
          return sWideCharString;
 
+      if (sWideCharString.IsEmpty())
+         return "";
+
       int iToCodePage = CodePages::Instance()->GetCodePage(sCharacterSet);
 
       int nNeedSize = WideCharToMultiByte( iToCodePage, 0, sWideCharString, sWideCharString.GetLength(), NULL, 0, NULL, NULL );
@@ -194,6 +197,9 @@ namespace HM
    {
       if (sCharacterSet.IsEmpty())
          return sMultiByte;
+
+      if (sMultiByte.IsEmpty())
+         return "";
 
       int iToCodePage = CodePages::Instance()->GetCodePage(sCharacterSet);
 

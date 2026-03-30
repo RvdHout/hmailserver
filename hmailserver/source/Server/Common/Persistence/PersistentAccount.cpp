@@ -25,6 +25,7 @@
 #include "../Cache/AccountSizeCache.h"
 
 #include "../../IMAP/IMAPFolderContainer.h"
+#include "../../SMTP/SMTPVacationMessageCreator.h"
 
 #include "PreSaveLimitationsCheck.h"
 
@@ -86,7 +87,7 @@ namespace HM
          String sAccountFolder = IniFileSettings::Instance()->GetDataDirectory() + "\\" + sDomainName + "\\" + sMailbox;
          FileUtilities::DeleteDirectory(sAccountFolder, false);
       }
-	  
+     
       // Refresh caches.
       Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
 
@@ -194,8 +195,8 @@ namespace HM
       if (!pAccount || pAccount->GetID() == 0)
          return false;
 
-	   PersistentIMAPFolder::DeleteByAccount(pAccount->GetID());
-	   
+      PersistentIMAPFolder::DeleteByAccount(pAccount->GetID());
+      
       Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
       AccountSizeCache::Instance()->Reset(pAccount->GetID());
       IMAPFolderContainer::Instance()->UncacheAccount(pAccount->GetID());
@@ -325,8 +326,8 @@ namespace HM
          }
       }
 
-	   if (!bNewObject)
-		  Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
+      if (!bNewObject)
+        Cache<Account, PersistentAccount>::Instance()->RemoveObject(pAccount);
 
       return bRetVal;
    }
@@ -432,6 +433,11 @@ namespace HM
       SQLCommand command("update hm_accounts set accountvacationmessageon = 0 where accountid = @ACCOUNTID");
       command.AddParameter("@ACCOUNTID", pAccount->GetID());
 
-      return Application::Instance()->GetDBManager()->Execute(command);
+      bool result = Application::Instance()->GetDBManager()->Execute(command);
+
+      if (result)
+         SMTPVacationMessageCreator::Instance()->VacationMessageTurnedOff(pAccount->GetAddress());
+
+      return result;
    }
 }

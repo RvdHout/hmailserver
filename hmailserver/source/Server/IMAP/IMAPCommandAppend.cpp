@@ -92,7 +92,7 @@ namespace HM
       bytes_left_to_receive_ += 2;
 
       std::shared_ptr<const Domain> domain = CacheContainer::Instance()->GetDomain(pConnection->GetAccount()->GetDomainID());
-      int maxMessageSizeKB = GetMaxMessageSize_(domain);
+      size_t maxMessageSizeKB = GetMaxMessageSize_(domain);
 
       if (maxMessageSizeKB > 0 && 
           bytes_left_to_receive_ / 1024 > maxMessageSizeKB)

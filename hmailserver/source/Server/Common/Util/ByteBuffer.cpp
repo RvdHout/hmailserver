@@ -42,7 +42,7 @@ namespace HM
    }
 
    void 
-   ByteBuffer::Empty(int iLeaveEndingBytes)
+   ByteBuffer::Empty(size_t iLeaveEndingBytes)
    {
       if (iLeaveEndingBytes > buffer_size_)
       {
@@ -72,7 +72,7 @@ namespace HM
    }
 
    void 
-   ByteBuffer::Allocate(long lSize)
+   ByteBuffer::Allocate(size_t lSize)
    {
       
       Empty();
@@ -96,7 +96,7 @@ namespace HM
    }
 
    void
-   ByteBuffer::Add(const BYTE *pBuf, long lSize)
+   ByteBuffer::Add(const BYTE *pBuf, size_t lSize)
    {
       
       if (lSize == 0)
@@ -128,7 +128,7 @@ namespace HM
    }
 
    void 
-   ByteBuffer::DecreaseSize(int iDecreaseWith)
+   ByteBuffer::DecreaseSize(size_t iDecreaseWith)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
    // Decreases the size of the buffer. This is done just by decreasing the

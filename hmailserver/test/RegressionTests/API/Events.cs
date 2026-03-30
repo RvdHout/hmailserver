@@ -710,6 +710,7 @@ namespace RegressionTests.API
             @"function OnDeliverMessage(oMessage)
                            {
                                oMessage.HeaderValue('X-SpamResult') = 'TEST2';
+                               oMessage.Body = 'This is the body text.';
                                oMessage.Save();
                            }";
 
@@ -728,7 +729,9 @@ namespace RegressionTests.API
          string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          Assert.IsNotEmpty(message);
 
-         Assert.Less(0, message.IndexOf("X-SpamResult: TEST2"));
+         //Assert.Less(0, message.IndexOf("X-SpamResult: TEST2"));
+         StringAssert.Contains("X-SpamResult: TEST2", message);
+         StringAssert.Contains("This is the body text.", message);
       }
 
       [Test]
@@ -821,6 +824,34 @@ namespace RegressionTests.API
 
          string eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
          Assert.IsTrue(eventLogText.Contains("Delivering message"));
+      }
+
+      [Test]
+      public void TestOnDeliveryStart_SetHtmlBodyEmpty()
+      {
+         LogHandler.DeleteEventLog();
+
+         var app = SingletonProvider<TestSetup>.Instance.GetApp();
+         var scripting = app.Settings.Scripting;
+
+         var script = "Sub OnDeliveryStart(message) " + Environment.NewLine +
+                      " message.HTMLBody = \"\" " + Environment.NewLine +
+                      " EventLog.Write(\"HTMLBody: '\" & message.HTMLBody & \"'\")" + Environment.NewLine +
+                      "End Sub" + Environment.NewLine + Environment.NewLine;
+
+         File.WriteAllText(scripting.CurrentScriptFile, script);
+
+         scripting.Enabled = true;
+         scripting.Reload();
+
+         var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+         SmtpClientSimulator.StaticSend(account.Address, account.Address, "Test", "SampleBody");
+
+         // Wait for the message to be delivered.
+         Pop3ClientSimulator.AssertGetFirstMessageText(account.Address, "test");
+
+         var eventLogText = TestSetup.ReadExistingTextFile(app.Settings.Logging.CurrentEventLog);
+         StringAssert.Contains("HTMLBody: ''", eventLogText);
       }
 
       [Test]
