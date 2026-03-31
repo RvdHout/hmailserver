@@ -49,7 +49,7 @@ namespace DBUpdater
 
             if (script == null)
             {
-               MessageBox.Show("Upgrade path not found. Please contact support", "hMailServer");
+               MessageBox.Show("Upgrade path not found.", "hMailServer");
                return false;
             }
 
