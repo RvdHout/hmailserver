@@ -123,7 +123,6 @@ namespace RegressionTests.API
          string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          Assert.IsNotEmpty(message, message);
-         //Assert.IsTrue(message.Contains(signature), message);
          StringAssert.Contains(signature, message, "The message retrieved from POP3 server does not contain signature.");
       }
 
@@ -167,7 +166,6 @@ namespace RegressionTests.API
          string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
 
          Assert.IsNotEmpty(message, message);
-         //Assert.IsTrue(message.Contains(signature), message);
          StringAssert.Contains(signature, message, "The message retrieved from POP3 server does not contain signature.");
       }
 

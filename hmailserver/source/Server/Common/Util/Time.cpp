@@ -805,7 +805,25 @@ namespace HM
       if (d2.GetYear() != 1998 || d2.GetMonth() != 3 || d2.GetDay() != 23)
          throw;
 
+      // Test that GetTimeAdjustForTimezone sets iMinutes for named timezones.
+      // Initialize iMinutes to a non-zero sentinel to detect if it's left unset.
+      int iHours = 99, iMinutes = 99;
+      if (!Time::GetTimeAdjustForTimezone(_T("EST"), iHours, iMinutes))
+         throw;
+      if (iHours != 5 || iMinutes != 0)
+         throw;
 
+      iHours = 99; iMinutes = 99;
+      if (!Time::GetTimeAdjustForTimezone(_T("GMT"), iHours, iMinutes))
+         throw;
+      if (iHours != 0 || iMinutes != 0)
+         throw;
+
+      iHours = 99; iMinutes = 99;
+      if (!Time::GetTimeAdjustForTimezone(_T("CET"), iHours, iMinutes))
+         throw;
+      if (iHours != -1 || iMinutes != 0)
+         throw;
    }
 
 }

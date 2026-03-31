@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Mail;
 using System.Net.Sockets;
 using System.Reflection;
@@ -643,22 +644,38 @@ namespace RegressionTests.Shared
 
       internal static IPAddress GetLocalIpAddress()
       {
-         // Connect to another local address.
-         IPHostEntry iphostentry = Dns.GetHostEntry(Dns.GetHostName());
+         var allAddresses = new StringBuilder();
 
-         foreach (IPAddress ipaddress in iphostentry.AddressList)
+         foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
          {
-            if (ipaddress.AddressFamily == AddressFamily.InterNetwork)
+            if (ni.OperationalStatus != OperationalStatus.Up)
+               continue;
+
+            foreach (UnicastIPAddressInformation ipInfo in ni.GetIPProperties().UnicastAddresses)
             {
-               if (ipaddress.ToString().Contains("192.168."))
+               IPAddress ip = ipInfo.Address;
+               allAddresses.AppendLine(string.Format("Family: {0}, Address: {1}", ip.AddressFamily, ip));
+
+               if (ip.AddressFamily == AddressFamily.InterNetwork)
                {
-                  return ipaddress;
+                  // Example: Only private networks
+                  if (IsPrivateIp(ip))
+                     return ip;
                }
             }
          }
 
-         Assert.Fail("No local internet address found.");
+         Assert.Fail(string.Format("No local internet address found. Addresses: {0}", allAddresses));
          return null;
+      }
+
+      private static bool IsPrivateIp(IPAddress ip)
+      {
+         byte[] bytes = ip.GetAddressBytes();
+         return
+            (bytes[0] == 10) ||
+            (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31) ||
+            (bytes[0] == 192 && bytes[1] == 168);
       }
 
       public static string GetResource(string resourceName)

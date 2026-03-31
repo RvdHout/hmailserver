@@ -28,7 +28,6 @@ namespace HM
    SPF::Test(const String &sSenderIP, const String &sSenderEmail, const String &sHeloHost, String &sExplanation)
    {
       USES_CONVERSION;
-      // String sDomain = StringParser::ExtractDomain(sSenderEmail); Not used at all!?
 
       int family;
       if (sSenderIP.Find(_T(":")) > 0)
@@ -52,11 +51,6 @@ namespace HM
          sExplanation = explain;
          SPFFree(explain);
       }
-
-#ifdef _DEBUG
-      //LOG_DEBUG(Formatter::Format("Spam test: SpamTestSPF, RMSPF Result: {0}", SPFResultString(result)));
-      LOG_APPLICATION(Formatter::Format("Spam test: SpamTestSPF, RMSPF Result: {0}", SPFResultString(result)));
-#endif
 
       if (result == SPF_Fail)
       {
@@ -99,40 +93,41 @@ namespace HM
       // http://www.open-spf.org/SPF_Received_Header/
       switch (result)
       {
-         case SPF_Pass: // 0
-            sResultMessage.Format(_T("%s (%s: domain of %s designates %s as permitted sender)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
-            break;
-         case SPF_SoftFail: // 1
-            sResultMessage.Format(_T("%s (%s: domain of transitioning %s does not designate %s as permitted sender)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
-            break;
-         case SPF_Fail: // 2
-            sResultMessage.Format(_T("%s (%s: domain of %s does not designate %s as permitted sender)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
-            break;
-         case SPF_Neutral: // 3
-            sResultMessage.Format(_T("%s (%s: %s is neither permitted nor denied by domain of %s)"), sSPFResultString.c_str(), sHostname.c_str(), sSenderIP.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
-            break;
-         case SPF_None: // 4
-            sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts)"), sSPFResultString.c_str(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
-            break;
-         case SPF_TempError: // 5
-            sResultMessage.Format(_T("%s (%s: temporary error in processing during lookup of %s: DNS Timeout)"), sSPFResultString.c_str(), sHostname.c_str(), sDomain.c_str());
-            break;
-         case SPF_PermError: // 6
-            sResultMessage.Format(_T("%s (%s: permanent error in processing during lookup of %s)"), sSPFResultString.c_str(), sHostname.c_str(), sDomain.c_str());
-            break;
-         case SPF_None + SPF_BadDomain: // 20
-         case SPF_None + SPF_NoDomain: // 36
-         case SPF_None + SPF_Literal: // 52
-            sResultMessage.Format(_T("%s (%s: domain %s is an address literal, malformed, or non-existent)"), sSPFResultString.c_str(), sHostname.c_str(), sDomain.c_str());
-            break;
-         default:
-            return sResult;
+      case SPF_Pass: // 0
+         sResultMessage.Format(_T("%s (%s: domain of %s designates %s as permitted sender)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
+         break;
+      case SPF_SoftFail: // 1
+         sResultMessage.Format(_T("%s (%s: domain of transitioning %s does not designate %s as permitted sender)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
+         break;
+      case SPF_Fail: // 2
+         sResultMessage.Format(_T("%s (%s: domain of %s does not designate %s as permitted sender)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
+         break;
+      case SPF_Neutral: // 3
+         sResultMessage.Format(_T("%s (%s: %s is neither permitted nor denied by domain of %s)"), sSPFResultString.ToLower(), sHostname.c_str(), sSenderIP.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
+         break;
+      case SPF_None: // 4
+         sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
+         break;
+      case SPF_None|SPF_BadDomain: // 20
+         sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts because of malformed domain %s)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sDomain.c_str());
+         break;
+      case SPF_None|SPF_NoDomain: // 36
+         sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts because the domain %s does not exist)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sDomain.c_str());
+         break;
+      case SPF_None|SPF_Literal: // 52
+         sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts because the domain %s is an address literal)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sDomain.c_str());
+         break;
+      case SPF_TempError: // 5
+         sResultMessage.Format(_T("%s (%s: temporary error in processing during lookup of %s: DNS Timeout)"), sSPFResultString.ToLower(), sHostname.c_str(), sDomain.c_str());
+         break;
+      case SPF_PermError: // 6
+         sResultMessage.Format(_T("%s (%s: permanent error in processing during lookup of %s)"), sSPFResultString.ToLower(), sHostname.c_str(), sDomain.c_str());
+         break;
+      default:
+         return sResult;
       }
 
-      if (!sSenderEmail.IsEmpty())
-         sResult.Format(_T("Received-SPF: %s\r\n\tidentity=mailfrom;\r\n\tclient-ip=%s;\r\n\tenvelope-from=<%s>;\r\n"), sResultMessage.c_str(), sSenderIP.c_str(), sSenderEmail.c_str());
-      else
-         sResult.Format(_T("Received-SPF: %s\r\n\tidentity=helo;\r\n\tclient-ip=%s;\r\n\thelo=%s;\r\n"), sResultMessage.c_str(), sSenderIP.c_str(), sHeloHost.c_str());
+      sResult.Format(_T("Received-SPF: %s\r\n"), sResultMessage.c_str());
 
       return sResult;
    }

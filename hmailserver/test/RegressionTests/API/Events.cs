@@ -729,7 +729,6 @@ namespace RegressionTests.API
          string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
          Assert.IsNotEmpty(message);
 
-         //Assert.Less(0, message.IndexOf("X-SpamResult: TEST2"));
          StringAssert.Contains("X-SpamResult: TEST2", message);
          StringAssert.Contains("This is the body text.", message);
       }
