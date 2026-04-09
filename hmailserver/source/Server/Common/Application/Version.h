@@ -3,7 +3,7 @@
 #define HMAILSERVER_VERSION "5.6.9"
 #define HMAILSERVER_VERSION_NUMERIC 5,6,9,2641
 #define HMAILSERVER_BUILD "2641"
-#define HMAILSERVER_MOD "94"
+#define HMAILSERVER_MOD "95"
 
 /*
 [list=1]
@@ -101,5 +101,6 @@
 [*]Fix: Fix false positives in line ending check, see: [url=https://github.com/hmailserver/hmailserver/pull/508]pull 508[/url]
 [*]Fix: Improved regex for validation of email addresses & domains, see [url=https://github.com/hmailserver/hmailserver/pull/509]pull 509[/url]
 [*]Fix: Scheduled Expiry of Auto-reply doesnt clear the 'already replied' cache, see: [url=https://github.com/hmailserver/hmailserver/pull/510]pull 510[/url]
+[*]Added: DKIM sign (forwarded) messages send from local to local domains, see: [url=https://github.com/hmailserver/hmailserver/issues/511]issue 511[/url]
 [/list]
 */

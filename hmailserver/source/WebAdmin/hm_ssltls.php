@@ -20,7 +20,7 @@ if($action == "save")
 	$obSettings->TlsVersion13Enabled = hmailGetVar("TlsVersion13Enabled", 0);
 
 	$obSettings->TlsOptionPreferServerCiphersEnabled = hmailGetVar("TlsOptionPreferServerCiphersEnabled", 0);
-	if (hmailGetVar("TlsVersion12Enabled", 0) > 0 || hmailGetVar("TlsVersion13Enabled", 0) > 0 ) {
+	if ((hmailGetVar("TlsVersion12Enabled", 0) > 0 || hmailGetVar("TlsVersion13Enabled", 0) > 0) && hmailGetVar("TlsOptionPreferServerCiphersEnabled", 0) > 0) {
 		$obSettings->TlsOptionPrioritizeChaChaEnabled = hmailGetVar("TlsOptionPrioritizeChaChaEnabled", 0);
 	}
 	else {
@@ -34,8 +34,8 @@ $TlsVersion10Enabled 		= $obSettings->TlsVersion10Enabled;
 $TlsVersion11Enabled 		= $obSettings->TlsVersion11Enabled;
 $TlsVersion12Enabled 		= $obSettings->TlsVersion12Enabled;
 $TlsVersion13Enabled 		= $obSettings->TlsVersion13Enabled;
-$TlsOptionPreferServerCiphersEnabled = $obSettings->TlsOptionPreferServerCiphersEnabled;
-$TlsOptionPrioritizeChaChaEnabled = $obSettings->TlsOptionPrioritizeChaChaEnabled;
+$TlsOptionPreferServerCiphersEnabled		= $obSettings->TlsOptionPreferServerCiphersEnabled;
+$TlsOptionPrioritizeChaChaEnabled		= $obSettings->TlsOptionPrioritizeChaChaEnabled;
 ?>
 
 <h1><?php EchoTranslation("Security")?></h1>
@@ -64,9 +64,9 @@ $TlsOptionPrioritizeChaChaEnabled = $obSettings->TlsOptionPrioritizeChaChaEnable
 				PrintCheckboxRow("TlsVersion11Enabled", "TLS v1.1", $TlsVersion11Enabled);
 				PrintCheckboxRow("TlsVersion12Enabled", "TLS v1.2", $TlsVersion12Enabled);
 				PrintCheckboxRow("TlsVersion13Enabled", "TLS v1.3", $TlsVersion13Enabled);
-            PrintCheckboxRow("TlsOptionPreferServerCiphersEnabled", "Prefer server ciphers", $TlsOptionPreferServerCiphersEnabled);
-            PrintCheckboxRow("TlsOptionPrioritizeChaChaEnabled", "Prioritize ChaCha20Poly1305 when client does (requires TLS v1.2 or TLS v1.3)", $TlsOptionPrioritizeChaChaEnabled);
-         ?>
+				PrintCheckboxRow("TlsOptionPreferServerCiphersEnabled", "Prefer server cipher order", $TlsOptionPreferServerCiphersEnabled);
+				PrintCheckboxRow("TlsOptionPrioritizeChaChaEnabled", "Prioritize ChaCha20-Poly1305 when client prefers it (requires TLS v1.2 or TLS v1.3)", $TlsOptionPrioritizeChaChaEnabled);
+			 ?>
          
          </table>
          

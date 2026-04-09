@@ -25,6 +25,10 @@
 
 #include "../Common/Persistence/PersistentMessage.h"
 
+#include "../Common/BO/DomainAliases.h"
+#include "../Common/Application/ObjectCache.h"
+#include "../Common/AntiSpam/DKIM/DKIMSigner.h"
+
 #include "RecipientParser.h"
 
 #include "SMTPConfiguration.h"
@@ -244,6 +248,24 @@ namespace HM
       if (!pMsg)
          return;
 
+      std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
+
+      // DKIM-tag the copied message before forwarding, but only if both are local domains and not equal 
+      if (pAccount && !pMsg->GetFromAddress().IsEmpty() && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
+      {
+         String fromDomain;
+         String recipientDomain;
+
+         if (IsLocalDomain(pMsg->GetFromAddress(), fromDomain) && IsLocalDomain(pAccount->GetAddress(), recipientDomain))
+         {
+            if (fromDomain.CompareNoCase(recipientDomain) != 0 && pMsg->GetNoOfRetries() == 0)
+            {
+               DKIMSigner signer;
+               signer.Sign(pMsg);
+            }
+         }
+      }
+
       pMsg->SetState(Message::Delivering);
 
       std::shared_ptr<Account> emptyAccount;
@@ -257,8 +279,7 @@ namespace HM
       pNewMsgData->Write(newFileName);
       
       // We need to update the SMTP envelope from address, if this
-      // message is forwarded by a user-level account.
-      std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);      
+      // message is forwarded by a user-level account. 
       String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pMsg);
       if (pMsg->GetFromAddress().IsEmpty())
          pMsg->SetFromAddress(sMailerDaemonAddress);
@@ -625,4 +646,20 @@ namespace HM
       return true;
    }
 
+   bool
+   RuleApplier::IsLocalDomain(const String &sAddress, String &outDomain) const
+   {
+      if (sAddress.IsEmpty())
+         return false;
+
+      if (!StringParser::IsValidEmailAddress(sAddress))
+         return false;
+
+      std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
+      String sEmailAddress = pDA->ApplyAliasesOnAddress(sAddress);
+      outDomain = StringParser::ExtractDomain(sEmailAddress);
+      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(outDomain);
+      
+      return pDomain != nullptr;
+   }
 }

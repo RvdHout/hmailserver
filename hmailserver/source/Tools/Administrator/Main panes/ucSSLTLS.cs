@@ -50,9 +50,9 @@ namespace hMailServer.Administrator
            checkTlsVersion11.Checked = settings.TlsVersion11Enabled;
            checkTlsVersion12.Checked = settings.TlsVersion12Enabled;
            checkTlsVersion13.Checked = settings.TlsVersion13Enabled;
-            checkTlsOptionPreferServerCiphers.Checked = settings.TlsOptionPreferServerCiphersEnabled;
-            checkTlsOptionPrioritizeChaCha.Enabled = (settings.TlsVersion12Enabled || settings.TlsVersion13Enabled) && settings.TlsOptionPreferServerCiphersEnabled;
-            checkTlsOptionPrioritizeChaCha.Checked = settings.TlsOptionPrioritizeChaChaEnabled;
+           checkTlsOptionPreferServerCiphersEnabled.Checked = settings.TlsOptionPreferServerCiphersEnabled;
+           checkTlsOptionPrioritizeChaChaEnabled.Enabled = (settings.TlsVersion12Enabled || settings.TlsVersion13Enabled) && checkTlsOptionPreferServerCiphersEnabled.Checked;
+           checkTlsOptionPrioritizeChaChaEnabled.Checked = settings.TlsOptionPrioritizeChaChaEnabled;
 
            Marshal.ReleaseComObject(settings);
         }
@@ -69,8 +69,8 @@ namespace hMailServer.Administrator
               checkTlsVersion11.Dirty ||
               checkTlsVersion12.Dirty ||
               checkTlsVersion13.Dirty ||
-              checkTlsOptionPreferServerCiphers.Dirty ||
-              checkTlsOptionPrioritizeChaCha.Dirty;
+              checkTlsOptionPreferServerCiphersEnabled.Dirty ||
+              checkTlsOptionPrioritizeChaChaEnabled.Dirty;
 
            settings.VerifyRemoteSslCertificate = checkVerifyRemoteServerSslCertificate.Checked;
            settings.SslCipherList = textSslCipherList.Text;
@@ -80,8 +80,8 @@ namespace hMailServer.Administrator
            settings.TlsVersion12Enabled = checkTlsVersion12.Checked;
            settings.TlsVersion13Enabled = checkTlsVersion13.Checked;
 
-			settings.TlsOptionPreferServerCiphersEnabled = checkTlsOptionPreferServerCiphers.Checked;
-            settings.TlsOptionPrioritizeChaChaEnabled = checkTlsOptionPrioritizeChaCha.Enabled && checkTlsOptionPrioritizeChaCha.Checked;
+           settings.TlsOptionPreferServerCiphersEnabled = checkTlsOptionPreferServerCiphersEnabled.Checked;
+           settings.TlsOptionPrioritizeChaChaEnabled = checkTlsOptionPrioritizeChaChaEnabled.Enabled && checkTlsOptionPrioritizeChaChaEnabled.Checked;
 
            Marshal.ReleaseComObject(settings);
 
@@ -103,11 +103,11 @@ namespace hMailServer.Administrator
         {
            Instances.MainForm.OnContentChanged();
 
-            checkTlsOptionPrioritizeChaCha.Enabled = (checkTlsVersion12.Checked || checkTlsVersion13.Checked) && checkTlsOptionPreferServerCiphers.Checked;
-            if (!checkTlsOptionPrioritizeChaCha.Enabled && checkTlsOptionPrioritizeChaCha.Checked)
-            {
-                checkTlsOptionPrioritizeChaCha.Checked = false;
-            }
+           checkTlsOptionPrioritizeChaChaEnabled.Enabled = (checkTlsVersion12.Checked || checkTlsVersion13.Checked) && checkTlsOptionPreferServerCiphersEnabled.Checked;
+           if (!checkTlsOptionPrioritizeChaChaEnabled.Enabled && checkTlsOptionPrioritizeChaChaEnabled.Checked)
+           {
+              checkTlsOptionPrioritizeChaChaEnabled.Checked = false;
+           }
         }
 
         private void OnContentChanged(object sender, EventArgs e)

@@ -50,7 +50,8 @@ namespace HM
       void ApplyAction_ScriptFunction(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const;
       void ApplyAction_SetHeader(std::shared_ptr<RuleAction> pAction, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData) const;
 
-      ;
+      // Function for checking if an email address is part of a local domain.
+      bool IsLocalDomain(const String &sAddress, String &outDomain) const;
 
    private:
 
