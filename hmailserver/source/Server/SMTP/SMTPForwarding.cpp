@@ -11,15 +11,7 @@
 #include "../Common/BO/MessageData.h"
 #include "../Common/BO/Message.h"
 #include "../Common/BO/MessageRecipients.h"
-
 #include "../Common/Persistence/PersistentMessage.h"
-
-#include "../Common/BO/DomainAliases.h"
-#include "../Common/Application/ObjectCache.h"
-#include "../Common/Cache/CacheContainer.h"
-#include "../Common/AntiSpam/DKIM/DKIMSigner.h"
-
-#include "../common/Util/MailerDaemonAddressDeterminer.h"
 
 #include "RecipientParser.h"
 
@@ -100,26 +92,8 @@ namespace HM
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
 
-      // DKIM-tag the copied message before forwarding, but only if both are local domains and not equal 
-      if (!pNewMessage->GetFromAddress().IsEmpty() && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
-      {
-         String fromDomain;
-         String recipientDomain;
-
-         if (IsLocalDomain(pNewMessage->GetFromAddress(), fromDomain) && IsLocalDomain(pRecipientAccount->GetAddress(), recipientDomain))
-         {
-            if (fromDomain.CompareNoCase(recipientDomain) != 0 && pNewMessage->GetNoOfRetries() == 0)
-            {
-               DKIMSigner signer;
-               signer.Sign(pNewMessage);
-            }
-         }
-      }
-
-      String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pNewMessage);
-      if (pNewMessage->GetFromAddress().IsEmpty())
-         pNewMessage->SetFromAddress(sMailerDaemonAddress);
-      else if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
+      String sEnvelopeFrom = pOriginalMessage->GetFromAddress();
+      if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !sEnvelopeFrom.IsEmpty())
          pNewMessage->SetFromAddress(pRecipientAccount->GetAddress());
 
       pNewMessage->SetState(Message::Delivering);
@@ -128,6 +102,8 @@ namespace HM
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       const String newFileName = PersistentMessage::GetFileName(pNewMessage);
       pNewMsgData->LoadFromMessage(newFileName, pNewMessage);
+      if (!sEnvelopeFrom.IsEmpty())
+         pNewMsgData->SetFieldValue("X-Forwarded-For", sEnvelopeFrom);
       pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->Write(newFileName);
 
@@ -154,21 +130,5 @@ namespace HM
       return bKeepOriginal;
    }
 
-   bool
-   SMTPForwarding::IsLocalDomain(const String &sAddress, String &outDomain) const
-   {
-      if (sAddress.IsEmpty())
-         return false;
-
-      if (!StringParser::IsValidEmailAddress(sAddress))
-         return false;
-
-      std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
-      String sEmailAddress = pDA->ApplyAliasesOnAddress(sAddress);
-      outDomain = StringParser::ExtractDomain(sEmailAddress);
-      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(outDomain);
-      
-      return pDomain != nullptr;
-   }
 }
 

@@ -14,12 +14,15 @@ if (!GetHasRuleAccess($domainid, $accountid))
    
 include "include/rule_strings.php";  
 
- 
-if ($domainid == 0)
+if ($domainid == 0) {
    $rule = $obBaseApp->Rules->ItemByDBID($ruleid);
-else
+   $accountaddress = "";
+   $accountname = "";
+} else {
    $rule = $obBaseApp->Domains->ItemByDBID($domainid)->Accounts->ItemByDBID($accountid)->Rules->ItemByDBID($ruleid);
-  
+   $accountaddress = $obBaseApp->Domains->ItemByDBID($domainid)->Accounts->ItemByDBID($accountid)->Address;
+   $accountname = $obBaseApp->Domains->ItemByDBID($domainid)->Accounts->ItemByDBID($accountid)->PersonFirstName . " " . $obBaseApp->Domains->ItemByDBID($domainid)->Accounts->ItemByDBID($accountid)->PersonLastName;
+}
   
 if ($action == "edit")
 {  
@@ -42,8 +45,8 @@ else
    $To = "";
    $IMAPFolder = "";
    $ScriptFunction = "";
-   $FromName = "";
-   $FromAddress = "";
+   $FromName = strlen(trim($accountname)) > 0 ? $accountname : "";
+   $FromAddress = strlen(trim($accountaddress)) > 0 ? $accountaddress : "";
    $Subject = "";
    $Body = "";
    $HeaderName = "";
@@ -123,7 +126,7 @@ function hideAllPanels()
                         $eRASetHeaderValueSelected = $Type == eRASetHeaderValue ? "selected" : "";
                         $eRASendUsingRouteSelected = $Type == eRASendUsingRoute ? "selected" : "";
                         $eRACreateCopy = $Type == eRACreateCopy ? "selected" : "";
-                        $eRABindToAddress = $Type == eRABindToAddress ? "selected" : "";
+						$eRABindToAddress = $Type == eRABindToAddress ? "selected" : "";
                      
                         echo "<option value= " . eRADeleteEmail . " $eRADeleteEmailSelected>" . GetRuleActionString(eRADeleteEmail) .  "</option>";
                         echo "<option value= " . eRAForwardEmail . " $eRAForwardEmailSelected>" . GetRuleActionString(eRAForwardEmail) .  "</option>";

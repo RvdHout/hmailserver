@@ -26,7 +26,7 @@ if ($action == "edit")
    $DaysToKeepMessages    = $obFetchAccount->DaysToKeepMessages;
    $MinutesBetweenFetch   = $obFetchAccount->MinutesBetweenFetch;
    $Port  				  = $obFetchAccount->Port;
-   $MIMERecipientHeaders = $obFetchAccount->MIMERecipientHeaders;
+   $MIMERecipientHeaders  = $obFetchAccount->MIMERecipientHeaders;
    $ProcessMIMERecipients = $obFetchAccount->ProcessMIMERecipients;
    $ProcessMIMEDate       = $obFetchAccount->ProcessMIMEDate;
    $ServerAddress  		  = $obFetchAccount->ServerAddress;

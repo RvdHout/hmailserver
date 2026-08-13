@@ -208,7 +208,7 @@ namespace HM
    void 
    MessageData::SetReturnPath(const String &sReturnPath)
    {
-      SetFieldValue("Return-Path", "<" + sReturnPath + ">");
+      SetFieldValue("Return-Path", sReturnPath.IsEmpty() ? "<>" : "<" + sReturnPath + ">");
    }
 
    String
@@ -264,6 +264,30 @@ namespace HM
          sRetVal = mime_mail_->GetRawFieldValue(sName);
 
       return sRetVal;
+   }
+
+   void
+   MessageData::SetReplyThreadingHeaders(const MessageData &source)
+   {
+      // RFC 3834, an automated response must include both the In-Reply-To and References headers mapping back to the original message's Message-ID, 
+      // provided that the incoming message had one.
+
+      const String originalMessageID = source.GetFieldValue("Message-ID");
+      if (originalMessageID.IsEmpty())
+         return;
+
+      SetFieldValue("In-Reply-To", originalMessageID);
+
+      String references = source.GetFieldValue("References");
+      if (!references.ContainsNoCase(originalMessageID))
+      {
+         if (!references.IsEmpty())
+            references += " ";
+
+         references += originalMessageID;
+      }
+
+      SetFieldValue("References", references);
    }
 
    int 

@@ -58,20 +58,32 @@ namespace HM
    }
 
    // search for string2 in string1 (strstr)
-   static const char* FindString(const char* pszStr1, const char* pszStr2, const char* pszEnd)
+   const char* FindString(const char* haystack,
+      const char* needle,
+      const char* haystackEnd) // one past last valid char
    {
-      pszEnd -= ::strlen(pszStr2);
-      const char *s1, *s2;
-      while (pszStr1 <= pszEnd)
+      if (haystack == NULL || needle == NULL || haystackEnd == NULL)
+         return NULL;
+
+      const size_t needleLength = std::strlen(needle);
+      if (needleLength == 0)
+         return haystack;
+
+      if (haystackEnd <= haystack)
+         return NULL;
+
+      const size_t haystackLength = static_cast<size_t>(haystackEnd - haystack);
+      if (needleLength > haystackLength)
+         return NULL;
+
+      const char* const lastStart = haystack + (haystackLength - needleLength);
+      while (haystack <= lastStart)
       {
-         s1 = pszStr1;
-         s2 = pszStr2;
-         while (*s1 == *s2 && *s2)
-            s1++, s2++;
-         if (!*s2)
-            return pszStr1;
-         pszStr1++;
+         if (std::memcmp(haystack, needle, needleLength) == 0)
+            return haystack;
+         ++haystack;
       }
+
       return NULL;
    }
 
@@ -133,7 +145,27 @@ namespace HM
 
       bool encodedParameter = false;
 
-      std::vector<AnsiString> parameters = StringParser::SplitString(AnsiString(value_), ";");
+      // Split on ';' while respecting quoted strings, so that parameter values
+      // which legally contain semicolons (e.g. filename="semi;colon.dll") are
+      // not broken across segments.
+      std::vector<AnsiString> parameters;
+      {
+         AnsiString current;
+         bool inQuote = false;
+         for (size_t i = 0; i < value_.size(); i++)
+         {
+            char c = value_[i];
+            if (c == '"') inQuote = !inQuote;
+            if (!inQuote && c == ';')
+            {
+               parameters.push_back(current);
+               current = "";
+            }
+            else
+               current += c;
+         }
+         parameters.push_back(current);
+      }
 
       for (unsigned int i = 1; i < parameters.size(); i++)
       {
@@ -181,31 +213,39 @@ namespace HM
          valuePos++;
 
          // Locate the start of the actual value. May be enclosed with quotes.
-         // 
-         // For instance, this is perfectly valid 
+         // Track whether it is quoted so we can find the correct closing delimiter.
+         //
+         // For instance, this is perfectly valid
          // Content-Type: text/plain; charset = "iso-8859-1"
          //
+         bool isQuoted = false;
          for (; valuePos < value.GetLength(); valuePos++)
          {
             char c = value[valuePos];
 
-            if (c == ' ' || c == '"')
+            if (c == ' ')
                continue;
-            else
-               break;
+            else if (c == '"') { isQuoted = true; valuePos++; break; }
+            else break;
          }
 
-         // Locate the end of the value. The value may contain
-         // pretty much any character, including space.
+         // Locate the end of the value.
+         // For quoted values scan to the closing '"'; for unquoted values scan
+         // to the next ';' or '"'.  This ensures semicolons inside quoted values
+         // (e.g. filename="semi;colon.dll") are included in the result.
          int valueEndPos = valuePos;
          for (; valueEndPos < value.GetLength(); valueEndPos++)
          {
             char c = value[valueEndPos];
 
-            if (c == ';' || c == '"')
-               break;
+            if (isQuoted)
+            {
+               if (c == '"') break;
+            }
             else
-               continue;
+            {
+               if (c == ';' || c == '"') break;
+            }
          }
 
          int valueLength = valueEndPos - valuePos;
@@ -213,7 +253,7 @@ namespace HM
          value = value.Mid(valuePos, valueLength);
 
          // If the value is
-         //    Content-Type: text/plain; charset = "iso-8859-1"  
+         //    Content-Type: text/plain; charset = "iso-8859-1"
          // it needs to be trimmed.
          value.TrimRight();
 
@@ -248,6 +288,34 @@ namespace HM
       strValue.TrimLeft();
 
       return true;
+   }
+
+   // Remove all parameters whose base name matches pszAttr, including RFC 2231
+   // continuation parameters (filename*0, filename*1, ...) and encoded variants (filename*).
+   void MimeField::RemoveParameter(const char* pszAttr)
+   {
+      bool encodedParameter;
+      int nPos, nSize;
+      bool changed = false;
+
+      while (FindParameter(pszAttr, nPos, nSize, encodedParameter))
+      {
+         // nPos points to the value start (right after '=').
+         // Walk backwards to find the ';' that begins this parameter segment.
+         // rfind is safe here: any ';' inside a preceding quoted value is at a position
+         // less than that value's opening '"', which is itself less than nPos.
+         string::size_type segStart = value_.rfind(';', nPos);
+         if (segStart == string::npos)
+            break;
+
+         size_t segEnd = nPos + nSize;
+
+         value_.erase(segStart, segEnd - segStart);
+         changed = true;
+      }
+
+      if (changed)
+         modified_ = true;
    }
 
    int MimeField::GetLength() const
@@ -413,12 +481,13 @@ namespace HM
          const char* pszParmEnd = NULL;
          if (*pszParms == '"')		// quoted string
             pszParmEnd = ::strchr(pszParms+1, '"');
-         if (!pszParmEnd)			// non quoted string
+         if (!pszParmEnd)			// non quoted string (includes RFC 2231 values like UTF-8''name)
          {
             pszParmEnd = pszParms;
 
-            // Locate end of parameter value.
-            while (CMimeChar::IsToken(*pszParmEnd) || (*pszParmEnd == '.'))
+            // Scan to the next ';' or end. Using IsToken here is insufficient because
+            // RFC 2231 unquoted values contain non-token characters such as apostrophes.
+            while (*pszParmEnd && *pszParmEnd != ';')
                pszParmEnd++;
          }
          else  pszParmEnd++;			// pszParmEnd -> end of parameter value
@@ -507,12 +576,26 @@ namespace HM
    {
       AnsiString encoded_filename = MIMEUnicodeEncoder::EncodeValue("utf-8", file_name);
 
-      AnsiString sRawValue = GetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename());
-      if (!sRawValue.IsEmpty())
-         SetParameter(CMimeConst::ContentDisposition(), CMimeConst::Filename(), encoded_filename);
-      else
-         SetParameter(CMimeConst::ContentType(), CMimeConst::Name(), encoded_filename);
-      
+      MimeField* pfd = GetField(CMimeConst::ContentDisposition());
+      if (pfd != nullptr)
+      {
+         AnsiString existingValue;
+         if (pfd->GetParameter(CMimeConst::Filename(), existingValue))
+         {
+            // Remove all existing filename parameters, including RFC 2231 continuations
+            // (filename*0, filename*1, filename*), before setting the new single value.
+            pfd->RemoveParameter(CMimeConst::Filename());
+            pfd->SetParameter(CMimeConst::Filename(), encoded_filename);
+            return;
+         }
+      }
+
+      pfd = GetField(CMimeConst::ContentType());
+      if (pfd != nullptr)
+      {
+         pfd->RemoveParameter(CMimeConst::Name());
+         pfd->SetParameter(CMimeConst::Name(), encoded_filename);
+      }
    }
 
    String
@@ -681,7 +764,7 @@ namespace HM
    {
       static int s_nPartNumber = 0;
       char buf[80];
-      if (!pszBoundary)				// generate a new boundary delimeter
+      if (!pszBoundary)				// generate a new boundary delimiter
       {
          unsigned __int64 value = (unsigned __int64)::time(NULL) ^ (unsigned __int64)this;
          ::srand((unsigned int) value);
@@ -911,9 +994,10 @@ namespace HM
 
       AnsiString sEncodedValue;
       MimeCodeBase* pCoder = MimeEnvironment::CreateCoder("quoted-printable");
+      static_cast<MimeCodeQP*>(pCoder)->AddLineBreak(true);
       pCoder->SetInput(sMBText, sMBText.GetLength(), true);
       pCoder->GetOutput(sEncodedValue);
-      delete pCoder;   
+      delete pCoder;
 
       SetTransferEncoding("quoted-printable");
 
@@ -1137,9 +1221,10 @@ namespace HM
             size_t nLoaded = Load(pFileContents->GetCharBuffer(), pFileContents->GetSize() - 1, index, part_loaded);
 
             // Record source file and body offset for body preservation during save.
-            // For multipart messages, last_multipart_end_ is the position right after
-            // "--boundary--", excluding any trailing CRLF added by the SMTP transport.
-            // For simple messages, use the full Load() return value.
+            // For multipart messages, last_multipart_end_ mirrors what the parser
+            // actually consumed for the closing boundary, including the trailing
+            // CRLF when present in the source file. For simple messages, use the
+            // full Load() return value.
             source_file_ = pszFilename;
             body_byte_offset_ = last_header_size_;
             body_byte_end_ = (last_multipart_end_ > 0) ? last_multipart_end_ : nLoaded;
@@ -1467,10 +1552,7 @@ namespace HM
    // store the body part to un-encoded string buffer
    void MimeBody::Store(AnsiString &output, bool bIncludeHeader) const
    {
-#ifdef TEST_BUILD // RvdH
       // store header fields
-      int nSize = 0;
-#endif // TEST_BUILD
       if (bIncludeHeader)
          MimeHeader::Store(output);
 
@@ -1484,9 +1566,7 @@ namespace HM
       string strBoundary = GetBoundary();
       if (strBoundary.empty())
          return;					// boundary not be set
-#ifdef TEST_BUILD // RvdH
-      int nBoundSize = (int)strBoundary.size() + 6;
-#endif // TEST_BUILD
+
       for (BodyList::const_iterator it=bodies_.begin(); it!=bodies_.end(); it++)
       {
          // If the initial body ends with \r\n, remove them. We add new ones below.
@@ -1510,7 +1590,7 @@ namespace HM
    }
 
    String
-   MimeBody::GetCleanContentType() const
+      MimeBody::GetCleanContentType() const
    {
       String sMainPart = GetMainType();
       String sSubPart = GetSubType();
@@ -1519,7 +1599,7 @@ namespace HM
    }
 
    const char *
-   GetBoundaryEnd(const char *startSearch, const char *endSearch, string boundary)
+      GetBoundaryEnd(const char *startSearch, const char *endSearch, string boundary)
    {
       if (endSearch <= startSearch ||
          endSearch == 0 || 
@@ -1536,11 +1616,12 @@ namespace HM
       {
          counter--;
 
-         // return if the string after the boundary is either a newline, or a --.
-         // this is to prevent the problem that we return incorrect boundaries
-         // if the boundary string is a part of another boundary string.
-         size_t sizeRemainingAfterBoundaryString = endSearch - possibleEnding;
-         if (sizeRemainingAfterBoundaryString <= 2)
+         // We inspect the 2 bytes immediately following the full boundary text
+         // to verify that this is a real boundary line ("--" or "\r\n"), not
+         // just a boundary prefix found inside other content.
+         size_t bytesRemainingFromCandidate = endSearch - possibleEnding;
+         size_t bytesRequiredForBoundaryAndSuffix = boundary.length() + 2;
+         if (bytesRemainingFromCandidate < bytesRequiredForBoundaryAndSuffix)
          {
             // malformed message. the end of the character string is the boundary line with no trailing crlf or --.
             return 0;
@@ -1636,25 +1717,52 @@ namespace HM
       while (pszBound1 != NULL && pszBound1 < pszEnd && counter > 0)
       {
          counter--;
-         const char* pszStart = FindString(pszBound1+2, "\r\n", pszEnd);
-         if (pszBound1[strBoundary.size()] == '-' && pszBound1[strBoundary.size()+1] == '-')
-         {
-            // Closing boundary: record end right after "--boundary--" (before any trailing CRLF)
-            last_multipart_end_ = (pszBound1 + strBoundary.size() + 2) - pszDataBegin;
-            if (!pszStart)
-               break;
-            pszStart += 2;
-            return (int)(pszStart - pszDataBegin);	// reach the closing boundary
-         }
-         if (!pszStart)
+         // pszBound1 points at the start of "\r\n--boundary". Move past the
+         // boundary text so we can inspect what terminates this boundary line.
+         const char* pszAfterBoundary = pszBound1 + strBoundary.size();
+
+         // Need at least 2 bytes available to distinguish a closing boundary
+         // ("--") from a normal part boundary ("\r\n").
+         if (pszAfterBoundary + 2 > pszEnd)
             break;
-         pszStart += 2;
 
-#ifdef TEST_BUILD // RvdH
+         if (pszAfterBoundary[0] == '-' && pszAfterBoundary[1] == '-')
+         {
+            const char* pszAfterClosingBoundary = pszAfterBoundary + 2;
+
+            // Preserve the trailing CRLF after the closing boundary when it
+            // exists in the source file. Some malformed messages end directly
+            // at "--boundary--", so accept EOF there as well.
+            if (pszAfterClosingBoundary + 2 <= pszEnd &&
+                pszAfterClosingBoundary[0] == '\r' &&
+                pszAfterClosingBoundary[1] == '\n')
+            {
+               // Include the trailing CRLF after "--boundary--" in the preserved byte range.
+               last_multipart_end_ = (pszAfterClosingBoundary + 2) - pszDataBegin;
+               return (int)(pszAfterClosingBoundary + 2 - pszDataBegin);	// reach the closing boundary
+            }
+
+            // Preserve EOF exactly as it appeared on disk when the closing
+            // boundary is the final bytes in the file, but reject any extra
+            // trailing bytes such as "--boundary--garbage".
+            if (pszAfterClosingBoundary == pszEnd)
+            {
+               last_multipart_end_ = pszAfterClosingBoundary - pszDataBegin;
+               return (int)(pszAfterClosingBoundary - pszDataBegin);
+            }
+
+            break;
+         }
+
+         // A non-closing part boundary must be followed by CRLF before the
+         // next part headers begin. If not, stop parsing rather than scanning
+         // past the valid input range looking for a newline.
+         if (pszAfterBoundary[0] != '\r' || pszAfterBoundary[1] != '\n')
+            break;
+
+         const char* pszStart = pszAfterBoundary + 2;
+
          // look for the next boundary
-         string strBoundaryLine = strBoundary + "\r\n";
-#endif // TEST_BUILD
-
          const char* pszBound2 = GetBoundaryEnd(pszStart, pszEnd, strBoundary.c_str());
 
          if (!pszBound2)				// overflow, boundary may be truncated

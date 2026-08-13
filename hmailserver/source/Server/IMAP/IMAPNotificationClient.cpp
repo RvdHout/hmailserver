@@ -188,7 +188,7 @@ namespace HM
          SendEXISTS_(lastExists);
 
       if (lastRecent >= 0)
-         SendRECENT_(lastExists);
+         SendRECENT_(lastRecent);
 
       std::vector<std::shared_ptr<ChangeNotification> >::iterator iter = cached_changes_.begin();
       

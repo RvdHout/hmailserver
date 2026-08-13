@@ -3,6 +3,7 @@
 
 #include "StdAfx.h"
 #include ".\IPAddress.h"
+#include "../Util/Assert.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -343,5 +344,35 @@ namespace HM
          return false;
       else
          return true;
+   }
+
+   void
+   IPAddressTester::Test()
+   {
+      // IPv4 parsing
+      IPAddress ipv4;
+      Assert::IsTrue(ipv4.TryParse("192.168.1.1", false));
+      Assert::AreEqual("192.168.1.1", ipv4.ToString());
+      Assert::IsTrue(ipv4.GetType() == IPAddress::IPV4);
+
+      // IPv6 parsing (exercises make_address_v6)
+      IPAddress ipv6;
+      Assert::IsTrue(ipv6.TryParse("::1", false));
+      Assert::AreEqual("::1", ipv6.ToString());
+      Assert::IsTrue(ipv6.GetType() == IPAddress::IPV6);
+
+      // Invalid address
+      IPAddress invalid;
+      Assert::IsFalse(invalid.TryParse("not-an-address", false));
+
+      // IsValid (exercises make_address)
+      Assert::IsTrue(IPAddress::IsValid("10.0.0.1"));
+      Assert::IsTrue(IPAddress::IsValid("2001:db8::1"));
+      Assert::IsFalse(IPAddress::IsValid("999.999.999.999"));
+
+      // Special case: 255.255.255.255 (Windows workaround path)
+      IPAddress broadcast;
+      Assert::IsTrue(broadcast.TryParse("255.255.255.255", false));
+      Assert::AreEqual("255.255.255.255", broadcast.ToString());
    }
 }

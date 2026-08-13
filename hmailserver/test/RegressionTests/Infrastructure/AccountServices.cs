@@ -48,7 +48,7 @@ namespace RegressionTests.Infrastructure
 
       [Test]
       [Category("Accounts")]
-      [Description("Ensure that messges aren't forwarded if they re deleted using a rule.")]
+      [Description("Ensure that messages aren't forwarded if they re deleted using a rule.")]
       public void ConfirmSingleReturnPathAfterRuleForward()
       {
          // Create a test account
@@ -134,7 +134,14 @@ namespace RegressionTests.Infrastructure
 
          // Send 2 messages to this account.
          var smtpClientSimulator = new SmtpClientSimulator();
-         smtpClientSimulator.Send(oAccount1.Address, oAccount2.Address, "Test message", "This is the body");
+         const string messageID = "<vacation-threading@test.com>";
+         const string previousReference = "<previous-vacation-message@example.test>";
+         smtpClientSimulator.SendRaw(oAccount1.Address, oAccount2.Address,
+            "Message-ID: " + messageID + "\r\n" +
+            "References: " + previousReference + "\r\n" +
+            "Subject: Test message\r\n" +
+            "\r\n" +
+            "This is the body");
 
          var pop3ClientSimulator = new Pop3ClientSimulator();
          Pop3ClientSimulator.AssertMessageCount(oAccount1.Address, "test", 1);
@@ -142,6 +149,11 @@ namespace RegressionTests.Infrastructure
          string s = pop3ClientSimulator.GetFirstMessageText(oAccount1.Address, "test");
          if (s.IndexOf("Out of office!") < 0)
             throw new Exception("ERROR - Auto reply subject not set properly.");
+         Assert.IsTrue(s.Contains("Return-Path: <>"),
+            "Vacation reply envelope sender must be empty (<>) to prevent mail loops per RFC 3834.");
+         Assert.IsTrue(s.Contains("Auto-Submitted: auto-replied"));
+         Assert.IsTrue(s.Contains("In-Reply-To: " + messageID));
+         Assert.IsTrue(s.Contains("References: " + previousReference + " " + messageID));
 
          oAccount2.VacationMessageIsOn = false;
          oAccount2.Save();
@@ -415,6 +427,72 @@ namespace RegressionTests.Infrastructure
          //Assert.IsTrue(message.Contains("Return-Path: sender@test.com"));
          //RvdH
          Assert.IsTrue(message.Contains("Return-Path: <sender@test.com>"));
+      }
+
+      [Test]
+      [Category("Accounts")]
+      [Description("When forwarding a bounce (MAIL FROM:<>), the null envelope-from must be preserved so the forwarded copy cannot itself generate a bounce loop.")]
+      public void WhenAccountForwardingBounceMessageShouldPreserveNullEnvelopeFrom()
+      {
+         var forwarder = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "forwarder@test.com", "test");
+         var recipient = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient@test.com", "test");
+
+         forwarder.ForwardEnabled = true;
+         forwarder.ForwardAddress = recipient.Address;
+         forwarder.ForwardKeepOriginal = true;
+         forwarder.Save();
+
+         // Send with empty envelope-from (MAIL FROM:<>), simulating a bounce/DSN.
+         var smtp = new SmtpClientSimulator();
+         smtp.Send("", new System.Collections.Generic.List<string> { forwarder.Address }, "Bounce subject", "Bounce body");
+
+         Pop3ClientSimulator.AssertMessageCount(forwarder.Address, "test", 1);
+
+         _application.SubmitEMail();
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(recipient.Address, "test");
+         Assert.IsTrue(message.Contains("Return-Path: <>"),
+            "Forwarding a bounce must preserve the null envelope-from to prevent bounce loops.");
+      }
+
+      [Test]
+      [Category("Accounts")]
+      [Description("When a rule forwards a bounce (MAIL FROM:<>), the null envelope-from must be preserved so the forwarded copy cannot itself generate a bounce loop.")]
+      public void WhenRuleForwardsBounceMessageShouldPreserveNullEnvelopeFrom()
+      {
+         var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "rulefwd-src@test.com", "test");
+         var account2 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "rulefwd-dst@test.com", "test");
+
+         var rule = account1.Rules.Add();
+         rule.Name = "Forward all";
+         rule.Active = true;
+
+         var criteria = rule.Criterias.Add();
+         criteria.UsePredefined = true;
+         criteria.PredefinedField = eRulePredefinedField.eFTMessageSize;
+         criteria.MatchType = eRuleMatchType.eMTGreaterThan;
+         criteria.MatchValue = "0";
+         criteria.Save();
+
+         var action = rule.Actions.Add();
+         action.Type = eRuleActionType.eRAForwardEmail;
+         action.To = account2.Address;
+         action.Save();
+
+         rule.Save();
+
+         // Send with empty envelope-from (MAIL FROM:<>), simulating a bounce/DSN.
+         var smtp = new SmtpClientSimulator();
+         smtp.Send("", new System.Collections.Generic.List<string> { account1.Address }, "Bounce subject", "Bounce body");
+
+         Pop3ClientSimulator.AssertMessageCount(account1.Address, "test", 1);
+         _application.SubmitEMail();
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(account2.Address, "test");
+         Assert.IsTrue(message.Contains("Return-Path: <>"),
+            "Rule-based forwarding of a bounce must preserve the null envelope-from to prevent bounce loops.");
       }
 
       [Test]

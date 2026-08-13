@@ -146,7 +146,7 @@ namespace hMailServer.Administrator
          this.checkTlsOptionPreferServerCiphersEnabled.Checked = true;
          this.checkTlsOptionPreferServerCiphersEnabled.CheckState = System.Windows.Forms.CheckState.Checked;
          this.checkTlsOptionPreferServerCiphersEnabled.Location = new System.Drawing.Point(33, 377);
-         this.checkTlsOptionPreferServerCiphersEnabled.Name = "checkTlsOptionPreferServerCiphers";
+         this.checkTlsOptionPreferServerCiphersEnabled.Name = "checkTlsOptionPreferServerCiphersEnabled";
          this.checkTlsOptionPreferServerCiphersEnabled.Size = new System.Drawing.Size(140, 17);
          this.checkTlsOptionPreferServerCiphersEnabled.TabIndex = 26;
          this.checkTlsOptionPreferServerCiphersEnabled.Text = "Prefer server cipher order";

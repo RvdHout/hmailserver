@@ -3,7 +3,7 @@
 #define HMAILSERVER_VERSION "5.6.9"
 #define HMAILSERVER_VERSION_NUMERIC 5,6,9,2641
 #define HMAILSERVER_BUILD "2641"
-#define HMAILSERVER_MOD "95"
+#define HMAILSERVER_MOD "100"
 
 /*
 [list=1]
@@ -60,7 +60,6 @@
 [*]Removed: Collection of statistics, since it's no longer being used. [url=https://github.com/hmailserver/hmailserver/issues/435]issue #435[/url]
 [*]Fix: If MSSQL OLE DB Provider 18 or later is installed, prefer that one, since it supports TLS1.1/1.2 which older providers do not. [url=https://github.com/hmailserver/hmailserver/issues/186]issue 186[/url]
 [*]Added: %MACRO_ORIGINAL_HEADER% macro expansion for 'Set header value' rules
-[*]Fix: S/MIME Signed Message Failing Signature Validation due to X-hMailServer-Envelope-From header position, effectively this means ungrouping of the X-hMailServer-* headers
 [*]Fix: Error logged if email address length exceeds 254 characters [url=https://github.com/hmailserver/hmailserver/issues/393]issue #393[/url]
 [*]Fix: DKIM Signing Not Performed On Messages > 10 MB [url=https://github.com/hmailserver/hmailserver/issues/387]issue #387[/url]
 [*]Fix: DKIM (header) verification fails when an email is received with no subject [url=https://github.com/hmailserver/hmailserver/issues/245]issue #245[/url]
@@ -71,29 +70,22 @@
 [*]Fix: All 5xx errors are permanent errors and should be treated as such, eg: contributing to invalid commands counter
 [*]Fix: hMailServer reports incorrect RFC822.SIZE [url=https://github.com/hmailserver/hmailserver/pull/477]pull 477[/url]
 [*]Fix: hMailServer AUTH PLAIN in SMTP fails when authzid is supplied
-[*]Fix: Minor bugfix where the Received-SPF diagnostic header gave incomplete or inaccurate results
-[*]Fix: Minor bugfix where the Received-SPF diagnostic header gave inaccurate results when receiving mail through a (trusted/internal) relay
 [*]Added: IPv6 Support for BLCheck [url=https://github.com/hmailserver/hmailserver/pull/487]pull 487[/url]
 [*]Experimental: improved SA winsock 2 error fix, ignore all boost::asio::error::eof errors which probably are related to IMAP FETCH HM5136 errors
 [*]Fix: Improved AUTH PLAIN base64 encoded username and password masking, retain client command format for troubleshooting purposes
 [*]Fix: SURBL modification to check full URI's and trimmed down URI's
 [*]Fix: Strip possible spaces in DKIM 'p' parameter, there shouldn't be any spaces but it's a common mistake so we act lenient and strip any spaces found
-[*]Fix: Apple IOS related HM5136, HM4208 and subsequent "OutOfMemoryHandler" errors [url=https://github.com/hmailserver/hmailserver/issues/475]issue 475[/url], credits to Rado https://github.com/hunterius-prime
 [*]Added: Google Feedback Loop header Feedback-ID in DKIM signing [url=https://github.com/hmailserver/hmailserver/pull/492]pull 492[/url]
 [*]Fix: Better log on forward failures, https://github.com/maxsnts/hmailserver/commit/7e285c3a1abe11ad4605aa71bd64176989c473a1
 [*]Fix: Spam scoring/marking/count inconsistencies
-[*]Added: eMessageFlag Spam = 128
-[*]Added: Abort forwarding if original message is marked as Spam
-[*]Added: Abort vacationmessage if original message is marked as Spam
+[*]Added: Message SpamFlag, optionally disable reply/forward when spam marked, see [url=https://github.com/hmailserver/hmailserver/pull/523]pull 523[/url]
 [*]Added: Abort autoreply/forwarding through rules if original message is marked as Spam
-[*]Fix: IMAP FETCH on message/rfc822 MIME part (roundcube specific when messages are forwarded as attachment)
 [*]Added: Optionally add X-Original-Rcpt-To-header to incoming email [url=https://github.com/hmailserver/hmailserver/issues/498]issue 498[/url]
 [*]Restructure SMTPMessageHeaderCreator
 [*]Added: Support for secp384r1:x25519 Server Key Exchange Groups, if prefer server ciphers is enabled secp384r1:x25519:secp256r1 is now the prefered order
 [*]Fix: Could not retrieve PTR record from local mail client https://www.hmailserver.com/forum/viewtopic.php?p=258078
 [*]Fix: Improve SUBRL lookup efficiency
 [*]Added: Allow unauthenticated local to local e-mail delivery on SPF Pass controlled with INI setting LocalToLocalByPassAuthOnSPFPass=1, see: [url=https://www.hmailserver.com/forum/viewtopic.php?p=258436]this[/url] forum topic
-[*]Fix: Various other (small) fixes and improvements
 [*]Fix: Prevent EHLO/HELO bypass via SMTP RSET, see: [url=https://github.com/cybercode3/hmailserver/commit/88ec404b05550bd4879e153439bf6a7f14eb6638]this[/url] commit
 [*]Fix: POP3 Return -ERR instead of +ERR when inbox message fetch fails, see: [url=https://github.com/cybercode3/hmailserver/commit/bc31f5eedd2d39ac320caf9870e5191eb835067c]this[/url] commit
 [*]Fix: Prevent rewrite of message untouched message parts, , see: [url=https://github.com/hmailserver/hmailserver/pull/506]pull 506[/url]
@@ -101,6 +93,19 @@
 [*]Fix: Fix false positives in line ending check, see: [url=https://github.com/hmailserver/hmailserver/pull/508]pull 508[/url]
 [*]Fix: Improved regex for validation of email addresses & domains, see [url=https://github.com/hmailserver/hmailserver/pull/509]pull 509[/url]
 [*]Fix: Scheduled Expiry of Auto-reply doesnt clear the 'already replied' cache, see: [url=https://github.com/hmailserver/hmailserver/pull/510]pull 510[/url]
-[*]Added: DKIM sign (forwarded) messages send from local to local domains, see: [url=https://github.com/hmailserver/hmailserver/issues/511]issue 511[/url]
+[*]Fix: DKIM-sign all email sent from domain, use From header instead of envelope-from, see: [url=https://github.com/hmailserver/hmailserver/pull/512]pull 512[/url]
+[*]Fix: Respect RFC 3834 to avoid mail loops, eg: use envelope-from:<> (empty) for OOF/Automatic Replies and add X-Auto-Response-Suppress: All
+[*]Fix: IMAP FETCH does not properly honour "<start.size>" clause, see: [url=https://github.com/hmailserver/hmailserver/issues/334]issue 334[/url]
+[*]Fix: Invalid Recent-count in IMAP notifications, see: [url=https://github.com/hmailserver/hmailserver/commit/2c860c935a74799280136a527e4d85a64e29e609]this[/url] commit
+[*]Fix: Removed unnecessary message load, see: [url=https://github.com/hmailserver/hmailserver/commit/81ecc7f29d466b273d04be2c1c516bbcfdd51a7c]this[/url] commit
+[*]Fix: Fold long lines when using QP-encoding, see: [url=https://github.com/hmailserver/hmailserver/issues/171]issue 171[/url]
+[*]Fix: Long ZIP filenames and foreign "ö" cause 'block attachment' renaming and conversion errors, see: [url=https://github.com/hmailserver/hmailserver/issues/145]issue 145[/url]
+[*]Fix: Error occurs when fetching invalid body size, see: [url=https://github.com/hmailserver/hmailserver/issues/524]issue 524[/url]
+[*]Fix: Invalid content returned for BODY[X.MIME], see: [url=https://github.com/hmailserver/hmailserver/issues/459]issue 459[/url]
+[*]Fix: Email duplicated via route & catch all, see: [url=https://github.com/hmailserver/hmailserver/issues/200]issue 200[/url]
+[*]Fix: SMTP disconnect after STARTTLS handshake failure, see: [url=https://github.com/cybercode3/hmailserver/commit/0c58dc25d2ccb665f52666261aab431ae86b361a]this[/url] commit
+[*]Added: Optionally create additional IMAP default folders: Drafts, Junk, Sent and Trash controlled with INI setting "IMAPCreateDefaultFolders=1" (default = 0)
+[*]Added: Detect and apply SPECIAL-USE flags for well-known top-level folders so that clients map Sent/Drafts/Trash/Junk automatically instead of creating duplicates
+[*]Added: Add "In-Reply-To" and "References" headers to Auto-Submitted messages, see: [url=https://github.com/hmailserver/hmailserver/pull/535]pull 535[/url]
 [/list]
 */

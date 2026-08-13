@@ -13,6 +13,7 @@
 #include "../Util/Charset.h"
 #include "../Util/RegularExpression.h"
 #include "../TCPIP/LocalIPAddresses.h"
+#include "../TCPIP/IPAddress.h"
 #include "Time.h"
 #include "Utilities.h"
 #include "Parsing\AddresslistParser.h"
@@ -55,7 +56,7 @@ namespace HM
 
       OutputDebugString(_T("hMailServer: Testing mime parser\n"));
 	   MimeTester *pMimeTester = new MimeTester;
-      pMimeTester->TestFolder("C:\\Temp\\Testdata\\martin");
+      pMimeTester->Test();
 	   delete pMimeTester;
 
       OutputDebugString(_T("hMailServer: Testing StringParser\n"));
@@ -66,6 +67,10 @@ namespace HM
       OutputDebugString(_T("hMailServer: Testing FileUtilities\n"));
       FileUtilitiesTester fileUtilitiesTester;
       fileUtilitiesTester.Test();
+
+      OutputDebugString(_T("hMailServer: Testing IPAddress\n"));
+      IPAddressTester ipAddressTester;
+      ipAddressTester.Test();
 
       OutputDebugString(_T("hMailServer: Testing MessageUtilities\n"));
       MessageUtilitiesTester messageUtilitiesTester;

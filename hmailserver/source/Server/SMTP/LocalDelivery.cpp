@@ -196,7 +196,6 @@ namespace HM
       {
          String sMessage = Formatter::Format("SMTPDeliverer - Message {0}: The message was not delivered to {1} because a forward was set up for the account.",
             original_message_->GetID(), account->GetAddress());
-
          LOG_APPLICATION(sMessage);
 
          return false;
@@ -322,7 +321,9 @@ namespace HM
    {
       std::vector<std::pair<AnsiString, AnsiString> > fieldsToWrite;
 
-      fieldsToWrite.push_back(std::make_pair("Return-Path", "<" + pMessage->GetFromAddress() + ">"));
+      String sFromAddress = pMessage->GetFromAddress();
+      AnsiString sReturnPath = sFromAddress.IsEmpty() ? "<>" : "<" + sFromAddress + ">";
+      fieldsToWrite.push_back(std::make_pair("Return-Path", sReturnPath));
 
       if (Configuration::Instance()->GetSMTPConfiguration()->GetAddDeliveredToHeader())
          fieldsToWrite.push_back(std::make_pair("Delivered-To", sOriginalAddress));

@@ -136,6 +136,16 @@ namespace HM
       if (!isSelectable)
          nameAttributes += " \\Noselect";
 
+      // RFC 6154 special-use attributes for well-known top-level folders,
+      // so that clients map Sent/Drafts/Trash/Junk automatically instead
+      // of creating duplicates.
+      if (isSelectable && sFullPath.Find(hierarchyDelimiter) < 0)
+      {
+         String specialUse = GetSpecialUseAttribute_(sFullPath);
+         if (!specialUse.IsEmpty())
+            nameAttributes += " " + specialUse;
+      }
+
       // Workaround for Outlook "feature".
       AdjustCaseToClientCase_(sFullPath, sWildcard, hierarchyDelimiter);
 
@@ -148,7 +158,7 @@ namespace HM
       // Always quote the string. This is how GMail acts.
       sFullPath = "\"" + sFullPath + "\"";
 
-      String sFolderLine = "";
+      String sFolderLine;
 
       // \ needs to be escaped.
       hierarchyDelimiter.Replace(_T("\\"), _T("\\\\"));
@@ -159,6 +169,35 @@ namespace HM
          sFolderLine.Format(_T("* LIST (%s) \"%s\" %s"), nameAttributes.c_str(), hierarchyDelimiter.c_str(), sFullPath.c_str());
 
       return sFolderLine;
+   }
+
+   String
+   FolderListCreator::GetSpecialUseAttribute_(const String &folderName)
+   {
+      if (folderName.CompareNoCase(_T("Sent")) == 0 ||
+         folderName.CompareNoCase(_T("Sent Items")) == 0 ||
+         folderName.CompareNoCase(_T("Sent Messages")) == 0)
+         return "\\Sent";
+
+      if (folderName.CompareNoCase(_T("Drafts")) == 0)
+         return "\\Drafts";
+
+      if (folderName.CompareNoCase(_T("Trash")) == 0 ||
+         folderName.CompareNoCase(_T("Deleted Items")) == 0 ||
+         folderName.CompareNoCase(_T("Deleted Messages")) == 0)
+         return "\\Trash";
+
+      if (folderName.CompareNoCase(_T("Junk")) == 0 ||
+         folderName.CompareNoCase(_T("Junk E-mail")) == 0 ||
+         folderName.CompareNoCase(_T("Junk Email")) == 0 ||
+         folderName.CompareNoCase(_T("Spam")) == 0)
+         return "\\Junk";
+
+      if (folderName.CompareNoCase(_T("Archive")) == 0 ||
+         folderName.CompareNoCase(_T("Archives")) == 0)
+         return "\\Archive";
+
+      return {};
    }
 
    bool

@@ -54,6 +54,9 @@ namespace HM
 
       const String originalFileName = PersistentMessage::GetFileName(recipientAccount, pOriginalMessage);
 
+      std::shared_ptr<MessageData> pOriginalMsgData = std::shared_ptr<MessageData>(new MessageData());
+      pOriginalMsgData->LoadFromMessage(originalFileName, pOriginalMessage);
+
       if (sModifiedSubject.Find(_T("%")) >= 0 || sModifiedBody.Find(_T("%")) >= 0)
       {
          // Replace macros in the string.
@@ -86,11 +89,10 @@ namespace HM
       }
 
 
-      // Send a copy of this email.
+      // Reply to the email
       std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
 
       pMsg->SetState(Message::Delivering);
-      pMsg->SetFromAddress(recipientAccount->GetAddress());
 
       const String newFileName = PersistentMessage::GetFileName(pMsg);
 
@@ -98,7 +100,6 @@ namespace HM
       pNewMsgData->LoadFromMessage(newFileName, pMsg);
       
       // Required headers
-      pNewMsgData->SetReturnPath(recipientAccount->GetAddress());
       pNewMsgData->GenerateMessageID();
       pNewMsgData->SetSentTime(Time::GetCurrentMimeDate());
       pNewMsgData->SetFieldValue("Content-Type", "text/plain; charset=\"utf-8\"");
@@ -107,8 +108,9 @@ namespace HM
       pNewMsgData->SetFrom(recipientAccount->GetAddress());
       pNewMsgData->SetTo(sToAddress);
       pNewMsgData->SetSubject(sModifiedSubject);
+      pNewMsgData->SetReplyThreadingHeaders(*pOriginalMsgData);
       pNewMsgData->SetBody(sModifiedBody);
-	  pNewMsgData->SetAutoReplied();
+      pNewMsgData->SetAutoReplied();
       pNewMsgData->IncreaseRuleLoopCount();
       
       // Write message data

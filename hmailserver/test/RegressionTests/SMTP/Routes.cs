@@ -274,5 +274,50 @@ namespace RegressionTests.SMTP
          SmtpClientSimulator.StaticSend("test@test.com", "other@test.com", "A", "B");
          Pop3ClientSimulator.AssertMessageCount("test@test.com", "test", 1);
       }
+
+
+      [Test]
+      public void RecipientInRouteAndDomainHasCatchAll_EmailShouldNotGoToCatchAll()
+      {
+         // catchall is a local account; exchange-user is not a local account (lives on the remote server via route)
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "catchall@test.com", "test");
+
+         var deliveryResults = new Dictionary<string, int>();
+         deliveryResults["exchange-user@test.com"] = 250;
+
+         var smtpServerPort = TestSetup.GetNextFreePort();
+         using (var server = new SmtpServerSimulator(1, smtpServerPort))
+         {
+            server.AddRecipientResult(deliveryResults);
+            server.StartListen();
+
+            var route = _settings.Routes.Add();
+            route.DomainName = "test.com";
+            route.TargetSMTPHost = "localhost";
+            route.TargetSMTPPort = smtpServerPort;
+            route.NumberOfTries = 1;
+            route.MinutesBetweenTry = 5;
+            route.TreatRecipientAsLocalDomain = true;
+            route.TreatSenderAsLocalDomain = true;
+            route.AllAddresses = false;
+            route.Save();
+
+            var routeAddress = route.Addresses.Add();
+            routeAddress.Address = "exchange-user@test.com";
+            routeAddress.Save();
+            route.Save();
+
+            _domain.Postmaster = "catchall@test.com";
+            _domain.Save();
+
+            // exchange-user@example.test is in the route list — should follow route only, not catchall
+            SmtpClientSimulator.StaticSend("sender@test.com", "exchange-user@test.com", "Subject", "Body");
+
+            server.WaitForCompletion();
+
+            Assert.IsTrue(server.MessageData.Contains("Body"));
+            Pop3ClientSimulator.AssertMessageCount("catchall@test.com", "test", 0);
+         }
+      }
    }
 }

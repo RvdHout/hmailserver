@@ -35,6 +35,8 @@ using namespace std;
 // RFC 822 - Standard For The Format of ARPA Internet Text Message
 namespace HM
 {
+   const char* FindString(const char* pszStr1, const char* pszStr2, const char* pszEnd);
+
    class CMimeConst
    {
    public:
@@ -88,6 +90,7 @@ namespace HM
 
 	   void SetParameter(const char* pszAttr, const char* pszValue);
 	   bool GetParameter(const char* pszAttr, AnsiString& strValue) const;
+      void RemoveParameter(const char* pszAttr);
       /*
       encodedParameter indicates whether the content is encoding according to 
 

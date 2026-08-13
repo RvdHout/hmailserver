@@ -66,4 +66,10 @@ namespace HM
       boost::asio::ip::address address_;     
 
    };
+
+   class IPAddressTester
+   {
+   public:
+      void Test();
+   };
 }

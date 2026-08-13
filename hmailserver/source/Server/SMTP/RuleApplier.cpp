@@ -21,13 +21,7 @@
 #include "../Common/Util/Time.h"
 #include "../Common/Util/Utilities.h"
 #include "../Common/Util/RegularExpression.h"
-#include "../common/Util/MailerDaemonAddressDeterminer.h"
-
 #include "../Common/Persistence/PersistentMessage.h"
-
-#include "../Common/BO/DomainAliases.h"
-#include "../Common/Application/ObjectCache.h"
-#include "../Common/AntiSpam/DKIM/DKIMSigner.h"
 
 #include "RecipientParser.h"
 
@@ -93,8 +87,8 @@ namespace HM
    bool
    RuleApplier::ApplyRule_(std::shared_ptr<Rule> pRule, std::shared_ptr<const Account> account, std::shared_ptr<MessageData> pMsgData, bool &bContinueRuleProcessing, RuleResult &ruleResult)
    {
-		if (Logger::Instance()->GetLogDebug())
-			LOG_DEBUG(_T("Applying rule " + pRule->GetName()));
+      if (Logger::Instance()->GetLogDebug())
+         LOG_DEBUG(_T("Applying rule " + pRule->GetName()));
 
       bool bAllRequired = pRule->GetUseAND();
       bool bDoActions = false;
@@ -248,23 +242,7 @@ namespace HM
       if (!pMsg)
          return;
 
-      std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
-
-      // DKIM-tag the copied message before forwarding, but only if both are local domains and not equal 
-      if (pAccount && !pMsg->GetFromAddress().IsEmpty() && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
-      {
-         String fromDomain;
-         String recipientDomain;
-
-         if (IsLocalDomain(pMsg->GetFromAddress(), fromDomain) && IsLocalDomain(pAccount->GetAddress(), recipientDomain))
-         {
-            if (fromDomain.CompareNoCase(recipientDomain) != 0 && pMsg->GetNoOfRetries() == 0)
-            {
-               DKIMSigner signer;
-               signer.Sign(pMsg);
-            }
-         }
-      }
+      String sEnvelopeFrom = pMsg->GetFromAddress();
 
       pMsg->SetState(Message::Delivering);
 
@@ -275,15 +253,15 @@ namespace HM
 
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(emptyAccount, pMsg);
+      if (!sEnvelopeFrom.IsEmpty())
+         pNewMsgData->SetFieldValue("X-Forwarded-For", sEnvelopeFrom);
       pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->Write(newFileName);
       
       // We need to update the SMTP envelope from address, if this
-      // message is forwarded by a user-level account. 
-      String sMailerDaemonAddress = MailerDaemonAddressDeterminer::GetMailerDaemonAddress(pMsg);
-      if (pMsg->GetFromAddress().IsEmpty())
-         pMsg->SetFromAddress(sMailerDaemonAddress);
-      else if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding())
+      // message is forwarded by a user-level account.
+      std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
+      if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !sEnvelopeFrom.IsEmpty())
          pMsg->SetFromAddress(pAccount->GetAddress());
       
       // Add new recipients
@@ -446,34 +424,31 @@ namespace HM
          return; // skip message flagged as spam
       }
 
-
-      // Send a copy of this email.
+      // Reply to the email
       std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
+
       pMsg->SetState(Message::Delivering);
       
       String newMessageFileName = PersistentMessage::GetFileName(pMsg);
 
-	  // check if this us a user-level account rule or global rule.
-	  std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
-
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(newMessageFileName, pMsg);
-      if (!pAccount)
-	      pNewMsgData->SetReturnPath("");
+
+      // Required headers
       pNewMsgData->GenerateMessageID();
-      pNewMsgData->SetTo(sReplyRecipientAddress);
-      pNewMsgData->SetFrom(pAction->GetFromName() + " <" + pAction->GetFromAddress() + ">");
-      pNewMsgData->SetSubject(pAction->GetSubject());
-      pNewMsgData->SetBody(pAction->GetBody());
       pNewMsgData->SetSentTime(Time::GetCurrentMimeDate());
+
+      // Optional headers
+      pNewMsgData->SetFrom(pAction->GetFromName() + " <" + pAction->GetFromAddress() + ">");
+      pNewMsgData->SetTo(sReplyRecipientAddress);
+      pNewMsgData->SetSubject(pAction->GetSubject());
+      pNewMsgData->SetReplyThreadingHeaders(*pMsgData);
+      pNewMsgData->SetBody(pAction->GetBody());
       pNewMsgData->SetAutoReplied();
       pNewMsgData->IncreaseRuleLoopCount();
-      pNewMsgData->Write(newMessageFileName);
 
-      // We need to update the SMTP envelope from address, if this
-      // message is replied to by a user-level account.
-      if (pAccount)
-	      pMsg->SetFromAddress(pAccount->GetAddress());
+      // Write message data
+      pNewMsgData->Write(newMessageFileName);
 
       // Add recipients.
       bool recipientOK = false;
@@ -481,7 +456,6 @@ namespace HM
       recipientParser.CreateMessageRecipientList(sReplyRecipientAddress, pMsg->GetRecipients(), recipientOK);
 
       PersistentMessage::SaveObject(pMsg);
-
    }
 
    bool
@@ -644,22 +618,5 @@ namespace HM
          return false;
 
       return true;
-   }
-
-   bool
-   RuleApplier::IsLocalDomain(const String &sAddress, String &outDomain) const
-   {
-      if (sAddress.IsEmpty())
-         return false;
-
-      if (!StringParser::IsValidEmailAddress(sAddress))
-         return false;
-
-      std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
-      String sEmailAddress = pDA->ApplyAliasesOnAddress(sAddress);
-      outDomain = StringParser::ExtractDomain(sEmailAddress);
-      std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(outDomain);
-      
-      return pDomain != nullptr;
    }
 }

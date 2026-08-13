@@ -73,7 +73,25 @@ namespace HM
          return false;
 
       bool isInbox = pFolder->GetParentFolderID() == -1 && pFolder->GetFolderName().CompareNoCase(_T("Inbox")) == 0;
-      bool deleteActualFolder = forceDelete || !isInbox;
+
+      bool isDefaultFolder = false;
+      if (IniFileSettings::Instance()->GetIMAPCreateDefaultFolders())
+      {
+         // If the user has the default folders enabled, we don't delete the default folders.
+         if (pFolder->GetParentFolderID() == -1)
+         {
+            String folderName = pFolder->GetFolderName();
+            if (folderName.CompareNoCase(_T("Drafts")) == 0 ||
+               folderName.CompareNoCase(_T("Sent")) == 0 ||
+               folderName.CompareNoCase(_T("Trash")) == 0 ||
+               folderName.CompareNoCase(_T("Junk")) == 0)
+            {
+               isDefaultFolder = true;
+            }
+         }
+      }
+
+      bool deleteActualFolder = forceDelete || !isInbox && !isDefaultFolder;
 
       if (deleteActualFolder)
       {

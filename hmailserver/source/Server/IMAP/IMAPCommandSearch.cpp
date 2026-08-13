@@ -665,9 +665,6 @@ namespace HM
    {
       if (message_data_)
       {
-         message_data_ = std::shared_ptr<MessageData>(new MessageData());
-         message_data_->LoadFromMessage(fileName, pMessage);
-
          return message_data_->GetFieldValue(sHeaderField);
       }
       

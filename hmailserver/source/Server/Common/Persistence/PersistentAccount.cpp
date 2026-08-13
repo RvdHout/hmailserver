@@ -371,8 +371,37 @@ namespace HM
       std::shared_ptr<IMAPFolder> inbox = std::shared_ptr<IMAPFolder>(new IMAPFolder(account.GetID(), -1));
       inbox->SetFolderName("INBOX");
       inbox->SetIsSubscribed(true);
+      if (IniFileSettings::Instance()->GetIMAPCreateDefaultFolders())
+      {
+         if (!PersistentIMAPFolder::SaveObject(inbox)) return false;
 
-      return PersistentIMAPFolder::SaveObject(inbox);
+         // create additional default folders for the account.
+         std::shared_ptr<IMAPFolder> drafts = std::shared_ptr<IMAPFolder>(new IMAPFolder(account.GetID(), -1));
+         drafts->SetFolderName("Drafts");
+         drafts->SetIsSubscribed(true);
+         if (!PersistentIMAPFolder::SaveObject(drafts)) return false;
+
+         std::shared_ptr<IMAPFolder> junk = std::shared_ptr<IMAPFolder>(new IMAPFolder(account.GetID(), -1));
+         junk->SetFolderName("Junk");
+         junk->SetIsSubscribed(true);
+         if (!PersistentIMAPFolder::SaveObject(junk)) return false;
+
+         std::shared_ptr<IMAPFolder> sent = std::shared_ptr<IMAPFolder>(new IMAPFolder(account.GetID(), -1));
+         sent->SetFolderName("Sent");
+         sent->SetIsSubscribed(true);
+         if (!PersistentIMAPFolder::SaveObject(sent)) return false;
+
+         std::shared_ptr<IMAPFolder> trash = std::shared_ptr<IMAPFolder>(new IMAPFolder(account.GetID(), -1));
+         trash->SetFolderName("Trash");
+         trash->SetIsSubscribed(true);
+         if (!PersistentIMAPFolder::SaveObject(trash)) return false;
+
+         return true;
+      }
+      else 
+      {
+         return PersistentIMAPFolder::SaveObject(inbox);
+      }
    }
 
    bool 

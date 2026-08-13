@@ -35,7 +35,7 @@ $TlsVersion11Enabled 		= $obSettings->TlsVersion11Enabled;
 $TlsVersion12Enabled 		= $obSettings->TlsVersion12Enabled;
 $TlsVersion13Enabled 		= $obSettings->TlsVersion13Enabled;
 $TlsOptionPreferServerCiphersEnabled		= $obSettings->TlsOptionPreferServerCiphersEnabled;
-$TlsOptionPrioritizeChaChaEnabled		= $obSettings->TlsOptionPrioritizeChaChaEnabled;
+$TlsOptionPrioritizeChaChaEnabled		= $obSettings->TlsOptionPrioritizeChaChaEnabled && ($obSettings->TlsVersion12Enabled || $obSettings->TlsVersion13Enabled) && $obSettings->TlsOptionPreferServerCiphersEnabled;
 ?>
 
 <h1><?php EchoTranslation("Security")?></h1>

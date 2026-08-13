@@ -679,6 +679,9 @@ interface IInterfaceSettings : IDispatch{
 
    [propget, id(103), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([out, retval] VARIANT_BOOL *pVal);
    [propput, id(103), helpstring("Prefer IPv6 over IPv4.")] HRESULT IPv6PreferredEnabled([in] VARIANT_BOOL newVal);
+
+   [propget, id(104), helpstring("Rewrite envelope From address to the forwarding account address when forwarding.")] HRESULT RewriteEnvelopeFromWhenForwarding([out, retval] VARIANT_BOOL *pVal);
+   [propput, id(104), helpstring("Rewrite envelope From address to the forwarding account address when forwarding.")] HRESULT RewriteEnvelopeFromWhenForwarding([in] VARIANT_BOOL newVal);
 };
 
 
@@ -2217,7 +2220,7 @@ interface IInterfaceAntiSpam : IDispatch
    [propget, id(30), helpstring("Maximum message size to run anti-spam on.")] HRESULT MaximumMessageSize([out, retval] long *pVal);
    [propput, id(30), helpstring("Maximum message size to run anti-spam on.")] HRESULT MaximumMessageSize([in] long newVal);
 
-   [id(31), helpstring("Verifies the DKIM-signature of the specified file. Returns true if neutral or pass.")] HRESULT DKIMVerify([in] BSTR File, [out, retval] eDKIMResult *pResult);
+   [id(31), helpstring("Verifies the DKIM-Signature of the specified file. Returns true if neutral or pass.")] HRESULT DKIMVerify([in] BSTR File, [out, retval] eDKIMResult *pResult);
    
    [propget, id(32), helpstring("Enable DKIM header verification.")] HRESULT DKIMVerificationEnabled([out, retval] VARIANT_BOOL  *pVal);
    [propput, id(32), helpstring("Enable DKIM header verification.")] HRESULT DKIMVerificationEnabled([in] VARIANT_BOOL newVal);

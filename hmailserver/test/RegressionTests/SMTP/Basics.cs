@@ -121,11 +121,43 @@ namespace RegressionTests.SMTP
          string content = Pop3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
          Assert.IsTrue(content.Contains("Inbox is full"));
          Assert.IsTrue(content.Contains("Subject: Test subject"));
+         //Assert.IsTrue(content.Contains("In-Reply-To:"));
+         //Assert.IsTrue(content.Contains("References:"));
 
          // Make sure body contains year.
          int bodyStartPos = content.IndexOf("\r\n\r\n");
          int yearPos = content.IndexOf(DateTime.Now.Year.ToString(), bodyStartPos);
          Assert.IsTrue(yearPos >= 0);
+      }
+
+      [Test]
+      [Category("SMTP")]
+      public void BounceMessageShouldReferenceOriginalMessageID()
+      {
+         Account senderAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sender@test.com", "test");
+         Account recipientAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "recipient@test.com",
+                                                                                     "test");
+         recipientAccount.MaxSize = 1;
+         recipientAccount.Save();
+
+         const string messageID = "<dsn-threading@test.com>";
+         const string previousReference = "<previous-message@example.test>";
+         var builder = new StringBuilder();
+         for (var i = 0; i < 11000; i++)
+            builder.Append(
+               "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
+
+         var content = "Message-ID: " + messageID + "\r\n" +
+                       "References: " + previousReference + " " + messageID + "\r\n" +
+                       "Subject: Test subject\r\n" +
+                       "\r\n" +
+                       builder;
+         SmtpClientSimulator.StaticSendRaw(senderAccount.Address, recipientAccount.Address, content);
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+         var bounce = Pop3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
+         Assert.IsTrue(bounce.Contains("In-Reply-To: " + messageID));
+         Assert.IsTrue(bounce.Contains("References: " + previousReference + " " + messageID));
       }
 
       [Test]
