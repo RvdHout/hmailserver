@@ -174,27 +174,19 @@ namespace HM
    String
    FolderListCreator::GetSpecialUseAttribute_(const String &folderName)
    {
-      if (folderName.CompareNoCase(_T("Sent")) == 0 ||
-         folderName.CompareNoCase(_T("Sent Items")) == 0 ||
-         folderName.CompareNoCase(_T("Sent Messages")) == 0)
+      if (folderName.CompareNoCase(_T("Sent")) == 0)
          return "\\Sent";
 
       if (folderName.CompareNoCase(_T("Drafts")) == 0)
          return "\\Drafts";
 
-      if (folderName.CompareNoCase(_T("Trash")) == 0 ||
-         folderName.CompareNoCase(_T("Deleted Items")) == 0 ||
-         folderName.CompareNoCase(_T("Deleted Messages")) == 0)
+      if (folderName.CompareNoCase(_T("Trash")) == 0)
          return "\\Trash";
 
-      if (folderName.CompareNoCase(_T("Junk")) == 0 ||
-         folderName.CompareNoCase(_T("Junk E-mail")) == 0 ||
-         folderName.CompareNoCase(_T("Junk Email")) == 0 ||
-         folderName.CompareNoCase(_T("Spam")) == 0)
+      if (folderName.CompareNoCase(_T("Junk")) == 0)
          return "\\Junk";
 
-      if (folderName.CompareNoCase(_T("Archive")) == 0 ||
-         folderName.CompareNoCase(_T("Archives")) == 0)
+      if (folderName.CompareNoCase(_T("Archive")) == 0)
          return "\\Archive";
 
       return {};
