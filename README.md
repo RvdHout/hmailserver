@@ -57,7 +57,7 @@ Create an environment variable named hMailServerLibs pointing at a folder where 
 Building OpenSSL
 ----------------
 OpenSSL 3.5.x is built by the `libraries\build-openssl.ps1` script, which downloads the
-requested version into %hMailServerLibs%\openssl-&lt;Version&gt; and builds it into an `out64`
+requested version into `%hMailServerLibs%\openssl-<Version>` and builds it into an `out64`
 install prefix (headers, import libs and `libcrypto-3-x64.dll` / `libssl-3-x64.dll`).
 
 Prerequisites:
@@ -76,13 +76,13 @@ Only OpenSSL 3.5.x is supported; the build recipe for 3.0.x and 4.x differs.
 Building PostgreSQL
 -------------------
 hMailServer talks to PostgreSQL through libpq. libpq is built by the `libraries\build-pgsql.ps1`
-script, which downloads the requested version into %hMailServerLibs%\postgresql-&lt;Version&gt;,
+script, which downloads the requested version into `%hMailServerLibs%\postgresql-<Version>`,
 generates the `src\tools\msvc\config.pl` that links libpq against a previously built OpenSSL, and
-builds `libpq.dll` / `libpq.lib` into `postgresql-&lt;Version&gt;\Release\libpq`.
+builds `libpq.dll` / `libpq.lib` into `postgresql-<Version>\Release\libpq`.
 
 Prerequisites:
 - The environment variable hMailServerLibs (see above).
-- A matching OpenSSL build (`openssl-&lt;Version&gt;\out64`) already present - build it first with the OpenSSL script above.
+- A matching OpenSSL build (`openssl-<Version>\out64`) already present - build it first with the OpenSSL script above.
 - Perl (e.g. [Strawberry Perl](https://strawberryperl.com/)) on PATH - required by PostgreSQL's build.pl.
 - Visual Studio 2019 with the x64 C++ build tools.
 
@@ -101,7 +101,7 @@ Building Boost
 hMailServer links statically against a handful of compiled Boost libraries (thread, filesystem,
 regex, chrono, atomic; Boost.System is header-only as of Boost 1.92). Boost is built by the
 `libraries\build-boost.ps1` script, which
-downloads the requested version into %hMailServerLibs%\boost_&lt;Version&gt; (e.g. `boost_1_92_0`),
+downloads the requested version into `%hMailServerLibs%\boost_<Version>` (e.g. `boost_1_92_0`),
 bootstraps `b2`, and builds the static, multithreaded x64 libraries into `stage\lib`.
 
 Prerequisites:
@@ -115,7 +115,7 @@ Run, from the repository root:
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-boost.ps1 -Version 1.92.0
    </pre>
 
-Pass `-Toolset &lt;name&gt;` to override the default `msvc-14.2`, or `-Jobs &lt;n&gt;` to change the
+Pass `-Toolset <name>` to override the default `msvc-14.2`, or `-Jobs <n>` to change the
 number of parallel compilations (defaults to the number of logical processors). Only Boost 1.x is
 supported.
 
