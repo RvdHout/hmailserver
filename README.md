@@ -31,7 +31,6 @@ Environment set up
    * Visual Studio 2019 Community edition
    * InnoSetup 5.5.4a (non-unicode version)
    * Perl 5 (https://strawberryperl.com/)
-   * Python 3 (https://www.python.org/)
    
 **NOTE**
 
@@ -46,7 +45,7 @@ Installing Visual Studio 2019 Community edition
   * Desktop development with C++
 3. Select the following _Individual components_
   * C++ ATL for latest v142 build tools (x86 & x64)
-  * Windows 10 SDK (10.0.18362.0)
+  * Windows 10 SDK (10.0.19041.0)
 
 3rd party libraries
 -------------------
