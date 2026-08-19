@@ -1,14 +1,14 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 
 namespace RegressionTests.AntiSpam
 {

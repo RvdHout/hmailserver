@@ -65,7 +65,7 @@ namespace HM
       asynchronous_tasks_queue_("Asynchronous task queue"),
       unique_id_(0)
    {
-      version_ = Formatter::Format("{0}-B{1}", HMAILSERVER_VERSION, HMAILSERVER_BUILD);
+      version_ = Formatter::Format("{0}-B{1}.{2}", HMAILSERVER_VERSION, HMAILSERVER_BUILD, HMAILSERVER_MOD);
       start_time_ = Time::GetCurrentDateTime();
    }
 

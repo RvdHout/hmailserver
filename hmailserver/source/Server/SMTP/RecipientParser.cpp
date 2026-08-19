@@ -76,7 +76,7 @@ namespace HM
          const String primaryDomain = StringParser::ExtractDomain(primaryAddressWithoutPlusaddressing);
          
          std::shared_ptr<const Domain> pDomain = CacheContainer::Instance()->GetDomain(primaryDomain);
-         bDomainIsLocal = pDomain != 0;
+         bDomainIsLocal = pDomain != nullptr;
 
          // Apply plus addressing on the recipient address
          const String primaryAddress = PlusAddressing::ExtractAccountAddress(primaryAddressWithoutPlusaddressing, pDomain); 

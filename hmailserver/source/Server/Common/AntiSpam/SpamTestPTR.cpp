@@ -44,6 +44,14 @@ namespace HM
 
       const IPAddress &iIPAddress = pTestData->GetOriginatingIP();
 
+      // Could not retrieve PTR record from local mail client
+      // https://www.hmailserver.com/forum/viewtopic.php?p=258078
+      if (LocalIPAddresses::Instance()->IsWithinLoopbackRange(iIPAddress))
+      {
+         // Ignore this test if send thru localhost.
+         return setSpamTestResults;
+      }
+
       if (!CheckPTR_(iIPAddress))
       {
          // Incorrect rDNS/PTR record

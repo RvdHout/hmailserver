@@ -1,9 +1,9 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-using System.Text;
 using NUnit.Framework;
 using RegressionTests.Shared;
+using System.Text;
 
 namespace RegressionTests.IMAP
 {

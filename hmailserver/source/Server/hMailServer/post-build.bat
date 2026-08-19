@@ -17,5 +17,8 @@ if errorlevel 1 exit /b 1
 xcopy /F /Y "%HMS_LIBS%\postgresql-15.19\Release\libpq\*.dll" "%OUT_DIR%"
 if errorlevel 1 exit /b 1
 
+xcopy /F /Y "%HMS_LIBS%\libmysql-5.7.44.0\*.dll" "%OUT_DIR%"
+if errorlevel 1 exit /b 1
+
 "%TARGET%" /Register
 if errorlevel 1 exit /b 1

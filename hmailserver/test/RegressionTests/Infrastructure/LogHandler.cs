@@ -1,7 +1,7 @@
-﻿using System;
+﻿using RegressionTests.Shared;
+using System;
 using System.IO;
 using System.Threading;
-using RegressionTests.Shared;
 
 namespace RegressionTests.Infrastructure
 {

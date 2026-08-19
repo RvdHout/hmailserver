@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-using System.Collections.Generic;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.POP3.Fetching;
 using RegressionTests.Shared;
+using System.Collections.Generic;
 
 namespace RegressionTests.POP3
 {

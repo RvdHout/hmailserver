@@ -1,9 +1,9 @@
-﻿using System.IO;
-using System.Text;
-using hMailServer;
+﻿using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
+using System.IO;
+using System.Text;
 
 namespace RegressionTests.IMAP
 {

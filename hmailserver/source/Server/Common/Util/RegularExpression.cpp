@@ -4,7 +4,7 @@
 #include "StdAfx.h"
 #include ".\regularexpression.h"
 
-#include <Boost/Regex.hpp>
+#include <boost/regex.hpp>
 using namespace boost;
 
 #ifdef _DEBUG

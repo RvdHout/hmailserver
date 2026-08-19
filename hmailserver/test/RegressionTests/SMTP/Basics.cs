@@ -1,16 +1,16 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using hMailServer;
+using NUnit.Framework;
+using RegressionTests.Infrastructure;
+using RegressionTests.Shared;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-using hMailServer;
-using NUnit.Framework;
-using RegressionTests.Infrastructure;
-using RegressionTests.Shared;
 
 namespace RegressionTests.SMTP
 {
@@ -123,6 +123,37 @@ namespace RegressionTests.SMTP
          var bodyStartPos = content.IndexOf("\r\n\r\n");
          var yearPos = content.IndexOf(DateTime.Now.Year.ToString(), bodyStartPos);
          Assert.IsTrue(yearPos >= 0);
+      }
+
+      [Test]
+      [Category("SMTP")]
+      public void BounceMessageShouldReferenceOriginalMessageID()
+      {
+         var senderAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "sender@example.test", "test");
+         var recipientAccount = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "list@example.test",
+            "test");
+
+         recipientAccount.MaxSize = 1;
+         recipientAccount.Save();
+
+         const string messageID = "<dsn-threading@example.test>";
+         const string previousReference = "<previous-message@example.test>";
+         var builder = new StringBuilder();
+         for (var i = 0; i < 11000; i++)
+            builder.Append(
+               "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\r\n");
+
+         var content = "Message-ID: " + messageID + "\r\n" +
+                       "References: " + previousReference + " " + messageID + "\r\n" +
+                       "Subject: Test subject\r\n" +
+                       "\r\n" +
+                       builder;
+         SmtpClientSimulator.StaticSendRaw(senderAccount.Address, recipientAccount.Address, content);
+
+         CustomAsserts.AssertRecipientsInDeliveryQueue(0);
+         var bounce = Pop3ClientSimulator.AssertGetFirstMessageText(senderAccount.Address, "test");
+         Assert.IsTrue(bounce.Contains("In-Reply-To: " + messageID));
+         Assert.IsTrue(bounce.Contains("References: " + previousReference + " " + messageID));
       }
 
       [Test]
@@ -993,6 +1024,22 @@ namespace RegressionTests.SMTP
          sim.SendAndReceive("HELO\r\n");
          var result = sim.SendAndReceive("HELO\r\n");
          Assert.IsTrue(result.Contains("Too many invalid commands"), result);
+      }
+
+      [Test]
+      public void TestPreventByPassHELO()
+      {
+         var settings = _settings;
+         settings.DisconnectInvalidClients = true;
+         settings.MaxNumberOfInvalidCommands = 3;
+
+         var sim = new TcpConnection();
+         sim.Connect(25);
+         sim.Receive(); // banner
+
+         sim.SendAndReceive("RSET\r\n");
+         var result = sim.SendAndReceive("MAIL FROM:<test@example.com>\r\n");
+         Assert.IsTrue(result.Contains("503 Bad sequence of command"), result);
       }
 
       [Test]

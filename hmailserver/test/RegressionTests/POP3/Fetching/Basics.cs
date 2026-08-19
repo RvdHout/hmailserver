@@ -1,12 +1,12 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-using System;
-using System.Collections.Generic;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
+using System;
+using System.Collections.Generic;
 
 namespace RegressionTests.POP3.Fetching
 {
@@ -1166,7 +1166,7 @@ namespace RegressionTests.POP3.Fetching
 
       private Account DownloadMessageFromExternalAccount(string message)
       {
-         var messages = new List<string> {message};
+         var messages = new List<string> { message };
 
          var port = TestSetup.GetNextFreePort();
 
@@ -1327,6 +1327,119 @@ namespace RegressionTests.POP3.Fetching
          var account = DownloadMessageFromExternalAccount(MessageWithAddressLiteralInHelo);
 
          Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
+      }
+
+      // static.vnpt.vn is a host known to not have a PTR
+      [Test]
+      public void TestSpamProtectionPreTransmissionPTRFail()
+      {
+         _application.Settings.AntiSpam.SpamMarkThreshold = 1;
+         _application.Settings.AntiSpam.SpamDeleteThreshold = 100;
+         _application.Settings.AntiSpam.AddHeaderReason = true;
+         _application.Settings.AntiSpam.AddHeaderSpam = true;
+         _application.Settings.AntiSpam.PrependSubject = true;
+         _application.Settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
+
+         _application.Settings.AntiSpam.CheckPTR = true;
+         _application.Settings.AntiSpam.CheckPTRScore = 105;
+
+         var messages = new List<string>();
+
+         var message = "Received: from static.vnpt.vn (static.vnpt.vn [14.247.252.17]) by mail.host.edu\r\n" +
+                          "From: something@static.vnpt.vn\r\n" +
+                          "To: Martin@example.com\r\n" +
+                          "Subject: Test\r\n" +
+                          "\r\n" +
+                          "Should be blocked.";
+
+         messages.Add(message);
+
+         var port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
+         {
+            pop3Server.StartListen();
+
+            var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@example.test", "test");
+            var fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.UseSSL = false;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.DaysToKeepMessages = 0;
+            fa.UseAntiSpam = true;
+            fa.Save();
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            fa.Delete();
+
+            _application.Settings.AntiSpam.CheckPTR = false;
+
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 0);
+         }
+      }
+
+      [Test]
+      public void TestSpamProtectionPreTransmissionPTRPass()
+      {
+         _application.Settings.AntiSpam.SpamMarkThreshold = 1;
+         _application.Settings.AntiSpam.SpamDeleteThreshold = 100;
+         _application.Settings.AntiSpam.AddHeaderReason = true;
+         _application.Settings.AntiSpam.AddHeaderSpam = true;
+         _application.Settings.AntiSpam.PrependSubject = true;
+         _application.Settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
+
+         _application.Settings.AntiSpam.CheckPTR = true;
+         _application.Settings.AntiSpam.CheckPTRScore = 105;
+
+         var messages = new List<string>();
+
+         var message = "Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [2a00:1450:4864:20::533]) by mail.host.edu\r\n" +
+                          "From: something@gmail.com\r\n" +
+                          "To: Martin@example.com\r\n" +
+                          "Subject: Test\r\n" +
+                          "\r\n" +
+                          "Should not be blocked.";
+
+         messages.Add(message);
+
+         var port = TestSetup.GetNextFreePort();
+         using (var pop3Server = new Pop3ServerSimulator(1, port, messages))
+         {
+            pop3Server.StartListen();
+
+            var account = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "user@example.test", "test");
+            var fa = account.FetchAccounts.Add();
+
+            fa.Enabled = true;
+            fa.MinutesBetweenFetch = 10;
+            fa.Name = "Test";
+            fa.Username = "test@example.com";
+            fa.Password = "test";
+            fa.UseSSL = false;
+            fa.ServerAddress = "localhost";
+            fa.Port = port;
+            fa.ProcessMIMERecipients = false;
+            fa.DaysToKeepMessages = 0;
+            fa.UseAntiSpam = true;
+            fa.Save();
+
+            fa.DownloadNow();
+
+            pop3Server.WaitForCompletion();
+
+            fa.Delete();
+
+            Pop3ClientSimulator.AssertMessageCount(account.Address, "test", 1);
+         }
       }
    }
 }

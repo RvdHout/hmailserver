@@ -1,12 +1,12 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
-using System.Net;
-using System.Security.Authentication;
-using System.Threading;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
+using System.Net;
+using System.Security.Authentication;
+using System.Threading;
 
 namespace RegressionTests.SSL
 {

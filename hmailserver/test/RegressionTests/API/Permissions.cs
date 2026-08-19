@@ -1,7 +1,7 @@
-﻿using System.Runtime.InteropServices;
-using hMailServer;
+﻿using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
+using System.Runtime.InteropServices;
 
 namespace RegressionTests.API
 {

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using hMailServer;
+using NUnit.Framework;
+using RegressionTests.Shared;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
 using System.Threading;
-using hMailServer;
-using NUnit.Framework;
-using RegressionTests.Shared;
 
 namespace RegressionTests.Infrastructure
 {
@@ -78,8 +78,9 @@ namespace RegressionTests.Infrastructure
          // Check if we can launch it...
          try
          {
-            var serviceController = new ServiceController("SpamAssassinJAM");
+            var serviceController = new ServiceController("SpamAssassin");
             serviceController.Start();
+            serviceController.WaitForStatus(ServiceControllerStatus.Running);
          }
          catch (Exception)
          {

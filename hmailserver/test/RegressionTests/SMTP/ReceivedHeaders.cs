@@ -1,12 +1,12 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
-using System;
-using System.Threading;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
 using RegressionTests.SSL;
+using System;
+using System.Threading;
 
 namespace RegressionTests.SMTP
 {
@@ -56,7 +56,7 @@ namespace RegressionTests.SMTP
             out errorMessage);
 
          var message = Pop3ClientSimulator.AssertGetFirstMessageText(_account.Address, "test");
-         Assert.IsTrue(message.Contains(" with ESMTPS"));
+         Assert.IsTrue(message.Contains("with ESMTPS"));
       }
 
       [Test]

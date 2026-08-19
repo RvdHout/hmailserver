@@ -244,6 +244,8 @@ namespace HM
       if (!pMsg)
          return;
 
+      String sEnvelopeFrom = pMsg->GetFromAddress();
+
       pMsg->SetState(Message::Delivering);
 
       std::shared_ptr<Account> emptyAccount;
@@ -253,13 +255,15 @@ namespace HM
 
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       pNewMsgData->LoadFromMessage(emptyAccount, pMsg);
+      if (!sEnvelopeFrom.IsEmpty())
+         pNewMsgData->SetFieldValue("X-Forwarded-For", sEnvelopeFrom);
       pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->Write(newFileName);
       
       // We need to update the SMTP envelope from address, if this
       // message is forwarded by a user-level account.
       std::shared_ptr<CONST Account> pAccount = CacheContainer::Instance()->GetAccount(rule_account_id_);
-      if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !pMsg->GetFromAddress().IsEmpty())
+      if (pAccount && IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !sEnvelopeFrom.IsEmpty())
          pMsg->SetFromAddress(pAccount->GetAddress());
       
       // Add new recipients
@@ -424,20 +428,29 @@ namespace HM
 
       // Reply to the email
       std::shared_ptr<Message> pMsg = std::shared_ptr<Message>(new Message());
+
       pMsg->SetState(Message::Delivering);
 
       String newMessageFileName = PersistentMessage::GetFileName(pMsg);
 
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
+
       pNewMsgData->LoadFromMessage(newMessageFileName, pMsg);
+
+      // Required headers
       pNewMsgData->GenerateMessageID();
-      pNewMsgData->SetTo(sReplyRecipientAddress);
-      pNewMsgData->SetFrom(pAction->GetFromName() + " <" + pAction->GetFromAddress() + ">");
-      pNewMsgData->SetSubject(pAction->GetSubject());
-      pNewMsgData->SetBody(pAction->GetBody());
       pNewMsgData->SetSentTime(Time::GetCurrentMimeDate());
+
+      // Optional headers
+      pNewMsgData->SetFrom(pAction->GetFromName() + " <" + pAction->GetFromAddress() + ">");
+      pNewMsgData->SetTo(sReplyRecipientAddress);
+      pNewMsgData->SetSubject(pAction->GetSubject());
+      pNewMsgData->SetReplyThreadingHeaders(*pMsgData);
+      pNewMsgData->SetBody(pAction->GetBody());
       pNewMsgData->SetAutoReplied();
       pNewMsgData->IncreaseRuleLoopCount();
+
+      // Write message data
       pNewMsgData->Write(newMessageFileName);
 
       // Add recipients.

@@ -66,7 +66,7 @@ namespace HM
 
       std::shared_ptr<DomainAliases> pDA = ObjectCache::Instance()->GetDomainAliases();
       // try to get mailbox from the alias (if it is an alias actually)
-      String sSender = pDA->ApplyAliasesOnAddress(senderAddress);
+      AnsiString sSender = pDA->ApplyAliasesOnAddress(senderAddress);
       AnsiString mbDomain = StringParser::ExtractDomain(sSender);
 
       // was the sender address from the main domain already?

@@ -15,7 +15,7 @@ namespace HM
    {
    public:
       
-      SMTPMessageHeaderCreator(const String &username, const AnsiString &remote_ip_address, bool is_authenticated, bool is_message_submission, String helo_host, std::shared_ptr<MimeHeader> original_headers, std::shared_ptr<Message> message);
+      SMTPMessageHeaderCreator(const String& username, const AnsiString& remote_ip_address, bool is_authenticated, bool is_message_submission, String helo_host, std::shared_ptr<MimeHeader> original_headers, std::shared_ptr<Message> message);
 
       AnsiString Create();
 
@@ -23,7 +23,8 @@ namespace HM
 
    private:
 
-      String GenerateReceivedHeader_(const String &overriden_received_ip);
+      String GenerateReceivedSPFHeader_(const String &sHostname);
+      String GenerateReceivedHeader_(const String &local_computer_name, const String &overriden_received_ip);
       String JoinWithFolding_(const std::set<String> &items, const String &separator, int initialLineLength);
 
       String username_;

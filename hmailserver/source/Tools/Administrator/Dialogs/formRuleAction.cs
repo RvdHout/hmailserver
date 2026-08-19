@@ -15,6 +15,7 @@ namespace hMailServer.Administrator.Dialogs
     {
         private hMailServer.RuleAction _ruleAction;
         private bool _isAccountLevelRule = false;
+        private hMailServer.Account _representedAccount = null;
 
         public formRuleAction(hMailServer.Rule rule, hMailServer.RuleAction ruleAction)
         {
@@ -22,6 +23,13 @@ namespace hMailServer.Administrator.Dialogs
 
             _ruleAction = ruleAction;
             _isAccountLevelRule = rule.AccountID > 0;
+
+            if (_isAccountLevelRule == true) 
+            {
+               hMailServer.Links links = APICreator.Links;
+               _representedAccount = links.get_Account(rule.AccountID);
+               Marshal.ReleaseComObject(links);
+            }
 
             FillCombo();
 
@@ -77,8 +85,11 @@ namespace hMailServer.Administrator.Dialogs
 
             txtActionScriptFunction.Text = _ruleAction.ScriptFunction;
 
-            textActionFromName.Text = _ruleAction.FromName;
-            textActionFromAddress.Text = _ruleAction.FromAddress;
+            var accountName = _representedAccount != null ? String.Concat(_representedAccount.PersonFirstName.Trim(), " ", _representedAccount.PersonLastName.Trim()) : string.Empty;
+            var accountAddress = _representedAccount != null ? _representedAccount.Address.Trim() : string.Empty;
+
+            textActionFromName.Text = !string.IsNullOrEmpty(_ruleAction.FromName) ? _ruleAction.FromName : !string.IsNullOrEmpty(accountName.Trim()) ? accountName.Trim() : string.Empty;
+            textActionFromAddress.Text = !string.IsNullOrEmpty(_ruleAction.FromAddress) ? _ruleAction.FromAddress : accountAddress;
             textActionSubject.Text = _ruleAction.Subject;
             textActionBody.Text = _ruleAction.Body;
 

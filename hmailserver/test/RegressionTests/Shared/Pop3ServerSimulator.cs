@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using hMailServer;
+using RegressionTests.SSL;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using hMailServer;
-using RegressionTests.SSL;
 
 namespace RegressionTests.Shared
 {
@@ -145,23 +145,23 @@ namespace RegressionTests.Shared
             switch (SendBufferMode)
             {
                case BufferMode.Split:
-               {
-                  Send("+OK\r\n");
-                  Send(message);
-                  Send("\r\n.\r\n");
-                  break;
-               }
+                  {
+                     Send("+OK\r\n");
+                     Send(message);
+                     Send("\r\n.\r\n");
+                     break;
+                  }
                case BufferMode.SingleBuffer:
-               {
-                  Send("+OK\r\n" + message + "\r\n.\r\n");
-                  break;
-               }
+                  {
+                     Send("+OK\r\n" + message + "\r\n.\r\n");
+                     break;
+                  }
                case BufferMode.MessageAndTerminatonTogether:
-               {
-                  Send("+OK\r\n");
-                  Send(message + "\r\n.\r\n");
-                  break;
-               }
+                  {
+                     Send("+OK\r\n");
+                     Send(message + "\r\n.\r\n");
+                     break;
+                  }
             }
 
 

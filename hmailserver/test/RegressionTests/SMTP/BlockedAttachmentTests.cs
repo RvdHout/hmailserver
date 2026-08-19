@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Net.Mail;
-using System.Text;
-using hMailServer;
+﻿using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
+using System;
+using System.IO;
+using System.Net.Mail;
+using System.Text;
 using Attachment = System.Net.Mail.Attachment;
 
 namespace RegressionTests.SMTP

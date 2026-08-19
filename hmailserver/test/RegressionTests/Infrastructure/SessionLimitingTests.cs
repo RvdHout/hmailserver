@@ -1,8 +1,8 @@
-﻿using System;
-using System.IO;
-using hMailServer;
+﻿using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
+using System;
+using System.IO;
 
 namespace RegressionTests.Infrastructure
 {

@@ -1,7 +1,7 @@
-﻿using System;
-using System.IO;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using RegressionTests.Shared;
+using System;
+using System.IO;
 
 namespace RegressionTests.Infrastructure
 {

@@ -1,14 +1,15 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using hMailServer;
+using NUnit.Framework;
+using RegressionTests.Infrastructure;
+using RegressionTests.Shared;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Security.Authentication;
 using System.Threading;
-using hMailServer;
-using NUnit.Framework;
-using RegressionTests.Shared;
 
 namespace RegressionTests.SSL
 {
@@ -118,6 +119,118 @@ namespace RegressionTests.SSL
          catch (IOException)
          {
          }
+      }
+
+      [Test]
+      public void TLS10IsDisabled()
+      {
+         SetSslVersions(false, true, true, true);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls, 25001, IPAddress.Parse("127.0.0.1"));
+
+         try
+         {
+            string errorMessage;
+            smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage);
+         }
+         catch (System.Security.Authentication.AuthenticationException)
+         {
+            // on windows 10
+         }
+         catch (Win32Exception)
+         {
+            // on newer windows 10
+         }
+         catch (System.IO.IOException)
+         {
+            // on windows xp
+         }
+
+         string error = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsTrue(error.Contains("unsupported protocol"));
+      }
+
+      [Test]
+      public void UptoTLS11IsDisabled()
+      {
+         SetSslVersions(false, false, true, true);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls11, 25001, IPAddress.Parse("127.0.0.1"));
+
+         try
+         {
+            string errorMessage;
+            smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage);
+         }
+         catch (System.Security.Authentication.AuthenticationException)
+         {
+            // on windows 10
+         }
+         catch (Win32Exception)
+         {
+            // on newer windows 10
+         }
+         catch (System.IO.IOException)
+         {
+            // on windows xp
+         }
+
+         string error = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsTrue(error.Contains("unsupported protocol"));
+      }
+
+      [Test]
+      public void UptoTLS12IsDisabled()
+      {
+         SetSslVersions(false, false, false, true);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls12, 25001, IPAddress.Parse("127.0.0.1"));
+
+         try
+         {
+            string errorMessage;
+            smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage);
+         }
+         catch (System.Security.Authentication.AuthenticationException)
+         {
+            // on windows 10
+         }
+         catch (Win32Exception)
+         {
+            // on newer windows 10
+         }
+         catch (System.IO.IOException)
+         {
+            // on windows xp
+         }
+
+         string error = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsTrue(error.Contains("unsupported protocol"));
+      }
+
+      [Test]
+      public void AllTLSProtocolsDisabled()
+      {
+         SetSslVersions(false, false, false, false);
+         var smtpClientSimulator = new SmtpClientSimulator(true, SslProtocols.Tls12, 25001, IPAddress.Parse("127.0.0.1"));
+
+         try
+         {
+            string errorMessage;
+            smtpClientSimulator.Send(false, _account.Address, "test", _account.Address, _account.Address, "Test", "test", out errorMessage);
+         }
+         catch (System.Security.Authentication.AuthenticationException)
+         {
+            // on windows 10
+         }
+         catch (Win32Exception)
+         {
+            // on newer windows 10
+         }
+         catch (System.IO.IOException)
+         {
+            // on windows xp
+         }
+
+         string error = LogHandler.ReadCurrentDefaultLog();
+         Assert.IsTrue(error.Contains("no protocols available"));
       }
    }
 }

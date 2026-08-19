@@ -1,9 +1,9 @@
-﻿using System;
+﻿using NUnit.Framework;
+using RegressionTests.Shared;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
-using RegressionTests.Shared;
 
 namespace RegressionTests.SMTP
 {
@@ -18,8 +18,8 @@ namespace RegressionTests.SMTP
 
          var isEnabled =
             (from line in File.ReadAllLines(hMailServerFile)
-               where line.StartsWith("AddXOriginalRcptTo") && line.EndsWith("1")
-               select line).Any();
+             where line.StartsWith("AddXOriginalRcptTo") && line.EndsWith("1")
+             select line).Any();
 
          if (!isEnabled) Assert.Inconclusive("Setting AddXOriginalRcptTo is not set to 1.");
       }

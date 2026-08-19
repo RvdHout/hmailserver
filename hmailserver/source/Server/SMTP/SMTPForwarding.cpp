@@ -48,7 +48,9 @@ namespace HM
 
       if (!pRecipientAccount->GetForwardAddress().CompareNoCase(pRecipientAccount->GetAddress()))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4334, "SMTPDeliverer::_ApplyForwarding", "Could not forward message since target address as same as account address.");
+         String sLogMessage = Formatter::Format("Could not forward message since target address as same as account address. {0}", pRecipientAccount->GetAddress());
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4334, "SMTPDeliverer::_ApplyForwarding", sLogMessage);
+
          return true;
       }
 
@@ -80,7 +82,8 @@ namespace HM
       // false = check only loop counter not AutoSubmitted header because forward not rule
       if (!RuleApplier::IsGeneratedResponseAllowed(pOldMsgData, false))
       {
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4333, "SMTPDeliverer::_ApplyForwarding", "Could not forward message. Maximum forward loop count reached.");
+         String sLogMessage = Formatter::Format("Could not forward message. Maximum forward loop count reached. {0}", pRecipientAccount->GetAddress());
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4333, "SMTPDeliverer::_ApplyForwarding", sLogMessage);
 
          return true;
       }
@@ -90,7 +93,8 @@ namespace HM
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
 
-      if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !pNewMessage->GetFromAddress().IsEmpty())
+      String sEnvelopeFrom = pOriginalMessage->GetFromAddress();
+      if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !sEnvelopeFrom.IsEmpty())
          pNewMessage->SetFromAddress(pRecipientAccount->GetAddress());
 
       pNewMessage->SetState(Message::Delivering);
@@ -99,6 +103,8 @@ namespace HM
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       const String newFileName = PersistentMessage::GetFileName(pNewMessage);
       pNewMsgData->LoadFromMessage(newFileName, pNewMessage);
+      if (!sEnvelopeFrom.IsEmpty())
+         pNewMsgData->SetFieldValue("X-Forwarded-For", sEnvelopeFrom);
       pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->Write(newFileName);
 
@@ -111,8 +117,9 @@ namespace HM
       {
          // Delete the file since the message cannot be delivered.
          FileUtilities::DeleteFile(newFileName);
-         
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4332, "SMTPDeliverer::_ApplyForwarding", "Could not forward message; no recipients.");
+
+         String sLogMessage = Formatter::Format("Could not forward message from {0} to empty recipient", pRecipientAccount->GetAddress());
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4332, "SMTPDeliverer::_ApplyForwarding", sLogMessage);
 
          return true;
       }

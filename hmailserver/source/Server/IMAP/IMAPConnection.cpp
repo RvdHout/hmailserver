@@ -24,6 +24,7 @@
 // Common utilities
 #include "../Common/Util/ByteBuffer.h"
 #include "../Common/Util/PasswordRemover.h"
+#include <boost/regex.hpp>
 
 // Commands
 #include "IMAPCommandAppend.h"
@@ -595,6 +596,43 @@ namespace HM
 
       if (sCommandTag.IsEmpty() || sCommandValue.IsEmpty())
       {
+         // AUTH PLAIN is disabled and client send credentials anyway, this should not happen under normal circumstances 
+         // Or client (re)send credentials when not expected/accepted
+         String sRegex = "^((?:[A-Z\\d+/]{4})*(?:[A-Z\\d+/]{3}=|[A-Z\\d+/]{2}==)?)$";
+         boost::wregex expr(sRegex, boost::wregex::icase);
+         if (boost::regex_match(sCommandValue, expr))
+         {
+            String delimiter = "\\t", passwordmask = "***";
+
+            // Both user name and password in line.
+            String sAuthentication;
+            StringParser::Base64Decode(sCommandValue, sAuthentication);
+
+            if (StringParser::IsBase64NullDelimited(sCommandValue))
+               delimiter = "\\0";
+
+            std::vector<String> plain_args = StringParser::SplitString(sAuthentication, "\t");
+
+            if (plain_args.size() == 3 && plain_args[1].GetLength() > 0)
+            {
+               String authzid = plain_args[0];
+               String authcid = plain_args[1];
+               String authplain = authzid.append(delimiter).append(authcid).append(delimiter).append(passwordmask);
+               String sCommandBase64Encoded;
+               StringParser::Base64Encode(authplain, sCommandBase64Encoded);
+               SendAsciiData(sCommandBase64Encoded + " BAD NULL COMMAND\r\n");
+
+               // Remove this command since it's no good.
+               return true;
+            }
+
+            // No space found in the command line.
+            SendAsciiData(sCommandValue + " BAD NULL COMMAND\r\n");
+
+            // Remove this command since it's no good.
+            return true;
+         }
+
          // No space found in the command line.
          SendAsciiData(sCommandValue + " BAD NULL COMMAND\r\n");
          
