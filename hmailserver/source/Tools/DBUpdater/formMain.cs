@@ -168,9 +168,10 @@ namespace DBUpdater
          _upgradeScripts.Add(new UpgradeScript(5703, 5704));
          _upgradeScripts.Add(new UpgradeScript(5704, 5705));
          _upgradeScripts.Add(new UpgradeScript(5705, 5708));
-         // 5.6.9-B2641.83 Experimental -> 5.7.0-B2643.26 Experimental
-         _upgradeScripts.Add(new UpgradeScript(5609, 5708));
          _upgradeScripts.Add(new UpgradeScript(5708, 5709));
+         // 5.6.9 Experimental -> 5.7.0
+         _upgradeScripts.Add(new UpgradeScript(5609, 5708));
+         _upgradeScripts.Add(new UpgradeScript(5610, 5709));
       }
 
       private void buttonClose_Click(object sender, EventArgs e)

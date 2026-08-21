@@ -2,7 +2,7 @@
                                               #define HMAILSERVER_VERSION "5.7.0"
                                               #define HMAILSERVER_VERSION_NUMERIC 5,7,0,2732
                                               #define HMAILSERVER_BUILD "2732"
-                                              #define HMAILSERVER_MOD "21"
+                                              #define HMAILSERVER_MOD "22"
 /*
 [list=1]
 [*]Added: Received-SPF: diagnostic header controlled with INI setting "AddReceivedSPFHeader" (skip for authenticated client connections or localhost!)
@@ -26,5 +26,6 @@
 [*]Fix: Flush log files when they are kept open, see: [url=https://github.com/hmailserver/hmailserver/pull/553]pull 553[/url]
 [*]Fix: Add missing Message-ID for all submitted messages, see: [url=https://github.com/hmailserver/hmailserver/pull/552]pull 552[/url]
 [*]Added: IMAP LIST Extension for Special-Use Mailboxes, see: [url=https://github.com/hmailserver/hmailserver/issues/534]issue 534[/url]
+[*]Fix: Improve robustness when moving/reading files, see: [url=https://github.com/hmailserver/hmailserver/pull/556]pull 556[/url]
 [/list]
 */
