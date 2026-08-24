@@ -1,8 +1,8 @@
 #pragma once
                                               #define HMAILSERVER_VERSION "5.7.0"
-                                              #define HMAILSERVER_VERSION_NUMERIC 5,7,0,2732
-                                              #define HMAILSERVER_BUILD "2732"
-                                              #define HMAILSERVER_MOD "22"
+                                              #define HMAILSERVER_VERSION_NUMERIC 5,7,0,2788
+                                              #define HMAILSERVER_BUILD "2788"
+                                              #define HMAILSERVER_MOD "16"
 /*
 [list=1]
 [*]Added: Received-SPF: diagnostic header controlled with INI setting "AddReceivedSPFHeader" (skip for authenticated client connections or localhost!)
@@ -21,11 +21,5 @@
 [*]Fix: POP3 Return -ERR instead of +ERR when inbox message fetch fails, see: [url=https://github.com/cybercode3/hmailserver/commit/bc31f5eedd2d39ac320caf9870e5191eb835067c]this[/url] commit
 [*]Fix: SMTP disconnect after STARTTLS handshake failure, see: [url=https://github.com/cybercode3/hmailserver/commit/0c58dc25d2ccb665f52666261aab431ae86b361a] this[/url] commit
 [*]Added: Add "In-Reply-To" and "References" headers to Auto-Submitted messages, see: [url=https://github.com/hmailserver/hmailserver/pull/535]pull 535[/url]
-[*]Fix: Domain size calculation used the wrong column on MS SQL, SQL CE and PostgreSQL, see: [url=https://github.com/RvdHout/hmailserver/commit/d727913504a07da800fc7801e8c7fffb50171b1a] this[/url] commit
-[*]Fix: Locate the originating IP address without trusting HELO/EHLO, see: [url=https://github.com/hmailserver/hmailserver/issues/168]issue 168[/url]
-[*]Fix: Flush log files when they are kept open, see: [url=https://github.com/hmailserver/hmailserver/pull/553]pull 553[/url]
-[*]Fix: Add missing Message-ID for all submitted messages, see: [url=https://github.com/hmailserver/hmailserver/pull/552]pull 552[/url]
-[*]Added: IMAP LIST Extension for Special-Use Mailboxes, see: [url=https://github.com/hmailserver/hmailserver/issues/534]issue 534[/url]
-[*]Fix: Improve robustness when moving/reading files, see: [url=https://github.com/hmailserver/hmailserver/pull/556]pull 556[/url]
 [/list]
 */
