@@ -247,6 +247,7 @@ namespace RegressionTests.AntiSpam
       }
 
       [Test]
+      //[Ignore("This test in responsible for others to fail....don't know why (yet)")]
       public void TestSANotRunning()
       {
          StopSpamAssassin();
@@ -369,7 +370,7 @@ namespace RegressionTests.AntiSpam
          // Check if we can launch it...
          try
          {
-            var serviceController = new ServiceController("SpamAssassinJAM");
+            var serviceController = new ServiceController("SpamAssassin");
             serviceController.Stop();
          }
          catch (Exception)

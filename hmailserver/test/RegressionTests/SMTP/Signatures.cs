@@ -1,12 +1,12 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System;
+using System.IO;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
-using System;
-using System.IO;
 
 namespace RegressionTests.SMTP
 {

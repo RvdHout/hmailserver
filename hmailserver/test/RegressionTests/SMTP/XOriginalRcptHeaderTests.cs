@@ -1,9 +1,9 @@
-﻿using NUnit.Framework;
-using RegressionTests.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using NUnit.Framework;
+using RegressionTests.Shared;
 
 namespace RegressionTests.SMTP
 {

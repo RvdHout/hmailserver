@@ -1,8 +1,8 @@
-﻿using hMailServer;
+﻿using System;
+using System.Threading;
+using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
-using System;
-using System.Threading;
 
 namespace RegressionTests.POP3.Fetching
 {

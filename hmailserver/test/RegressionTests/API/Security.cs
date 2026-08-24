@@ -1,10 +1,10 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
+using System.Runtime.InteropServices;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
-using System.Runtime.InteropServices;
 
 namespace RegressionTests.API
 {

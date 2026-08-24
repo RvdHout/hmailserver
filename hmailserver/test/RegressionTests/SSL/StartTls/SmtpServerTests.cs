@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System.Threading;
+using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
-using System.Threading;
 
 namespace RegressionTests.SSL.StartTls
 {

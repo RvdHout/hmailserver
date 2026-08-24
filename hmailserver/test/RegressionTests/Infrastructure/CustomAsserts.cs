@@ -1,12 +1,12 @@
-﻿using hMailServer;
-using NUnit.Framework;
-using RegressionTests.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
 using System.Threading;
+using hMailServer;
+using NUnit.Framework;
+using RegressionTests.Shared;
 
 namespace RegressionTests.Infrastructure
 {
@@ -80,7 +80,15 @@ namespace RegressionTests.Infrastructure
          {
             var serviceController = new ServiceController("SpamAssassin");
             serviceController.Start();
-            serviceController.WaitForStatus(ServiceControllerStatus.Running);
+
+            foreach (var theprocess in processlist)
+            {
+               if (theprocess.ProcessName == "spamd")
+                  return;
+
+               System.Threading.Thread.Sleep(100);
+               processlist = Process.GetProcesses();
+            }
          }
          catch (Exception)
          {

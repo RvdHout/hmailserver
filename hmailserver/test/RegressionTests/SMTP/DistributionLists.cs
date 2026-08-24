@@ -1,9 +1,9 @@
-﻿using hMailServer;
+﻿using System;
+using System.Collections.Generic;
+using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
-using System;
-using System.Collections.Generic;
 
 namespace RegressionTests.SMTP
 {

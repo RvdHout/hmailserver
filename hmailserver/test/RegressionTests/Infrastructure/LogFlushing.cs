@@ -1,9 +1,9 @@
 ﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
+using System;
 using NUnit.Framework;
 using RegressionTests.Shared;
-using System;
 
 namespace RegressionTests.Infrastructure
 {

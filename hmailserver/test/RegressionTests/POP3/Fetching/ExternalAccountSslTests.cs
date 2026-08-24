@@ -1,10 +1,10 @@
-﻿using hMailServer;
+﻿using System.Collections.Generic;
+using System.Threading;
+using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
 using RegressionTests.SSL;
-using System.Collections.Generic;
-using System.Threading;
 
 namespace RegressionTests.POP3.Fetching
 {

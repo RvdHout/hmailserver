@@ -1,12 +1,12 @@
 // Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
+using System.IO;
+using System.Text.RegularExpressions;
 using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Infrastructure;
 using RegressionTests.Shared;
-using System.IO;
-using System.Text.RegularExpressions;
 
 namespace RegressionTests.MIME
 {

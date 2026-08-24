@@ -1,7 +1,7 @@
-﻿using hMailServer;
+﻿using System.Threading;
+using hMailServer;
 using NUnit.Framework;
 using RegressionTests.Shared;
-using System.Threading;
 
 namespace RegressionTests.SSL.StartTls
 {
