@@ -778,7 +778,7 @@ namespace HM
                            sMessageBody.c_str(),
                            sFileName.c_str());
 
-
+      
 
       FileUtilities::WriteToFile(sFileName, sErrorMessage, false);
 
@@ -928,9 +928,7 @@ namespace HM
    PersistentMessage::LoadHeader(const String &fileName)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads the entire message from the disk and returns the header portion of it.
-   // The header is defined as everything up to the first empty line.
-   // Reports an error if the file is not available.
+   // Reads the entire message from the disk.
    //---------------------------------------------------------------------------()
    {
       return LoadHeader(fileName, true);
@@ -940,9 +938,7 @@ namespace HM
    PersistentMessage::LoadHeader(const String &fileName, bool reportError)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads the entire message from the disk and returns the header portion of it.
-   // The header is defined as everything up to the first empty line.
-   // Optionally reports an error if the file is not available.
+   // Reads the entire message from the disk.
    //---------------------------------------------------------------------------()
    {
       // 50000 seems inefficient to read in headers especially since default cluster is 4096
@@ -951,19 +947,20 @@ namespace HM
       const int iReadBufferSize = 50000;
 
       // We need to take care not to overflow buffer
-      if (iHeaderReadSize > iReadBufferSize)
-         iHeaderReadSize = iReadBufferSize;
+      if (iHeaderReadSize > iReadBufferSize) iHeaderReadSize = iReadBufferSize;
 
-      AnsiString sHeaderData;
+      String sHeaderData; 
 
-      HANDLE handleFile = CreateFile(fileName,
-         GENERIC_READ,
-         FILE_SHARE_READ,
+      HANDLE handleFile;
+
+      handleFile = CreateFile(fileName, 
+         GENERIC_READ, 
+         FILE_SHARE_READ, 
          NULL, // LPSECURITY_ATTRIBUTES
          OPEN_EXISTING, // -- open or create.
          FILE_ATTRIBUTE_NORMAL, // attributes
          NULL // file template
-      );
+         );
 
       if (handleFile == INVALID_HANDLE_VALUE || handleFile < 0)
       {
@@ -981,30 +978,30 @@ namespace HM
 
       int iHeaderEnd = -1;
 
-      // Move buffer to heap to avoid large stack allocation
-      std::unique_ptr<BYTE[]> buf(new BYTE[iReadBufferSize + 1]);
+      BYTE buf[iReadBufferSize + 1];
 
       unsigned long nbytes = 0;
-      bool bMoreData = true;
+      BOOL bMoreData = TRUE;
+      int nBytesSent = 0;
 
       while (bMoreData)
       {
          // We're using defined read size vs buffer size (read will always be <= buffer due to test above)
-         if (!ReadFile(handleFile, buf.get(), iHeaderReadSize, &nbytes, NULL))
-            bMoreData = false;
+         ReadFile(handleFile,buf,iHeaderReadSize, &nbytes, NULL);
 
-         if (nbytes)
+         if (nbytes) 
          {
-            sHeaderData += AnsiString((char*)buf.get(), nbytes);
+            sHeaderData += AnsiString((char*)buf, nbytes);
          }
          else
-            bMoreData = false;
+            bMoreData = FALSE;
 
          // Check if we have read the entire header.
-         iHeaderEnd = sHeaderData.Find("\r\n\r\n");
+         iHeaderEnd = sHeaderData.Find(_T("\r\n\r\n"));
 
          if (iHeaderEnd >= 0)
-            bMoreData = false;
+            bMoreData = FALSE;
+
       }
 
       CloseHandle(handleFile);
@@ -1021,8 +1018,7 @@ namespace HM
    PersistentMessage::LoadBody(const String &fileName)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads the entire message from the disk and returns the body portion of it.
-   // The body is defined as everything after the first empty line.
+   // Reads the entire message from the disk.
    //---------------------------------------------------------------------------()
    {
       // 10000 seems inefficient since default cluster is 4096
@@ -1031,73 +1027,67 @@ namespace HM
       const int iReadBufferSize = 50000;
 
       // We need to take care not to overflow buffer
-      if (iBodyReadSize > iReadBufferSize)
-         iBodyReadSize = iReadBufferSize;
+      if (iBodyReadSize > iReadBufferSize) iBodyReadSize = iReadBufferSize;
 
-      AnsiString sBodyData;
-
-      HANDLE handleFile = CreateFile(fileName,
-         GENERIC_READ,
-         FILE_SHARE_READ,
+      HANDLE handleFile = CreateFile(fileName, 
+         GENERIC_READ, 
+         FILE_SHARE_READ, 
          NULL, // LPSECURITY_ATTRIBUTES
          OPEN_EXISTING, // -- open or create.
          FILE_ATTRIBUTE_NORMAL, // attributes
          NULL // file template
-      );
+         );
 
-      if (handleFile == INVALID_HANDLE_VALUE || handleFile < 0)
+      if (handleFile == INVALID_HANDLE_VALUE || handleFile < 0) 
       {
-         // Capture the Win32 error immediately so the log distinguishes the actual cause
-         // (file gone vs. sharing violation vs. delete-pending/permissions) rather than
-         // collapsing them all into "file was not available".
-         boost::system::error_code error_code(::GetLastError(), boost::system::system_category());
-         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4403, "PersistentMessage::LoadBody", "Could not read the message body, since the file was not available. File: " + fileName, error_code);
-
-         return sBodyData;
+         ErrorManager::Instance()->ReportError(ErrorManager::Medium, 4403, "PersistentMessage::LoadBody", "Could not read the message body, since the file was not available. File: " + fileName);
+         return "";
       }
 
       int iHeaderEnd = -1;
 
-      // Move buffer to heap to avoid large stack allocation
-      std::unique_ptr<BYTE[]> buf(new BYTE[iReadBufferSize + 1]);
+      BYTE buf[iReadBufferSize + 1];
 
       unsigned long nbytes = 0;
-      bool bodyStarted = false;
+      int nBytesSent = 0;
+      bool foundHeader = false;
+
+      AnsiString retVal; 
 
       while (true)
       {
          // We're using defined read size vs buffer size (read will always be <= buffer due to test above)
-         if (!ReadFile(handleFile, buf.get(), iBodyReadSize, &nbytes, NULL))
+         ReadFile(handleFile,buf,iBodyReadSize, &nbytes, NULL);
+
+         if (!nbytes) 
             break;
 
-         if (!nbytes)
-            break;
+         AnsiString readData = AnsiString((char*)buf, nbytes);
 
-         AnsiString readData = AnsiString((char*)buf.get(), nbytes);
-
-         // Check if we have read the entire body.
-         if (!bodyStarted)
+         // Check if we have read the entire header.
+         if (!foundHeader)
          {
             iHeaderEnd = readData.Find("\r\n\r\n");
             if (iHeaderEnd >= 0)
             {
-               int startReadPos = iHeaderEnd + 4;
-               int remainingLength = nbytes - startReadPos;
-               if (remainingLength > 0)
+               int startReadPos = iHeaderEnd+4;
+               int remainingLength = nbytes -startReadPos;
+               if(remainingLength>0)
                {
-                  readData = readData.Mid(startReadPos, remainingLength);
-                  bodyStarted = true;
+                  readData = readData.Mid(startReadPos, remainingLength );
+                  foundHeader = true;
                }
             }
          }
 
-         if (bodyStarted)
-            sBodyData.append(readData);
+         if (foundHeader)
+            retVal.append(readData);
+
       }
 
       CloseHandle(handleFile);
 
-      return sBodyData;
+      return retVal;
    }
 
    String 
