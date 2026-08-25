@@ -2,7 +2,7 @@
                                               #define HMAILSERVER_VERSION "5.7.0"
                                               #define HMAILSERVER_VERSION_NUMERIC 5,7,0,2788
                                               #define HMAILSERVER_BUILD "2788"
-                                              #define HMAILSERVER_MOD "16"
+                                              #define HMAILSERVER_MOD "21"
 /*
 [list=1]
 [*]Added: Received-SPF: diagnostic header controlled with INI setting "AddReceivedSPFHeader" (skip for authenticated client connections or localhost!)
@@ -21,5 +21,10 @@
 [*]Fix: POP3 Return -ERR instead of +ERR when inbox message fetch fails, see: [url=https://github.com/cybercode3/hmailserver/commit/bc31f5eedd2d39ac320caf9870e5191eb835067c]this[/url] commit
 [*]Fix: SMTP disconnect after STARTTLS handshake failure, see: [url=https://github.com/cybercode3/hmailserver/commit/0c58dc25d2ccb665f52666261aab431ae86b361a] this[/url] commit
 [*]Added: Add "In-Reply-To" and "References" headers to Auto-Submitted messages, see: [url=https://github.com/hmailserver/hmailserver/pull/535]pull 535[/url]
+[*]Fix: Exception guard to Directories method, see: [url=https://github.com/hmailserver/hmailserver/pull/558]pull 558[/url]
+[*]Fix: Issue where a file received over SMTP is left open, see: [url=https://github.com/hmailserver/hmailserver/pull/565]pull 565[/url]
+[*]Fix: Locking issues, see: [url=https://github.com/hmailserver/hmailserver/pull/566]pull 566[/url]
+[*]Added: HM_MYSQL_OPT_MYSQL_PLUGIN_DIR option to MySQLInterface to dynamicly load the plugin directory for MariaDB Connector/C
+[*]Fix: Avoid endless read loop on peer-closed stream, see: [url=https://github.com/hmailserver/hmailserver/pull/573]pull 573[/url]
 [/list]
 */
