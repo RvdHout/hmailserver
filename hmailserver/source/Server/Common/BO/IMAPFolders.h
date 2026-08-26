@@ -22,6 +22,7 @@ namespace HM
       std::shared_ptr<IMAPFolder> GetFolderByName(const String &sName, bool bRecursive = false);
       std::shared_ptr<IMAPFolder> GetFolderByFullPath(const String &sPath);
       std::shared_ptr<IMAPFolder> GetFolderByFullPath(const std::vector<String> &vecFolders);
+      std::shared_ptr<IMAPFolder> GetFolderWithSpecialUse(unsigned int specialUseFlags, bool bRecursive = true);
       
       void RemoveFolder(std::shared_ptr<IMAPFolder> pFolder);
 

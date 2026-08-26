@@ -141,7 +141,7 @@ namespace RegressionTests.SMTP
          recipientAccount.Save();
 
          const string messageID = "<dsn-threading@test.com>";
-         const string previousReference = "<previous-message@example.test>";
+         const string previousReference = "<previous-message@test.com>";
          var builder = new StringBuilder();
          for (var i = 0; i < 11000; i++)
             builder.Append(
@@ -330,6 +330,61 @@ namespace RegressionTests.SMTP
          string test = Pop3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
 
          Assert.IsTrue(test.Contains("Message-Id"));
+         Assert.IsFalse(test.Contains("Message-ID"));
+      }
+
+      [Test]
+      [Category("SMTP")]
+      [Description("Issue 536: A missing Message-ID should be added for authenticated senders, since we act as a submission server for them.")]
+      public void TestMessageIDAddedForAuthenticatedSender()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         // The simulator does not add a Message-ID of its own, so any Message-ID in the
+         // delivered message was added by the server.
+         string errorMessage;
+         var simulator = new SmtpClientSimulator();
+         simulator.Send(false, "test@test.com", "test", "test@test.com", "test@test.com",
+                        "Test subject", "Test body", out errorMessage);
+
+         var test = Pop3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
+
+         Assert.IsTrue(test.Contains("Message-ID: <"));
+      }
+
+      [Test]
+      [Category("SMTP")]
+      [Description("Issue 536: A missing Message-ID should be added for unauthenticated senders which are allowed to send as one of our domains, since we act as a submission server for them as well.")]
+      public void TestMessageIDAddedForLocalSenderNotRequiredToAuthenticate()
+      {
+         // The "My computer" IP range allows the local computer to send as one of our
+         // domains without authenticating. Web sites and scripts submitting mail over
+         // localhost rely on this.
+         var range =
+            SingletonProvider<TestSetup>.Instance.GetApp().Settings.SecurityRanges.get_ItemByName("My computer");
+         Assert.IsFalse(range.RequireSMTPAuthLocalToLocal);
+
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         SmtpClientSimulator.StaticSend("test@test.com", "test@test.com", "Test subject", "Test body");
+
+         var test = Pop3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
+
+         Assert.IsTrue(test.Contains("Message-ID: <"));
+      }
+
+      [Test]
+      [Category("SMTP")]
+      [Description("Issue 536: A missing Message-ID should not be added to relayed messages, since that hides from spam filters that the original message had none.")]
+      public void TestMessageIDNotAddedForRelayedMessage()
+      {
+         SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "test@test.com", "test");
+
+         // The sender is not one of our domains, so we're relaying rather than submitting.
+         SmtpClientSimulator.StaticSend("someone@example.com", "test@test.com", "Test subject", "Test body");
+
+         var test = Pop3ClientSimulator.AssertGetFirstMessageText("test@test.com", "test");
+
          Assert.IsFalse(test.Contains("Message-ID"));
       }
 

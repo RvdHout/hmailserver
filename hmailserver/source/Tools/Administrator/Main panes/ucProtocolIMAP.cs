@@ -60,6 +60,9 @@ namespace hMailServer.Administrator
          checkEnableIMAPQuota.Checked = settings.IMAPQuotaEnabled;
          checkEnableIMAPIdle.Checked = settings.IMAPIdleEnabled;
          checkEnableIMAPACL.Checked = settings.IMAPACLEnabled;
+
+         checkCreateDefaultSpecialUseFolders.Checked = settings.CreateDefaultSpecialUseFoldersEnabled;
+
          textIMAPPublicFolderName.Text = settings.IMAPPublicFolderName;
          comboIMAPHierarchyDelimiter.Text = settings.IMAPHierarchyDelimiter;
 
@@ -79,6 +82,8 @@ namespace hMailServer.Administrator
          settings.IMAPIdleEnabled = checkEnableIMAPIdle.Checked;
          settings.IMAPACLEnabled = checkEnableIMAPACL.Checked;
          settings.IMAPPublicFolderName = textIMAPPublicFolderName.Text;
+
+         settings.CreateDefaultSpecialUseFoldersEnabled = checkCreateDefaultSpecialUseFolders.Checked;
 
          bool setClean = true;
          try

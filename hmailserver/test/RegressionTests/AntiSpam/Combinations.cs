@@ -28,9 +28,9 @@ namespace RegressionTests.AntiSpam
          "the mark threshold is reached.")]
       public void TestDeleteThresholdLowerThanMarkThreshold()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "multihit@test.com", "test");
+         var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "multihit@test.com", "test");
 
-         hMailServer.AntiSpam antiSpam = _settings.AntiSpam;
+         var antiSpam = _settings.AntiSpam;
 
          antiSpam.SpamMarkThreshold = 15;
          antiSpam.SpamDeleteThreshold = 0;
@@ -40,43 +40,39 @@ namespace RegressionTests.AntiSpam
          antiSpam.PrependSubject = true;
          antiSpam.PrependSubjectText = "ThisIsSpam";
 
-         antiSpam.CheckHostInHelo = true;
-         antiSpam.CheckHostInHeloScore = 10;
-
-         // Enable SpamAssassin as above CheckHostInHelo doesn't work on localhost any longer
-         _settings.AntiSpam.SpamAssassinEnabled = true;
-         _settings.AntiSpam.SpamAssassinHost = "localhost";
-         _settings.AntiSpam.SpamAssassinPort = 783;
-         _settings.AntiSpam.SpamAssassinMergeScore = false;
-         _settings.AntiSpam.SpamAssassinScore = 10;
+         // Enable SpamAssassin.
+         antiSpam.SpamAssassinEnabled = true;
+         antiSpam.SpamAssassinHost = "localhost";
+         antiSpam.SpamAssassinPort = 783;
+         antiSpam.SpamAssassinMergeScore = false;
+         antiSpam.SpamAssassinScore = 10;
 
          // Enable SURBL.
-         SURBLServer oSURBLServer = antiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 10;
-         oSURBLServer.Save();
+         var surblServer = antiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 10;
+         surblServer.Save();
 
-         // Send a messages to this account, containing both SpamAssassin and SURBL-hits.
-         // We should only detect one of these two:
+         // Send a message to this account, containing both a SURBL-hit and a GTUBE
+         // (SpamAssassin test) string. Both tests should fire, since the delete
+         // threshold is lower than the mark threshold.
          var smtpClientSimulator = new SmtpClientSimulator();
 
-         // Should not be possible to send this email since it's results in a spam
-         // score over the delete threshold.
-         smtpClientSimulator.Send("test@example.com", oAccount1.Address, "INBOX",
-                                  "Test 1 SURBL: http://surbl-org-permanent-test-point.com/\r\nTest 2SpamAssassinString: XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X");
+         smtpClientSimulator.Send("test@example.com", account1.Address, "INBOX",
+            "Test http://surbl-org-permanent-test-point.com/ Test 2 " +
+            "XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X");
 
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-1:"));
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-2:"));
-         Assert.IsFalse(message.Contains("X-hMailServer-Reason-3:"));
       }
 
       [Test]
       [Description("Test that only one result header is added if one test passes and one fails.")]
       public void TestOneFailOnePass()
       {
-         Account oAccount1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "multihit@test.com", "test");
+         var account1 = SingletonProvider<TestSetup>.Instance.AddAccount(_domain, "multihit@test.com", "test");
 
          _settings.AntiSpam.SpamMarkThreshold = 1;
          _settings.AntiSpam.SpamDeleteThreshold = 100;
@@ -86,25 +82,26 @@ namespace RegressionTests.AntiSpam
          _settings.AntiSpam.PrependSubject = true;
          _settings.AntiSpam.PrependSubjectText = "ThisIsSpam";
 
-         _settings.AntiSpam.UseMXChecks = true;
-         _settings.AntiSpam.UseMXChecksScore = 5;
+         // Enable SpamAssassin.
+         _settings.AntiSpam.SpamAssassinEnabled = true;
+         _settings.AntiSpam.SpamAssassinHost = "localhost";
+         _settings.AntiSpam.SpamAssassinPort = 783;
+         _settings.AntiSpam.SpamAssassinMergeScore = false;
+         _settings.AntiSpam.SpamAssassinScore = 5;
 
-         // Enable SURBL.
-         SURBLServer oSURBLServer = _settings.AntiSpam.SURBLServers[0];
-         oSURBLServer.Active = true;
-         oSURBLServer.Score = 5;
-         oSURBLServer.Save();
+         // Enable SURBL, but don't include any URL in the message body, so this
+         // test passes while the SpamAssassin (GTUBE) test fails.
+         var surblServer = _settings.AntiSpam.SURBLServers[0];
+         surblServer.Active = true;
+         surblServer.Score = 5;
+         surblServer.Save();
 
-         // Send a messages to this account, containing both incorrect MX records (NullMX) and SURBL-hits.
-         // We should only detect one of these two:
          var smtpClientSimulator = new SmtpClientSimulator();
 
-         // Should not be possible to send this email since it's results in a spam
-         // score over the delete threshold.
-         smtpClientSimulator.Send("test@domain.without.mxrecords.example.com", oAccount1.Address, "INBOX",
-                                  "Test 1 SURBL: http://surbl-org-permanent-test-point.com/");
+         smtpClientSimulator.Send("test@example.com", account1.Address, "INBOX",
+            "This is a test message. XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X");
 
-         string message = Pop3ClientSimulator.AssertGetFirstMessageText(oAccount1.Address, "test");
+         var message = Pop3ClientSimulator.AssertGetFirstMessageText(account1.Address, "test");
 
          Assert.IsTrue(message.Contains("X-hMailServer-Reason-1:"));
          Assert.IsFalse(message.Contains("X-hMailServer-Reason-2:"));

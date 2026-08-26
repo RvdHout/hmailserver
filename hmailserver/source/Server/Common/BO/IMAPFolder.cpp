@@ -20,12 +20,13 @@ namespace HM
 
 
    IMAPFolder::IMAPFolder(__int64 iAccountID, __int64 iParentFolderID) :
-      account_id_(iAccountID), 
+      account_id_(iAccountID),
       dbid_(0),
       current_uid_(0),
       folder_is_subscribed_(false),
       folder_needs_refresh_(true),
-      parent_folder_id_(iParentFolderID)
+      parent_folder_id_(iParentFolderID),
+      special_use_flags_(SpecialUseNone)
    {
       
    }
@@ -35,7 +36,8 @@ namespace HM
       dbid_(0),
       folder_is_subscribed_(false),
       folder_needs_refresh_(true),
-      parent_folder_id_(-1)
+      parent_folder_id_(-1),
+      special_use_flags_(SpecialUseNone)
    {
 
    }
@@ -165,6 +167,7 @@ namespace HM
       XNode *pNode = pParentNode->AppendChild(_T("Folder"));
       pNode->AppendAttr(_T("Name"), String(folder_name_));
       pNode->AppendAttr(_T("Subscribed"), folder_is_subscribed_ ? _T("1") : _T("0"));
+      pNode->AppendAttr(_T("SpecialUse"), GetSpecialUse());
       pNode->AppendAttr(_T("CreateTime"), String(Time::GetTimeStampFromDateTime(create_time_)));
       pNode->AppendAttr(_T("CurrentUID"), StringParser::IntToString(current_uid_));
 
@@ -190,6 +193,7 @@ namespace HM
    {
       folder_name_ = pFolderNode->GetAttrValue(_T("Name"));
       folder_is_subscribed_ = pFolderNode->GetAttrValue(_T("Subscribed")) == _T("1");
+      SetSpecialUse(pFolderNode->GetAttrValue(_T("SpecialUse")));
       create_time_ = Time::GetDateFromSystemDate(pFolderNode->GetAttrValue(_T("CreateTime")));
       current_uid_ = _ttoi(pFolderNode->GetAttrValue(_T("CurrentUID")));
 
@@ -291,6 +295,62 @@ namespace HM
    IMAPFolder::IsPublicFolder()
    {
       return account_id_ == 0;
+   }
+
+   bool
+   IMAPFolder::IsValidSpecialUseAttribute(const String &sAttribute)
+   {
+      // RFC 6154 section 2. \Important (Gmail extension) is intentionally not supported.
+      // \All and \Flagged are also intentionally not supported - see the comment on
+      // SpecialUseFlags in IMAPFolder.h.
+      return sAttribute.CompareNoCase(_T("\\Archive")) == 0 ||
+             sAttribute.CompareNoCase(_T("\\Drafts")) == 0 ||
+             sAttribute.CompareNoCase(_T("\\Junk")) == 0 ||
+             sAttribute.CompareNoCase(_T("\\Sent")) == 0 ||
+             sAttribute.CompareNoCase(_T("\\Trash")) == 0;
+   }
+
+   unsigned int
+   IMAPFolder::SpecialUseStringToFlags(const String &sAttributes)
+   {
+      unsigned int flags = SpecialUseNone;
+
+      std::vector<String> vecAttributes = StringParser::SplitString(sAttributes, _T(" "));
+      for (const String &sAttribute : vecAttributes)
+      {
+         if (sAttribute.CompareNoCase(_T("\\Archive")) == 0)
+            flags |= SpecialUseArchive;
+         else if (sAttribute.CompareNoCase(_T("\\Drafts")) == 0)
+            flags |= SpecialUseDrafts;
+         else if (sAttribute.CompareNoCase(_T("\\Junk")) == 0)
+            flags |= SpecialUseJunk;
+         else if (sAttribute.CompareNoCase(_T("\\Sent")) == 0)
+            flags |= SpecialUseSent;
+         else if (sAttribute.CompareNoCase(_T("\\Trash")) == 0)
+            flags |= SpecialUseTrash;
+         // Unrecognized attributes (e.g. garbage from a hand-edited database) are silently dropped.
+      }
+
+      return flags;
+   }
+
+   String
+   IMAPFolder::SpecialUseFlagsToString(unsigned int flags)
+   {
+      std::vector<String> vecAttributes;
+
+      if (flags & SpecialUseArchive)
+         vecAttributes.push_back(_T("\\Archive"));
+      if (flags & SpecialUseDrafts)
+         vecAttributes.push_back(_T("\\Drafts"));
+      if (flags & SpecialUseJunk)
+         vecAttributes.push_back(_T("\\Junk"));
+      if (flags & SpecialUseSent)
+         vecAttributes.push_back(_T("\\Sent"));
+      if (flags & SpecialUseTrash)
+         vecAttributes.push_back(_T("\\Trash"));
+
+      return StringParser::JoinVector(vecAttributes, _T(" "));
    }
 
 }

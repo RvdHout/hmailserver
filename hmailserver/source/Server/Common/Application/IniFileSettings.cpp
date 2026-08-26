@@ -63,8 +63,7 @@ namespace HM
       add_xauth_user_ip_(false),
       use_dns_cache_(true),
       add_received_spf_header_(false),
-      local_to_local_bypass_auth_on_spf_pass_(false),
-      imap_create_default_folders_(false)
+      local_to_local_bypass_auth_on_spf_pass_(false)
    {
 
    }
@@ -203,7 +202,6 @@ namespace HM
       rewrite_envelope_from_when_forwarding_ = ReadIniSettingInteger_("Settings", "RewriteEnvelopeFromWhenForwarding", 0) == 1;
       add_received_spf_header_ = ReadIniSettingInteger_("Settings", "AddReceivedSPFHeader", 0) == 1;
       local_to_local_bypass_auth_on_spf_pass_ = ReadIniSettingInteger_("Settings", "LocalToLocalByPassAuthOnSPFPass", 0) == 1;
-      imap_create_default_folders_ = ReadIniSettingInteger_("Settings", "IMAPCreateDefaultFolders", 0) == 1;
       m_sDisableAUTHList = ReadIniSettingString_("Settings", "DisableAUTHList", "");
    }
 

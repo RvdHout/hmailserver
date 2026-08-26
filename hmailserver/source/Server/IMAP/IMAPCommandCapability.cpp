@@ -36,7 +36,7 @@ namespace HM
           pConnection->GetConnectionSecurity() == CSSTARTTLSRequired)
          sResponse += " STARTTLS";
 
-      sResponse += " NAMESPACE RIGHTS=texk";
+      sResponse += " NAMESPACE RIGHTS=texk SPECIAL-USE CREATE-SPECIAL-USE";
 
       sResponse += "\r\n";
       sResponse += pArgument->Tag() + " OK CAPABILITY completed\r\n";

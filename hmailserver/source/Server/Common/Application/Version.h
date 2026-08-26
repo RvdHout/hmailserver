@@ -3,7 +3,7 @@
 #define HMAILSERVER_VERSION "5.6.9"
 #define HMAILSERVER_VERSION_NUMERIC 5,6,9,2641
 #define HMAILSERVER_BUILD "2641"
-#define HMAILSERVER_MOD "100"
+#define HMAILSERVER_MOD "105"
 
 /*
 [list=1]
@@ -104,8 +104,18 @@
 [*]Fix: Invalid content returned for BODY[X.MIME], see: [url=https://github.com/hmailserver/hmailserver/issues/459]issue 459[/url]
 [*]Fix: Email duplicated via route & catch all, see: [url=https://github.com/hmailserver/hmailserver/issues/200]issue 200[/url]
 [*]Fix: SMTP disconnect after STARTTLS handshake failure, see: [url=https://github.com/cybercode3/hmailserver/commit/0c58dc25d2ccb665f52666261aab431ae86b361a]this[/url] commit
-[*]Added: Optionally create additional IMAP default folders: Drafts, Junk, Sent and Trash controlled with INI setting "IMAPCreateDefaultFolders=1" (default = 0)
-[*]Added: Detect and apply SPECIAL-USE flags for well-known top-level folders so that clients map Sent/Drafts/Trash/Junk automatically instead of creating duplicates
+[*]Fix: Domain size calculation used the wrong column on MS SQL, SQL CE and PostgreSQL, see: [url=https://github.com/RvdHout/hmailserver/commit/dc8e0d91530377e453a87e5c316e0515fb7323b4]this[/url] commit
+[*]Fix: Improve robustness when moving/reading files, see: [url=https://github.com/hmailserver/hmailserver/issues/533]issue 533[/url]
+[*]Added: IMAP LIST Extension for Special-Use Mailboxes, see: [url=https://github.com/hmailserver/hmailserver/issues/534]issue 534[/url]
 [*]Added: Add "In-Reply-To" and "References" headers to Auto-Submitted messages, see: [url=https://github.com/hmailserver/hmailserver/pull/535]pull 535[/url]
+[*]Fix: Spam Check ignored if no FQDN in Helo, see: [url=https://github.com/hmailserver/hmailserver/pull/546]pull 546[/url]
+[*]Fix: Add missing Message-ID for all submitted messages, see: [url=https://github.com/hmailserver/hmailserver/pull/552]pull 552[/url]
+[*]Fix: Flush log files when they are kept open, see: [url=https://github.com/hmailserver/hmailserver/pull/553]pull 553[/url]
+[*]Fix: Issue where a file received over SMTP is left open, see: [url=https://github.com/hmailserver/hmailserver/pull/565]pull 565[/url]
 [/list]
+*/
+
+/* heldback
+[*]Fix: Add exception guard to Directories method, see: [url=https://github.com/hmailserver/hmailserver/pull/558]pull 558[/url]
+[*]Fis: Fix locking issues, see: [url=https://github.com/hmailserver/hmailserver/pull/566]pull 566[/url]
 */

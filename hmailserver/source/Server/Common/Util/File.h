@@ -39,6 +39,8 @@ namespace HM
       bool Write(File &sourceFile);
       bool WriteBOF();
 
+      bool Flush();
+
       int GetSize();
 
       bool SetPosition(int position);

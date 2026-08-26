@@ -928,7 +928,9 @@ namespace HM
    PersistentMessage::LoadHeader(const String &fileName)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads the entire message from the disk.
+   // Reads the entire message from the disk and returns the header portion of it.
+   // The header is defined as everything up to the first empty line.
+   // Reports an error if the file is not available.
    //---------------------------------------------------------------------------()
    {
 	   return LoadHeader(fileName, true);
@@ -938,7 +940,9 @@ namespace HM
    PersistentMessage::LoadHeader(const String &fileName, bool reportError)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads the entire message from the disk.
+   // Reads the entire message from the disk and returns the header portion of it.
+   // The header is defined as everything up to the first empty line.
+   // Optionally reports an error if the file is not available.
    //---------------------------------------------------------------------------()
    {
 	   // 50000 seems inefficient to read in headers especially since default cluster is 4096
@@ -1014,7 +1018,8 @@ namespace HM
    PersistentMessage::LoadBody(const String &fileName)
    //---------------------------------------------------------------------------()
    // DESCRIPTION:
-   // Reads the entire message from the disk.
+   // Reads the entire message from the disk and returns the body portion of it.
+   // The body is defined as everything after the first empty line.
    //---------------------------------------------------------------------------()
    {
 	   // 10000 seems inefficient since default cluster is 4096

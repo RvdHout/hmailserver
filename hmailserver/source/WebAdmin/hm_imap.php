@@ -20,6 +20,8 @@ if($action == "save")
 	$obSettings->IMAPACLEnabled  = hmailGetVar("IMAPACLEnabled",0);
    
    $obSettings->IMAPHierarchyDelimiter = hmailGetVar("IMAPHierarchyDelimiter","");
+   
+   $obSettings->CreateDefaultSpecialUseFoldersEnabled = hmailGetVar("CreateDefaultSpecialUseFoldersEnabled",0);
 }
 
 $welcomeimap = $obSettings->WelcomeIMAP;     
@@ -30,6 +32,8 @@ $IMAPQuotaEnabled = $obSettings->IMAPQuotaEnabled;
 $IMAPIdleEnabled  = $obSettings->IMAPIdleEnabled;
 $IMAPACLEnabled  = $obSettings->IMAPACLEnabled;
 $IMAPHierarchyDelimiter = $obSettings->IMAPHierarchyDelimiter;
+
+$CreateDefaultSpecialUseFoldersEnabled = $obSettings->CreateDefaultSpecialUseFoldersEnabled;
 
 ?>
 
@@ -72,6 +76,7 @@ $IMAPHierarchyDelimiter = $obSettings->IMAPHierarchyDelimiter;
                PrintCheckboxRow("IMAPQuotaEnabled", "IMAP Quota", $IMAPQuotaEnabled);
                PrintCheckboxRow("IMAPIdleEnabled", "IMAP Idle", $IMAPIdleEnabled);
                PrintCheckboxRow("IMAPACLEnabled", "IMAP ACL", $IMAPACLEnabled);
+			   PrintCheckboxRow("CreateDefaultSpecialUseFoldersEnabled", "Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts", $CreateDefaultSpecialUseFoldersEnabled);
             ?>
             
       		<tr>

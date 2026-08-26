@@ -133,24 +133,6 @@
 
 #define PROPERTY_IPV6_PREFERRED  _T("IPv6Preferred")
 
-/*
-I added 5 setting properties so REQUIRED_DB_VERSION 5601 + 5 = 5606
-[list]
-[*]PROPERTY_TLSOPTIONS
-[*]PROPERTY_AS_CHECKPTR
-[*]PROPERTY_AS_CHECKPTRSCORE
-[*]PROPERTY_IPV6_PREFERRED
-[*]PersistentFetchAccount -> famimerecipientheaders
-[/list]
-*/
+#define PROPERTY_CREATE_DEFAULT_SPECIAL_USE_FOLDERS  _T("CreateDefaultSpecialUseFolders")
 
-/*
-I added 3 more setting properties so REQUIRED_DB_VERSION 5606 + 3 = 5609
-[list]
-[*]hm_accounts -> accountvacationabortspamflagged
-[*]hm_accounts -> accountforwardabortspamflagged
-[*]hm_rule_actions -> actionabortspamflagged
-[/list]
-*/
-
-#define REQUIRED_DB_VERSION            5609
+#define REQUIRED_DB_VERSION            5610

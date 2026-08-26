@@ -157,6 +157,45 @@ InterfaceIMAPFolder::put_Subscribed(VARIANT_BOOL newVal)
    }
 }
 
+STDMETHODIMP
+InterfaceIMAPFolder::get_SpecialUse(eSpecialUse *pVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      *pVal = (eSpecialUse)object_->GetSpecialUseFlags();
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
+STDMETHODIMP InterfaceIMAPFolder::put_SpecialUse(eSpecialUse newVal)
+{
+   try
+   {
+      if (!object_)
+         return GetAccessDenied();
+
+      const long knownFlags = HM::IMAPFolder::SpecialUseArchive | HM::IMAPFolder::SpecialUseDrafts |
+         HM::IMAPFolder::SpecialUseJunk | HM::IMAPFolder::SpecialUseSent | HM::IMAPFolder::SpecialUseTrash;
+
+      if ((newVal & ~knownFlags) != 0)
+         return COMError::GenerateError("Invalid special-use attribute. Valid values are eSUArchive, eSUDrafts, eSUJunk, eSUSent and eSUTrash.");
+
+      object_->SetSpecialUseFlags((unsigned int)newVal);
+      return S_OK;
+   }
+   catch (...)
+   {
+      return COMError::GenerateGenericMessage();
+   }
+}
+
 STDMETHODIMP 
 InterfaceIMAPFolder::get_Messages(IInterfaceMessages **pVal)
 {
@@ -254,9 +293,15 @@ STDMETHODIMP InterfaceIMAPFolder::Delete()
          return GetAccessDenied();
 
       if (!parent_collection_)
-         return HM::PersistentIMAPFolder::DeleteObject(object_) ? S_OK : S_FALSE;
-      
-      parent_collection_->DeleteItemByDBID(object_->GetID());
+      {
+         if (!HM::PersistentIMAPFolder::DeleteObject(object_))
+            return COMError::GenerateError("The folder could not be deleted. Please check the hMailServer error log for details.");
+
+         return S_OK;
+      }
+
+      if (!parent_collection_->DeleteItemByDBID(object_->GetID()))
+         return COMError::GenerateError("The folder could not be deleted. Please check the hMailServer error log for details.");
    
       return S_OK;
    }

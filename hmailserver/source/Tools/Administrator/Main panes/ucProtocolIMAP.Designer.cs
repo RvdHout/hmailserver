@@ -46,6 +46,7 @@ namespace hMailServer.Administrator
             this.checkEnableIMAPQuota = new hMailServer.Administrator.Controls.ucCheckbox();
             this.labelExtensions = new System.Windows.Forms.Label();
             this.checkEnableIMAPSort = new hMailServer.Administrator.Controls.ucCheckbox();
+            this.checkCreateDefaultSpecialUseFolders = new hMailServer.Administrator.Controls.ucCheckbox();
             this.labelOther2 = new System.Windows.Forms.Label();
             this.comboIMAPHierarchyDelimiter = new hMailServer.Administrator.Controls.ucComboBox();
             this.labelHierarchyDelimiter = new System.Windows.Forms.Label();
@@ -180,7 +181,8 @@ namespace hMailServer.Administrator
             this.labelPublicFolderName.Text = "Public folder name";
             // 
             // tabPage2
-            // 
+            //
+            this.tabPage2.Controls.Add(this.checkCreateDefaultSpecialUseFolders);
             this.tabPage2.Controls.Add(this.labelHierarchyDelimiter);
             this.tabPage2.Controls.Add(this.comboIMAPHierarchyDelimiter);
             this.tabPage2.Controls.Add(this.labelOther2);
@@ -278,6 +280,16 @@ namespace hMailServer.Administrator
             this.labelHierarchyDelimiter.Size = new System.Drawing.Size(93, 13);
             this.labelHierarchyDelimiter.TabIndex = 21;
             this.labelHierarchyDelimiter.Text = "Hierarchy delimiter";
+            //
+            // checkCreateDefaultSpecialUseFolders
+            //
+            this.checkCreateDefaultSpecialUseFolders.AutoSize = true;
+            this.checkCreateDefaultSpecialUseFolders.Location = new System.Drawing.Point(35, 225);
+            this.checkCreateDefaultSpecialUseFolders.Name = "checkCreateDefaultSpecialUseFolders";
+            this.checkCreateDefaultSpecialUseFolders.Size = new System.Drawing.Size(350, 17);
+            this.checkCreateDefaultSpecialUseFolders.TabIndex = 22;
+            this.checkCreateDefaultSpecialUseFolders.Text = "Create default special-use folders (Sent, Drafts, Trash, Junk) for new accounts";
+            this.checkCreateDefaultSpecialUseFolders.UseVisualStyleBackColor = true;
             // 
             // ucProtocolIMAP
             // 
@@ -320,5 +332,6 @@ namespace hMailServer.Administrator
        private System.Windows.Forms.Label labelOther2;
        private System.Windows.Forms.Label labelHierarchyDelimiter;
        private hMailServer.Administrator.Controls.ucComboBox comboIMAPHierarchyDelimiter;
+       private hMailServer.Administrator.Controls.ucCheckbox checkCreateDefaultSpecialUseFolders;
     }
 }

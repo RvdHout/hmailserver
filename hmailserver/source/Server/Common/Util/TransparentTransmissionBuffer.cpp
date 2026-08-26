@@ -61,6 +61,18 @@ namespace HM
       return true;
    }
 
+   void
+   TransparentTransmissionBuffer::Close()
+   //---------------------------------------------------------------------------()
+   // DESCRIPTION:
+   // Releases the handle to the file the received data is written to. Callers who
+   // access the file after the transmission has ended must make sure the handle has
+   // been released first.
+   //---------------------------------------------------------------------------()
+   {
+      file_.Close();
+   }
+
    void 
    TransparentTransmissionBuffer::SetMaxSizeKB(size_t maxSize)
    {
@@ -157,7 +169,7 @@ namespace HM
 
       // Locate last \n
       const char *pBuffer = buffer_->GetCharBuffer();
-      int bufferSize = buffer_->GetSize();
+      size_t bufferSize = buffer_->GetSize();
       
       /*
          RFC rfc2821
@@ -168,56 +180,68 @@ namespace HM
             Service Extensions.
       */
 
-      int maxLineLength = MAX_LINE_LENGTH;
+      size_t maxLineLength = MAX_LINE_LENGTH;
 
       // Start in the end and move 'back' MAX_LINE_LENGTH characters.
-      int searchEndPos = max(bufferSize - maxLineLength, 0);
-      for (int i = bufferSize - 1; i >= searchEndPos; i--)
+      size_t searchEndPos = 0;
+      
+      // The buffer can be empty at this point, if the last data we received was the
+      // end-of-data sequence and everything before it has already been flushed. There's
+      // then nothing to write to file/socket, but the file must still be closed below.
+      if (bufferSize > 0)
       {
-         char s = pBuffer[i];
+         if (bufferSize > maxLineLength)
+            searchEndPos = bufferSize - maxLineLength;
+         else
+            searchEndPos = 0;
 
-         // If we found a newline, send anything up until that.
-         // If we're forcing a send, send all we got
-         // If we found no newline in the stream, the message is malformed according to RFC2821 (max 1000 chars per line). 
-         //    Send all we got anyway. 
-
-         if (s == '\n' || bForce)
+         for (size_t current_position = bufferSize; current_position > searchEndPos; current_position--)
          {
-            last_send_ended_with_newline_ = s == '\n';
+            char s = pBuffer[current_position - 1];
 
-            // Copy the data up including this position
-            int iCopySize = i+1;
+            // If we found a newline, send anything up until that.
+            // If we're forcing a send, send all we got
+            // If we found no newline in the stream, the message is malformed according to RFC2821 (max 1000 chars per line). 
+            //    Send all we got anyway. 
 
-            std::shared_ptr<ByteBuffer> pOutBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
-            pOutBuffer->Add(buffer_->GetBuffer(), iCopySize);
-
-            // Remove it from the old buffer
-            int iRemaining = buffer_->GetSize() - iCopySize;
-            buffer_->Empty(iRemaining);
-
-            // Parse this buffer and add it to file/socket
-            if (is_sending_)
-               InsertTransmissionPeriod_(pOutBuffer);
-            else
-               RemoveTransmissionPeriod_(pOutBuffer);
-
-            // The parsed buffer can now be sent.
-            if (is_sending_)
+            if (s == '\n' || bForce)
             {
-               if (std::shared_ptr<TCPConnection> connection = tcp_connection_.lock())
+               last_send_ended_with_newline_ = s == '\n';
+
+               // Copy the data up including this position
+               size_t bytes_to_copy = current_position;
+
+               std::shared_ptr<ByteBuffer> pOutBuffer = std::shared_ptr<ByteBuffer>(new ByteBuffer);
+               pOutBuffer->Add(buffer_->GetBuffer(), bytes_to_copy);
+
+               // Remove it from the old buffer
+               size_t remaining_bytes = buffer_->GetSize() - bytes_to_copy;
+               buffer_->Empty(remaining_bytes);
+
+               // Parse this buffer and add it to file/socket
+               if (is_sending_)
+                  InsertTransmissionPeriod_(pOutBuffer);
+               else
+                  RemoveTransmissionPeriod_(pOutBuffer);
+
+               // The parsed buffer can now be sent.
+               if (is_sending_)
                {
-                  connection->EnqueueWrite(pOutBuffer);
+                  if (std::shared_ptr<TCPConnection> connection = tcp_connection_.lock())
+                  {
+                     connection->EnqueueWrite(pOutBuffer);
+                  }
+
                }
-               
-            }
-            else 
-            {
-               SaveToFile_(pOutBuffer);
-            }
+               else
+               {
+                  SaveToFile_(pOutBuffer);
+               }
 
-            dataProcessed = true;
+               dataProcessed = true;
 
-            break;
+               break;
+            }
          }
       }
 

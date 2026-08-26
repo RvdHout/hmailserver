@@ -35,24 +35,54 @@ namespace HM
    bool
    PersistentIMAPFolder::DeleteByAccount(__int64 iAccountID)
    {
+      return DeleteByAccount(iAccountID, false);
+   }
+
+   bool
+   PersistentIMAPFolder::DeleteByAccount(__int64 iAccountID, bool forceDelete)
+   {
       if (iAccountID <= 0)
          return false;
 
       IMAPFolders accountFolders (iAccountID, -1);
       accountFolders.Refresh();
-      return accountFolders.DeleteAll();
+
+      for (int i = 0; i < accountFolders.GetCount(); i++)
+      {
+         if (!DeleteObject(accountFolders.GetItem(i), forceDelete))
+            return false;
+      }
+
+      return true;
    }
 
+   /*
+   Deletes a specific IMAP folder, including the Inbox and folders with a
+   special-use flag.
+
+   This is the Collection<>/persistence contract, and is what explicit,
+   user-initiated deletes go through - the IMAP DELETE command, and the COM
+   API used by hMailServer Administrator. Such a delete must really delete,
+   since the caller reports the outcome back to the user and drops the
+   folder from its in-memory list either way.
+   */
    bool
    PersistentIMAPFolder::DeleteObject(std::shared_ptr<IMAPFolder> pFolder)
    {
-      return DeleteObject  (pFolder, false);
+      return DeleteObject  (pFolder, true);
    }
 
    /*
       Deletes a specific IMAP folder.
 
-      If forceDelete is false, the user Inbox won't be deleted.
+      If forceDelete is false, the user Inbox and any folder with a
+      special-use flag (e.g. Sent, Trash), regardless of nesting depth,
+      are retained: their messages and permissions are deleted, but the
+      folders themselves are kept.
+
+      That mode exists for emptying an account (PersistentAccount::DeleteMessages).
+      It must not be used to delete an individual folder, since it reports
+      success while leaving the row in hm_imapfolders behind.
 
    */
    bool
@@ -61,9 +91,17 @@ namespace HM
       if (pFolder->GetID() <= 0)
          return false;
       
-      // Delete sub folders first...
-      if (!pFolder->GetSubFolders()->DeleteAll())
-         return false;
+      // Delete sub folders first. Loop explicitly (rather than using
+      // Collection::DeleteAll, which goes through the forcing single-argument
+      // overload) so that forceDelete propagates to nested folders too -
+      // otherwise emptying an account would delete nested special-use folders
+      // instead of retaining them.
+      std::shared_ptr<IMAPFolders> pSubFolders = pFolder->GetSubFolders();
+      for (int i = 0; i < pSubFolders->GetCount(); i++)
+      {
+         if (!DeleteObject(pSubFolders->GetItem(i), forceDelete))
+            return false;
+      }
 
       // We must delete all email in this folder.
       pFolder->GetMessages()->Refresh();
@@ -74,24 +112,8 @@ namespace HM
 
       bool isInbox = pFolder->GetParentFolderID() == -1 && pFolder->GetFolderName().CompareNoCase(_T("Inbox")) == 0;
 
-      bool isDefaultFolder = false;
-      if (IniFileSettings::Instance()->GetIMAPCreateDefaultFolders())
-      {
-         // If the user has the default folders enabled, we don't delete the default folders.
-         if (pFolder->GetParentFolderID() == -1)
-         {
-            String folderName = pFolder->GetFolderName();
-            if (folderName.CompareNoCase(_T("Drafts")) == 0 ||
-               folderName.CompareNoCase(_T("Sent")) == 0 ||
-               folderName.CompareNoCase(_T("Trash")) == 0 ||
-               folderName.CompareNoCase(_T("Junk")) == 0)
-            {
-               isDefaultFolder = true;
-            }
-         }
-      }
-
-      bool deleteActualFolder = forceDelete || !isInbox && !isDefaultFolder;
+      bool isSpecialUseFolder = pFolder->GetSpecialUseFlags() != IMAPFolder::SpecialUseNone;
+      bool deleteActualFolder = forceDelete || !(isInbox || isSpecialUseFolder);
 
       if (deleteActualFolder)
       {
@@ -152,6 +174,7 @@ namespace HM
       oStatement.AddColumnInt64("folderparentid", pFolder->GetParentFolderID());
       oStatement.AddColumn("foldername", pFolder->GetFolderName());
       oStatement.AddColumn("folderissubscribed", pFolder->GetIsSubscribed() ? 1 : 0);
+      oStatement.AddColumn("folderspecialuse", (long)pFolder->GetSpecialUseFlags());
 
       
       __int64 iDBID = 0;

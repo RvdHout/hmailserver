@@ -246,6 +246,9 @@ END_COM_MAP()
    STDMETHOD(get_RewriteEnvelopeFromWhenForwarding)(/*[out, retval]*/ VARIANT_BOOL *pVal);
    STDMETHOD(put_RewriteEnvelopeFromWhenForwarding)(/*[in]*/ VARIANT_BOOL newVal);
 
+   STDMETHOD(get_CreateDefaultSpecialUseFoldersEnabled)(/*[out, retval]*/ VARIANT_BOOL *pVal);
+   STDMETHOD(put_CreateDefaultSpecialUseFoldersEnabled)(/*[in]*/ VARIANT_BOOL newVal);
+
    STDMETHOD(get_CrashSimulationMode)(/*[out, retval]*/ long *pVal);
    STDMETHOD(put_CrashSimulationMode)(/*[in]*/ long newVal);
 
