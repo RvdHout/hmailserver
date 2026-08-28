@@ -10,7 +10,11 @@ IMAP stands for Internet Message Access Protocol. It is a protocol that an email
 
 ## IMAP folders
 
-It is the IMAP client itself (webmail client, Outlook Express, Netscape Mail and so on) that is responsible for the properties of the components that make up the IMAP client. For example, hMailServer does not decide what name the "Sent items" folder should have. Nor does it know that the "Sent items" folder actually contains sent items. The IMAP client asks the server to create a folder for sent items, and then puts messages in the folder. If you want to change the name of that folder, you should do so in your IMAP client, not in hMailServer.
+When a new account is created, hMailServer creates the folders Drafts, Sent, Trash and Junk, marked with the standard special-use flags that tell clients what each folder is for. This is controlled by *Create default special-use folders* under Settings -> Protocols -> IMAP -> Advanced, and is enabled by default. It only affects accounts created while the setting is enabled.
+
+The client still decides which folders it actually uses for sent items, drafts, deleted items and junk, and what they are named. A client that understands special-use flags normally picks the folders hMailServer created; other clients simply create the folders they want and put messages in them. hMailServer does not guess a folder's purpose from its name. If you want to rename a folder your client uses, do so in the client, so that it keeps pointing at the right folder.
+
+Clients can also set the special-use flags themselves when they create a folder. hMailServer remembers the flags and reports them to other clients, so they can recognize, for example, which folder holds sent mail.
 
 ## Refreshing IMAP folder list
 
@@ -26,4 +30,4 @@ hMailServer supports the IMAP SORT extension. This extension can dramatically im
 
 ## Folder separators
 
-hMailServer uses . (dot) as folder separator. This means that you cannot have dot in an IMAP folder name.
+By default, hMailServer uses . (dot) as the folder separator. This can be changed to a different character under Settings -> Protocols -> IMAP -> Advanced. Whichever character is selected as the separator cannot also be used in an IMAP folder name.
