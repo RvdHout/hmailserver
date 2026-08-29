@@ -10,7 +10,10 @@ var
   rdoUseInternal : TRadioButton;
   rdoUseExternal : TRadioButton;
 
-// The NT-service specific parts of the scrit below is taken
+  // Non-zero if the installation failed. Setup exits with this code.
+  g_iExitCode : Integer;
+
+// The NT-service specific parts of the script below is taken
 // from the innosetup extension knowledgebase.
 // Author: Silvio Iaccarino silvio.iaccarino(at)de.adp.com
 // Article created: 6 November 2002
@@ -58,6 +61,9 @@ const
 	SERVICE_CONTINUE_PENDING    = $5;
 	SERVICE_PAUSE_PENDING       = $6;
 	SERVICE_PAUSED              = $7;
+
+	// How long to wait for the hMailServer service to stop before giving up.
+	SERVICE_STOP_TIMEOUT_MS     = 60000;
 
   // BEGIN .NET INSTALLER	
   mdacURL = 'http://download.microsoft.com/download/4/a/a/4aafff19-9d21-4d35-ae81-02c48dcbbbff/MDAC_TYP.EXE';
@@ -201,6 +207,73 @@ begin
 		    end;
         CloseServiceHandle(hSCM)
 	end
+end;
+
+// Waits for the service to reach the stopped state. Returns false if it was
+// still running when the timeout expired, or if its status can't be read.
+function WaitForServiceStopped(ServiceName: AnsiString; TimeoutMS: Integer) : boolean;
+var
+	hSCM	: HANDLE;
+	hService: HANDLE;
+	Status	: SERVICE_STATUS;
+	iWaited	: Integer;
+begin
+	Result := false;
+
+	// Deliberately not using OpenServiceManager() here - it shows a message
+	// box on failure, which would be displayed once per poll.
+	hSCM := OpenSCManager('','ServicesActive',SC_MANAGER_ALL_ACCESS);
+	if hSCM = 0 then
+		exit;
+
+	hService := OpenService(hSCM,ServiceName,SERVICE_QUERY_STATUS);
+	if hService <> 0 then begin
+		iWaited := 0;
+
+		while True do begin
+			if QueryServiceStatus(hService,Status) = false then
+				break;
+
+			if Status.dwCurrentState = SERVICE_STOPPED then begin
+				Result := true;
+				break;
+			end;
+
+			if iWaited >= TimeoutMS then
+				break;
+
+			Sleep(250);
+			iWaited := iWaited + 250;
+		end;
+
+		CloseServiceHandle(hService)
+	end;
+
+	CloseServiceHandle(hSCM)
+end;
+
+// Reports that the service could not be stopped. Uses SuppressibleMsgBox so
+// that a silent installation or uninstallation isn't blocked by a dialog.
+procedure ReportServiceStopFailure(szMessage: String);
+begin
+	Log('hMailServer: ' + szMessage);
+	SuppressibleMsgBox(szMessage, mbError, MB_OK, IDOK);
+end;
+
+// Stops the service, if it's running, and waits for it to stop. Returns false
+// if it was still running when the timeout expired.
+function StopServiceAndWait(ServiceName: AnsiString) : boolean;
+begin
+	Result := true;
+
+	if IsServiceRunning(ServiceName) = false then
+		exit;
+
+	StopService(ServiceName);
+
+	// The stop request may fail if the service is already stopping, so the
+	// result is not checked here - the wait below decides the outcome.
+	Result := WaitForServiceStopped(ServiceName, SERVICE_STOP_TIMEOUT_MS);
 end;
 
 function GetInifile() : AnsiString;
@@ -580,7 +653,7 @@ begin
    bUpgradeWithSQLCE := (szDatabaseType = 'mssqlce');
 
 
-   // Only install SQL CE if we haven't already choosen another
+   // Only install SQL CE if we haven't already chosen another
    // database, or if this is a fresh installation. No point in
    // installing SQL CE if MySQL is used.
 
@@ -612,12 +685,31 @@ begin
 end;
 
 
-// Aborts the installation with an error message. Setup then exits with a non-zero
-// exit code, so an unattended installation doesn't report success after a failure.
+procedure ExitProcess(uExitCode: UINT);
+  external 'ExitProcess@kernel32.dll stdcall';
+
+// Aborts the installation with an error message. Inno Setup ignores an exception
+// raised after the files have been installed, and would report success even though
+// the installation failed. The exception stops the remaining post-installation
+// tasks, and the exit code is set when setup shuts down. 4 is the exit code Inno
+// Setup itself uses for a fatal error during installation.
 procedure FailPostInstall(szMessage: String);
 begin
+   Log('hMailServer: ' + szMessage);
    SuppressibleMsgBox(szMessage, mbError, MB_OK, IDOK);
+
+   g_iExitCode := 4;
+
    RaiseException(szMessage);
+end;
+
+procedure DeinitializeSetup();
+begin
+   if (g_iExitCode <> 0) then
+   begin
+      DelTree(ExpandConstant('{tmp}'), True, True, True);
+      ExitProcess(g_iExitCode);
+   end;
 end;
 
 // Must be kept in sync with hMailServer.Shared.ExitCodes.
@@ -831,15 +923,15 @@ begin
 	end
 	else if CurPage = wpReady then
 	begin
-		// Start hMailServer and MySQL, if they are running.
-		if IsServiceRunning('hMailServer') = true then
+		// Stop hMailServer, if it's running, so that its files aren't locked.
+		if StopServiceAndWait('hMailServer') = false then
 		begin
-		 	 StopService('hMailServer');
-		
-		   while (IsServiceStopped('hMailServer') = false) do
-		   begin
-		      Sleep(250);
-		   end;
+			ReportServiceStopFailure('The hMailServer service could not be stopped. Stop it manually and try again.');
+			Result := false;
+
+			// The user can't retry a silent installation, so fail it.
+			if (WizardSilent() = true) then
+				g_iExitCode := 4;
 		end;
     end;
 	
@@ -901,3 +993,14 @@ begin
 end;
 
 
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+	// Stop hMailServer before [UninstallRun] unregisters the service and the
+	// files are removed. Otherwise the running process keeps its files locked.
+	if CurUninstallStep = usUninstall then
+	begin
+		if StopServiceAndWait('hMailServer') = false then
+			ReportServiceStopFailure('The hMailServer service could not be stopped. Some files may not be removed until the computer is restarted.');
+	end;
+end;
