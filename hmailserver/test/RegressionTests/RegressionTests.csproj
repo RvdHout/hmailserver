@@ -117,6 +117,7 @@
     <Compile Include="SSL\SslServerTests.cs" />
     <Compile Include="Infrastructure\TCPIP.cs" />
     <Compile Include="Infrastructure\Timeouts.cs" />
+    <Compile Include="Shared\Poll.cs" />
     <Compile Include="Shared\TestSetup.cs" />
     <Compile Include="Shared\UtilityServices.cs" />
     <Compile Include="Stress\IMAP\ConcurrentConnectionsStressTests.cs" />
@@ -173,6 +174,9 @@
   <ItemGroup>
     <Compile Include="AntiSpam\DKIM\Signing.cs" />
     <Compile Include="AntiSpam\DKIM\Verification.cs" />
+    <Compile Include="AntiSpam\AuthenticationResults.cs" />
+    <Compile Include="AntiSpam\DMARC\Settings.cs" />
+    <Compile Include="AntiSpam\DMARC\Verification.cs" />
     <Compile Include="API\Events.cs" />
     <Compile Include="API\Links.cs" />
     <Compile Include="Stress\AbruptDisconnectTests.cs" />
@@ -189,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IMAP\HierarchyDelimiter.cs" />
+    <Compile Include="Security\PasswordHashing.cs" />
     <Compile Include="Security\PasswordMasking.cs" />
   </ItemGroup>
   <ItemGroup>

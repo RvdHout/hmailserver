@@ -1,9 +1,13 @@
 Param(
 	[string]$Configuration = 'Debug',
-	[switch]$Clean
+	[switch]$Clean,
+	[switch]$NoServiceStop
 )
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
+
+. (Join-Path $scriptRoot "ServiceControl.ps1")
+
 $solutionRelative = "..\hmailserver\source\Server\hMailServer\hMailServer.sln"
 try {
 	$solution = Resolve-Path (Join-Path $scriptRoot $solutionRelative) -ErrorAction Stop
@@ -19,7 +23,7 @@ if (-not (Test-Path $logsDir)) { New-Item -Path $logsDir -ItemType Directory -Fo
 . (Join-Path $scriptRoot "Find-MsBuild.ps1")
 $msbuild = Find-MsBuild
 if (-not $msbuild) {
-	Write-Error "MSBuild not found. Install Visual Studio 2019 (Build Tools) or ensure msbuild is on PATH."
+	Write-Error "MSBuild not found. Install Visual Studio 2019 or 2022 (Build Tools) or ensure msbuild is on PATH."
 	exit 2
 }
 
@@ -41,6 +45,21 @@ $msbuildArgs = @(
 	'/p:PreBuildEventUseInBuild=false'
 	'/p:PostBuildEventUseInBuild=false'
 )
+
+# The service holds the executable this build is about to write. The project's
+# pre-build event would stop it, but the events are disabled above.
+if (-not $NoServiceStop)
+{
+	try
+	{
+		Stop-HMailServer | Out-Null
+	}
+	catch
+	{
+		Write-Error $_
+		exit 3
+	}
+}
 
 $sw = [System.Diagnostics.Stopwatch]::StartNew()
 

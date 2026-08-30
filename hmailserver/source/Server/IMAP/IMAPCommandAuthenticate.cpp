@@ -133,6 +133,41 @@ namespace HM
       }
 
       const bool isAuthenticated = pAccount != nullptr;
+
+      if (Configuration::Instance()->GetUseScriptServer())
+      {
+         std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);
+         std::shared_ptr<ClientInfo> pClientInfo = std::shared_ptr<ClientInfo>(new ClientInfo);
+
+         // If a master user has been used to log on, the session is logged on as the
+         // authorization identity, so that's the user name we report to the script.
+         pClientInfo->SetUsername(authzid.GetLength() > 0 ? authzid : authcid);
+         pClientInfo->SetIPAddress(pConnection->GetRemoteEndpointAddress().ToString());
+         pClientInfo->SetPort(pConnection->GetLocalEndpointPort());
+         pClientInfo->SetSessionID(pConnection->GetSessionID());
+         pClientInfo->SetIsAuthenticated(isAuthenticated);
+         pClientInfo->SetIsEncryptedConnection(pConnection->IsSSLConnection());
+         if (pConnection->IsSSLConnection())
+         {
+            auto cipher_info = pConnection->GetCipherInfo();
+            pClientInfo->SetCipherVersion(cipher_info.GetVersion().c_str());
+            pClientInfo->SetCipherName(cipher_info.GetName().c_str());
+            pClientInfo->SetCipherBits(cipher_info.GetBits());
+         }
+
+         pContainer->AddObject("HMAILSERVER_CLIENT", pClientInfo, ScriptObject::OTClient);
+
+         String sEventCaller = "OnClientLogon(HMAILSERVER_CLIENT)";
+         ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientLogon, sEventCaller, pContainer);
+      }
+
+		if (!pAccount)
+		{
+			return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password.");
+		}
+
+
+      const bool isAuthenticated = pAccount != nullptr;
       if (Configuration::Instance()->GetUseScriptServer())
       {
          std::shared_ptr<ScriptObjectContainer> pContainer = std::shared_ptr<ScriptObjectContainer>(new ScriptObjectContainer);

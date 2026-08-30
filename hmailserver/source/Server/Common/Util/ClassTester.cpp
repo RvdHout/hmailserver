@@ -21,11 +21,14 @@
 #include "BlowFish.h"
 #include "../Persistence/PersistentMessage.h"
 #include "../../SMTP/SPF/SPF.h"
+#include "../AntiSpam/DMARC/DMARCTester.h"
+#include "PublicSuffixListTester.h"
 #include "../../SMTP/BLCheck.h"
 #include "../Application/BackupManager.h"
 #include "../Util/Encoding/Base64.h"
 #include "../Util/Encoding/ModifiedUTF7.h"
 #include "../Util/Hashing/HashCreator.h"
+#include "../Util/Hashing/PasswordHasher.h"
 #include "../Util/EventTester.h"
 #include <boost/pool/object_pool.hpp>
 
@@ -102,9 +105,21 @@ namespace HM
       pSPF->Test();
       delete pSPF;
 
+      OutputDebugString(_T("hMailServer: Testing public suffix list\n"));
+      PublicSuffixListTester publicSuffixListTester;
+      publicSuffixListTester.Test();
+
+      OutputDebugString(_T("hMailServer: Testing DMARC\n"));
+      DMARCTester dmarcTester;
+      dmarcTester.Test();
+
       OutputDebugString(_T("hMailServer: Testing SHA256\n"));
       HashCreatorTester tester;
       tester.Test();
+
+      OutputDebugString(_T("hMailServer: Testing PasswordHasher\n"));
+      PasswordHasherTester passwordHasherTester;
+      passwordHasherTester.Test();
 
 
       OutputDebugString(_T("hMailServer: Testing RegularExpressionTester\n"));

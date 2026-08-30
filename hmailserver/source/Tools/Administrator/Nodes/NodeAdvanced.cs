@@ -50,6 +50,7 @@ namespace hMailServer.Administrator.Nodes
                 subNodes.Add(new NodeIPRanges());
                 subNodes.Add(new NodeIncomingRelays());
                 subNodes.Add(new NodeMirror());
+                subNodes.Add(new NodePasswordHashing());
                 subNodes.Add(new NodePerformance());
                 subNodes.Add(new NodeServerMessages());
                 subNodes.Add(new NodeSslTls());

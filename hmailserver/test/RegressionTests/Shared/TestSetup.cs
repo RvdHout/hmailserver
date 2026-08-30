@@ -144,6 +144,18 @@ namespace RegressionTests.Shared
          if (_settings.VerifyRemoteSslCertificate)
             _settings.VerifyRemoteSslCertificate = false;
 
+         // Use the fastest algorithm - security does not matter.
+         if (_settings.PasswordHashAlgorithm != ePasswordHashAlgorithm.ePWHashPBKDF2SHA256)
+            _settings.PasswordHashAlgorithm = ePasswordHashAlgorithm.ePWHashPBKDF2SHA256;
+         if (_settings.PasswordHashMemoryCost != 0)
+            _settings.PasswordHashMemoryCost = 0;
+         if (_settings.PasswordHashIterations != 10000)
+            _settings.PasswordHashIterations = 10000;
+         // Seeded on for new installations, off for upgrades. The fixtures that care
+         // set it explicitly; everyone else gets the new-installation behaviour.
+         if (!_settings.PasswordHashAutoUpgradeEnabled)
+            _settings.PasswordHashAutoUpgradeEnabled = true;
+
          if (_settings.IMAPSASLPlainEnabled)
             _settings.IMAPSASLPlainEnabled = false;
          if (_settings.IMAPSASLInitialResponseEnabled)
@@ -200,8 +212,6 @@ namespace RegressionTests.Shared
          if (antiVirus.ClamAVHost != "localhost")
             antiVirus.ClamAVHost = "localhost";
 
-         EnableLogging(true);
-
          CustomAsserts.AssertNoReportedError();
 
          if (File.Exists(LogHandler.GetEventLogFileName()))
@@ -221,21 +231,16 @@ namespace RegressionTests.Shared
          return domain;
       }
 
-      private string GetCipherList()
-      {
-         return
-            "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:ECDHE-RSA-RC4-SHA:ECDHE-ECDSA-RC4-SHA:AES128:AES256:RC4-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!3DES:!MD5:!PSK;";
-      }
-
-
       private void SetupBlockedAttachments()
       {
          var antiVirusSettings = _settings.AntiVirus;
 
+         var blockedAttachments = antiVirusSettings.BlockedAttachments;
+
          var blockExists = false;
-         for (var i = 0; i < antiVirusSettings.BlockedAttachments.Count; i++)
+         for (var i = 0; i < blockedAttachments.Count; i++)
          {
-            var item = antiVirusSettings.BlockedAttachments[i];
+            var item = blockedAttachments[i];
 
             if (item.Wildcard == "*.bat")
             {
@@ -246,7 +251,7 @@ namespace RegressionTests.Shared
 
          if (blockExists == false)
          {
-            var item = antiVirusSettings.BlockedAttachments.Add();
+            var item = blockedAttachments.Add();
             item.Description = "Batch scripts";
             item.Wildcard = "*.bat";
             item.Save();
@@ -293,8 +298,16 @@ namespace RegressionTests.Shared
       private void RemoveAllSharedFolders()
       {
          var folders = _settings.PublicFolders;
+         var anyFolderDeleted = false;
          while (folders.Count > 0)
+         {
             folders.DeleteByDBID(folders[0].ID);
+            anyFolderDeleted = true;
+         }
+
+         // The directory only exists if a public folder has been created.
+         if (!anyFolderDeleted)
+            return;
 
          var publicFolderPath = Path.Combine(_settings.Directories.DataDirectory, "#Public");
          if (Directory.Exists(publicFolderPath))
@@ -456,17 +469,19 @@ namespace RegressionTests.Shared
          if (antiSpam.DKIMVerificationEnabled)
             antiSpam.DKIMVerificationEnabled = false;
 
-         antiSpam.WhiteListAddresses.Clear();
+         if (antiSpam.DMARCEnabled)
+            antiSpam.DMARCEnabled = false;
 
-         for (var i = 0; i < antiSpam.DNSBlackLists.Count; i++)
-         {
-            var list = antiSpam.DNSBlackLists[i];
-            if (list.Active)
-            {
-               list.Active = false;
-               list.Save();
-            }
-         }
+         if (antiSpam.DMARCFailureScore != 5)
+            antiSpam.DMARCFailureScore = 5;
+
+         if (antiSpam.DMARCHonorPolicy)
+            antiSpam.DMARCHonorPolicy = false;
+
+         if (antiSpam.AddAuthenticationResultsHeader)
+            antiSpam.AddAuthenticationResultsHeader = false;
+
+         antiSpam.WhiteListAddresses.Clear();
 
          var dnsBlackLists = antiSpam.DNSBlackLists;
          while (dnsBlackLists.Count > 0)
@@ -475,10 +490,14 @@ namespace RegressionTests.Shared
          var surblServers = antiSpam.SURBLServers;
 
          for (var i = surblServers.Count - 1; i >= 0; i--)
-            if (surblServers[i].DNSHost != "multi.surbl.org")
-               surblServers.DeleteByDBID(surblServers[i].ID);
-            else
-               surblServers[i].Active = false;
+         {
+            var surblServer = surblServers[i];
+
+            if (surblServer.DNSHost != "multi.surbl.org")
+               surblServers.DeleteByDBID(surblServer.ID);
+            else if (surblServer.Active)
+               surblServer.Active = false;
+         }
 
          if (surblServers.Count == 0)
          {
@@ -639,8 +658,15 @@ namespace RegressionTests.Shared
          return "";
       }
 
+      private static IPAddress _localIpAddress;
+
       internal static IPAddress GetLocalIpAddress()
       {
+         // Enumerating the network interfaces is expensive and the result does not
+         // change while the tests are running, so it is only looked up once.
+         if (_localIpAddress != null)
+            return _localIpAddress;
+
          var allAddresses = new StringBuilder();
 
          foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
@@ -657,7 +683,10 @@ namespace RegressionTests.Shared
                {
                   // Example: Only private networks
                   if (IsPrivateIp(ip))
+                  {
+                     _localIpAddress = ip;
                      return ip;
+                  }
                }
             }
          }

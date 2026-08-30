@@ -1,6 +1,6 @@
 # hMailServer — Codebase Guide for Agents
 
-hMailServer is a free, open-source email server for Microsoft Windows, licensed under AGPLv3. It implements SMTP, IMAP, and POP3, and runs as a Windows service. The codebase is written primarily in C++ (server core) and C# (admin tools), targeting Visual Studio 2019 with 64-bit Windows builds.
+hMailServer is a free, open-source email server for Microsoft Windows, licensed under AGPLv3. It implements SMTP, IMAP, and POP3, and runs as a Windows service. The codebase is written primarily in C++ (server core) and C# (admin tools), targeting the Visual Studio v142 toolset (VS2026 with the v142 build tools installed) with 64-bit Windows builds.
 
 ## Repository Layout
 
@@ -154,6 +154,10 @@ test/
 
 `RegressionTests/` is the primary test suite — it executes against a real hMailServer instance and exercises it end-to-end over SMTP, IMAP, and POP3. The full suite covers 500+ scenarios.
 
+**Every bug fix and every new feature needs a regression test.** Add it to `RegressionTests/`,
+next to the existing tests for the same protocol or area. For a bug fix, write the test first and
+confirm it fails before the fix, so it is known to actually reproduce the issue.
+
 ---
 
 ## `libraries/`
@@ -194,6 +198,11 @@ Vendored third-party C++ libraries checked directly into the repository. Large e
 The below scripts will automatically locate prerequisites. They must be run using `powershell.exe` (not bash/sh). Use the `powershell.exe -NoProfile -ExecutionPolicy Bypass -File <script>` invocation from bash.
 
 * Use `build/build.ps1` to build hMailServer server.
-* Use `build/post-build.ps1` to copy DLLs and register the COM server after a successful build. It requires Administrator elevation and will prompt via UAC automatically.
+* Use `build/post-build.ps1` to copy DLLs and register the COM server after a successful build. It stops the
+  service, copies the dependencies, registers the COM server if that is needed, and starts the service again.
+  Only the registration needs elevation, and it is skipped when the build output is already registered and the
+  type library is unchanged, so an ordinary rebuild does not prompt. Pass `-ForceRegister` to register anyway.
+* Run `build/grant-service-control.ps1` once, elevated, to let your account start and stop the hMailServer
+  service without a UAC prompt. Re-run it if the service is ever deleted and recreated.
 * Use `build/build-tests.ps1` to build the regression test solution.
-* Use `build/run-tests.ps1` to run the regression tests solution.
+* Run the regression tests with the NUnit console runner from the restored packages, for example `hmailserver\test\RegressionTests\packages\NUnit.ConsoleRunner.<version>\tools\nunit3-console.exe hmailserver\test\RegressionTests\bin\x64\Debug\RegressionTests.dll`. They need an installed and running hMailServer, since they drive it through its COM API.

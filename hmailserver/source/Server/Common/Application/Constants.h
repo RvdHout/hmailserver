@@ -105,6 +105,11 @@
 #define PROPERTY_AS_DKIM_VERIFICATION_ENABLE          _T("ASDKIMVerificationEnabled")
 #define PROPERTY_AS_DKIM_VERIFICATION_FAILURE_SCORE   _T("ASDKIMVerificationFailureScore")
 
+#define PROPERTY_AS_DMARC_ENABLED                     _T("ASDMARCEnabled")
+#define PROPERTY_AS_DMARC_FAILURE_SCORE               _T("ASDMARCFailureScore")
+#define PROPERTY_AS_DMARC_HONOR_POLICY                _T("ASDMARCHonorPolicy")
+#define PROPERTY_AS_ADD_AUTHENTICATION_RESULTS        _T("ASAddAuthResultsHeader")
+
 #define PROPERTY_AUTOBAN_ENABLED                _T("AutoBanOnLogonFailureEnabled")
 #define PROPERTY_MAX_INVALID_LOGON_ATTEMPTS     _T("MaxInvalidLogonAttempts")
 #define PROPERTY_LOGON_ATTEMPTS_WITHIN          _T("LogonAttemptsWithinMinutes")
@@ -138,4 +143,9 @@
 
 #define PROPERTY_TLSOPTIONS                     _T("TlsOptions")
 
-#define REQUIRED_DB_VERSION            5709
+#define PROPERTY_PASSWORDHASHALGORITHM          _T("PasswordHashAlgorithm")
+#define PROPERTY_PASSWORDHASHMEMORYCOST         _T("PasswordHashMemoryCost")
+#define PROPERTY_PASSWORDHASHITERATIONS         _T("PasswordHashIterations")
+#define PROPERTY_PASSWORDHASHAUTOUPGRADE        _T("PasswordHashAutoUpgrade")
+
+#define REQUIRED_DB_VERSION            5711
