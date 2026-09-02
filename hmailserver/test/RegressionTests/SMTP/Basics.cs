@@ -1027,7 +1027,7 @@ namespace RegressionTests.SMTP
       }
 
       [Test]
-      public void TestPreventByPassHELO()
+      public void TestPreventRSETByPassHELO()
       {
          var settings = _settings;
          settings.DisconnectInvalidClients = true;
