@@ -1,8 +1,8 @@
 # Builds the hMailServer installer on a GitHub-hosted VS2026 runner.
 #
-# The steps mirror the TeamCity job this replaces: build the developer tools, stamp the
-# version with ConfigureInstallation.exe, build the server, build the administration tools,
-# and compile hMailServer64.iss with Inno Setup into a setup executable.
+# The steps mirror the TeamCity job this replaces: stamp the version into the sources, build
+# the server, build the administration tools, and compile hMailServer64.iss with Inno Setup
+# into a setup executable.
 #
 # The installer is then handed to tests.yml, which installs it on a runner of its own and
 # runs the regression tests against it, before the publish job releases it under its
@@ -18,7 +18,8 @@
 # v142 compiler hMailServer's projects are pinned to, as the "MSVC v142 build tools"
 # component group, but not ATL for v142 - which the ATL-static projects need - and not the
 # Windows 10 SDK the installer takes its Universal CRT from. The workflow installs those two
-# when they are missing (~5 minutes together).
+# when they are missing (~5 minutes together) and caches what they produce, so a normal run
+# copies the files back in instead.
 name: Build
 
 on:
@@ -71,9 +72,10 @@ env:
   # The Chocolatey package carrying that SDK, pinned: its version is the SDK servicing build,
   # so this is 10.0.19041.0 plus the package's own revision.
   UCRT_SDK_PACKAGE_VERSION: 10.0.19041.685
-  # hMailServer64.iss is an Inno Setup 5 script, and 5.6.1 is what the TeamCity build
-  # compiled it with.
-  INNOSETUP_VERSION: 5.6.1
+  # The last Inno Setup release whose installers still run on Windows Vista, which
+  # hMailServer64.iss sets as its MinVersion. 6.3 raised the floor to Windows 7, so no later
+  # release can be used until Vista support is dropped.
+  INNOSETUP_VERSION: 6.2.2
   # The build number continues the series TeamCity produced, which ended at 2869. GitHub's
   # run number cannot be seeded, so it is offset by that instead: build = offset + run number.
   # The run number is counted per workflow file path, so renaming this file restarts it at 1
@@ -113,7 +115,11 @@ jobs:
       - name: Create the library folder
         run: New-Item -ItemType Directory -Force -Path $env:hMailServerLibs | Out-Null
 
-      - name: Make sure the v142 toolset, its ATL and its redistributable are installed
+      # Locating the toolset is separate from installing into it: the cache key below has to
+      # name the exact 14.29 toolset the ATL payload belongs to, so a servicing bump to the
+      # toolset cannot restore the previous toolset's atlmfc into it.
+      - name: Locate the Visual Studio instance and the v142 toolset
+        id: vs
         run: |
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
           $instance = (& $vswhere -products '*' -version '[18.0,19.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json | Out-String | ConvertFrom-Json) | Select-Object -First 1
@@ -132,62 +138,128 @@ jobs:
           }
           "v142 toolset: $($toolset.Name)"
 
-          # Two more things belong to v142 without coming with the compiler itself: ATL, which
-          # hMailServer.vcxproj needs because it is UseOfAtl=Static (without it the compile
-          # fails with C1083 on atlbase.h), and the 14.29 redistributable the installer ships
-          # beside hMailServer.exe. Whichever the image is missing is added here.
-          $missing = @()
+          "install-path=$($instance.installationPath)" >> $env:GITHUB_OUTPUT
+          "product-id=$($instance.productId)" >> $env:GITHUB_OUTPUT
+          "channel-id=$($instance.channelId)" >> $env:GITHUB_OUTPUT
+          "toolset-path=$($toolset.FullName)" >> $env:GITHUB_OUTPUT
+          "toolset-version=$($toolset.Name)" >> $env:GITHUB_OUTPUT
 
-          $hasAtl = (Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')) -and
-                    (Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib'))
-          if (-not $hasAtl) { $missing += $env:ATL_COMPONENT }
+      # ATL for v142 is missing from the image and takes around five minutes to install, so
+      # its payload is cached instead: 8 MB of headers and libraries inside the toolset, with
+      # no installer-registered state behind it, which is why copying the directory back is
+      # equivalent to installing the component. The 14.29 redistributable is handled the same
+      # way, for the run where the image stops carrying it. Both are staged outside Program
+      # Files, so the cache action never writes there. The key names the runner image as well
+      # as the toolset, since what the image is missing is what ends up in the payload.
+      - name: Cache the v142 ATL and redistributable payload
+        id: cache-v142
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.hMailServerLibs }}\vs142
+          key: v142-${{ matrix.image }}-${{ steps.vs.outputs.toolset-version }}-${{ env.ATL_COMPONENT }}-${{ env.V142_COMPONENT }}
+
+      # Deliberately not conditioned on the cache: every branch below decides by looking for
+      # the files, so an empty or half-restored cache falls back to a real install instead of
+      # failing later in the build.
+      - name: Make sure the v142 ATL and redistributable are installed
+        env:
+          TOOLSET_PATH: ${{ steps.vs.outputs.toolset-path }}
+          VS_INSTALL_PATH: ${{ steps.vs.outputs.install-path }}
+          VS_PRODUCT_ID: ${{ steps.vs.outputs.product-id }}
+          VS_CHANNEL_ID: ${{ steps.vs.outputs.channel-id }}
+        run: |
+          # robocopy reports success with exit codes below 8, which the shell would otherwise
+          # turn into a failed step.
+          $PSNativeCommandUseErrorActionPreference = $false
 
           . build\Get-VCRedistPath.ps1
-          $redist = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION
-          $hasRedist = $redist -and (Split-Path (Split-Path (Split-Path $redist -Parent) -Parent) -Leaf).StartsWith("$env:REDIST_MIN_VERSION.")
-          if (-not $hasRedist) { $missing += $env:V142_COMPONENT }
 
-          if (-not $missing) {
-              "ATL and the $env:REDIST_MIN_VERSION redistributable are already installed - nothing to do."
-              exit 0
+          $atl = Join-Path $env:TOOLSET_PATH 'atlmfc'
+          $staging = Join-Path $env:hMailServerLibs 'vs142'
+          $atlStaging = Join-Path $staging 'atlmfc'
+          $redistStaging = Join-Path $staging 'redist'
+
+          # hMailServer.vcxproj needs ATL because it is UseOfAtl=Static; without it the compile
+          # fails with C1083 on atlbase.h.
+          function Test-Atl {
+              (Test-Path (Join-Path $env:TOOLSET_PATH 'atlmfc\include\atlbase.h')) -and
+              (Test-Path (Join-Path $env:TOOLSET_PATH 'atlmfc\lib\x64\atls.lib'))
           }
 
-          "Installing the missing v142 components: $($missing -join ', ')"
-          $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-          $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
-
-          # & with splatting, not Start-Process -ArgumentList: the install path contains a
-          # space, and -ArgumentList would hand the installer "--installPath C:\Program".
-          $installerArgs = @(
-              'modify',
-              '--installPath', $instance.installationPath,
-              '--productId', $instance.productId,
-              '--channelId', $instance.channelId
-          )
-          foreach ($component in $missing) { $installerArgs += @('--add', $component) }
-          $installerArgs += @('--quiet', '--norestart')
-
-          & $installer @installerArgs
-          "vs_installer exit code: $LASTEXITCODE"
-
-          # vs_installer.exe delegates to background setup processes and returns before they
-          # finish, so wait for them to drain before checking the result.
-          $deadline = (Get-Date).AddMinutes(30)
-          while ((Get-Date) -lt $deadline) {
-              $running = Get-Process -Name 'vs_installer', 'vs_installershell', 'vs_installerservice', 'setup' -ErrorAction SilentlyContinue
-              if (-not $running) { break }
-              Start-Sleep -Seconds 10
+          # The redistributable the installer ships beside hMailServer.exe. Only one matching
+          # the pinned toolset counts here; Get-VCRedistPath itself accepts newer ones too.
+          function Get-Redist {
+              $path = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION
+              if ($path -and (Split-Path (Split-Path (Split-Path $path -Parent) -Parent) -Leaf).StartsWith("$env:REDIST_MIN_VERSION.")) { $path } else { $null }
           }
-          $stopwatch.Stop()
-          "Installed in {0:F1} minutes" -f $stopwatch.Elapsed.TotalMinutes
 
-          $hasAtl = (Test-Path (Join-Path $toolset.FullName 'atlmfc\include\atlbase.h')) -and
-                    (Test-Path (Join-Path $toolset.FullName 'atlmfc\lib\x64\atls.lib'))
-          if (-not $hasAtl) { throw "Installing $env:ATL_COMPONENT did not produce atlmfc under $($toolset.FullName)." }
+          function Copy-Tree($source, $target) {
+              robocopy $source $target /e /njh /njs /ndl /nc /ns /np | Out-Null
+              if ($LASTEXITCODE -ge 8) { throw "Copying $source to $target failed with robocopy exit code $LASTEXITCODE." }
+              # The shell exits the step with the last exit code, and robocopy's is not zero.
+              $global:LASTEXITCODE = 0
+          }
 
-          $redist = Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION
-          if (-not $redist -or -not (Split-Path (Split-Path (Split-Path $redist -Parent) -Parent) -Leaf).StartsWith("$env:REDIST_MIN_VERSION.")) { throw "Installing $env:V142_COMPONENT did not produce a $env:REDIST_MIN_VERSION redistributable; the newest one found is $redist." }
+          if (-not (Test-Atl) -and (Test-Path (Join-Path $atlStaging 'include\atlbase.h'))) {
+              "Restoring ATL from the cache into $atl"
+              Copy-Tree $atlStaging $atl
+          }
+
+          if (-not (Get-Redist) -and (Test-Path $redistStaging)) {
+              foreach ($version in Get-ChildItem $redistStaging -Directory) {
+                  "Restoring the $($version.Name) redistributable from the cache"
+                  Copy-Tree $version.FullName (Join-Path $env:VS_INSTALL_PATH "VC\Redist\MSVC\$($version.Name)")
+              }
+          }
+
+          $missing = @()
+          if (-not (Test-Atl)) { $missing += $env:ATL_COMPONENT }
+          if (-not (Get-Redist)) { $missing += $env:V142_COMPONENT }
+
+          if ($missing) {
+              "Installing the missing v142 components: $($missing -join ', ')"
+              $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+              $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+
+              # & with splatting, not Start-Process -ArgumentList: the install path contains a
+              # space, and -ArgumentList would hand the installer "--installPath C:\Program".
+              $installerArgs = @(
+                  'modify',
+                  '--installPath', $env:VS_INSTALL_PATH,
+                  '--productId', $env:VS_PRODUCT_ID,
+                  '--channelId', $env:VS_CHANNEL_ID
+              )
+              foreach ($component in $missing) { $installerArgs += @('--add', $component) }
+              $installerArgs += @('--quiet', '--norestart')
+
+              & $installer @installerArgs
+              "vs_installer exit code: $LASTEXITCODE"
+
+              # vs_installer.exe delegates to background setup processes and returns before they
+              # finish, so wait for them to drain before checking the result.
+              $deadline = (Get-Date).AddMinutes(30)
+              while ((Get-Date) -lt $deadline) {
+                  $running = Get-Process -Name 'vs_installer', 'vs_installershell', 'vs_installerservice', 'setup' -ErrorAction SilentlyContinue
+                  if (-not $running) { break }
+                  Start-Sleep -Seconds 10
+              }
+              $stopwatch.Stop()
+              "Installed in {0:F1} minutes" -f $stopwatch.Elapsed.TotalMinutes
+          } else {
+              "ATL and the $env:REDIST_MIN_VERSION redistributable are already in place - nothing to install."
+          }
+
+          if (-not (Test-Atl)) { throw "Neither the cache nor $env:ATL_COMPONENT produced atlmfc under $env:TOOLSET_PATH." }
+          $redist = Get-Redist
+          if (-not $redist) { throw "Neither the cache nor $env:V142_COMPONENT produced a $env:REDIST_MIN_VERSION redistributable; the newest one found is $(Get-VCRedistPath -MinimumVersion $env:REDIST_MIN_VERSION)." }
           "v142 redistributable: $redist"
+
+          # Stage whatever this run had to install, so the cache saved at the end of the job
+          # carries it and the next run copies it in instead.
+          if (-not (Test-Path (Join-Path $atlStaging 'include\atlbase.h'))) { Copy-Tree $atl $atlStaging }
+          $redistVersion = Split-Path (Split-Path $redist -Parent) -Parent
+          $redistTarget = Join-Path $redistStaging (Split-Path $redistVersion -Leaf)
+          if (-not (Test-Path $redistTarget)) { Copy-Tree $redistVersion $redistTarget }
 
       # Only the redistributable DLLs are taken from the SDK - a couple of megabytes - so
       # they are cached instead of the 2.5-minute install being paid on every run. The key
@@ -326,6 +398,15 @@ jobs:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.mariadb_dir }}
           key: mariadb-${{ steps.versions.outputs.mariadb }}-ssl${{ steps.versions.outputs.openssl }}-${{ matrix.image }}-${{ hashFiles('libraries/build-mariadb.ps1', 'libraries/build-common.ps1') }}
 
+      # 7-Zip is downloaded rather than compiled, so its key carries no runner image: the
+      # same prebuilt x64 binary is correct on every one of them.
+      - name: Restore 7-Zip
+        id: cache-sevenzip
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.sevenzip_dir }}
+          key: sevenzip-${{ steps.versions.outputs.sevenzip }}-${{ hashFiles('libraries/build-7zip.ps1', 'libraries/build-common.ps1') }}
+
       # Each build step prunes its tree before it is saved. What is kept is exactly what
       # hMailServer.vcxproj and post-build.bat reference; the rest is source and intermediates
       # that would multiply the cache size (Boost alone is ~2 GB unpruned against ~500 MB
@@ -430,19 +511,21 @@ jobs:
           path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.mariadb_dir }}
           key: ${{ steps.cache-mariadb.outputs.cache-primary-key }}
 
-      - name: Build the developer tools
+      # No pruning here: build-7zip.ps1 already keeps only the two files that are installed.
+      - name: Fetch 7-Zip
+        if: steps.cache-sevenzip.outputs.cache-hit != 'true'
         env:
-          NETFX_OVERRIDE: ${{ steps.netfx.outputs.override }}
+          LIB_VERSION: ${{ steps.versions.outputs.sevenzip }}
         run: |
-          # DevTools.sln builds ConfigureInstallation.exe, which the next step runs.
-          . build\Find-MsBuild.ps1
-          $msbuild = Find-MsBuild
-          if (-not $msbuild) { throw "MSBuild was not found." }
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version $env:LIB_VERSION
+          if ($LASTEXITCODE -ne 0) { throw "build-7zip.ps1 failed with exit code $LASTEXITCODE" }
 
-          $arguments = @('hmailserver\tools\DevTools.sln', '/m', '/p:Configuration=Release', '/p:Platform=Any CPU')
-          if ($env:NETFX_OVERRIDE) { $arguments += "/p:TargetFrameworkVersion=$env:NETFX_OVERRIDE" }
-          & $msbuild @arguments
-          if ($LASTEXITCODE -ne 0) { throw "Building DevTools.sln failed with exit code $LASTEXITCODE" }
+      - name: Save 7-Zip
+        if: success() && steps.cache-sevenzip.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.hMailServerLibs }}\${{ steps.versions.outputs.sevenzip_dir }}
+          key: ${{ steps.cache-sevenzip.outputs.cache-primary-key }}
 
       - name: Stamp the version into the sources and the installer script
         env:
@@ -451,9 +534,8 @@ jobs:
         run: |
           # Writes Version.h, the WebAdmin version check and the version and output file name
           # in section_setup_64.iss, so it has to run before the server is compiled.
-          $configure = 'hmailserver\tools\ConfigureInstallation\bin\Release\ConfigureInstallation.exe'
-          & $configure $env:GITHUB_WORKSPACE $env:PRODUCT_VERSION $env:PRODUCT_BUILD
-          if ($LASTEXITCODE -ne 0) { throw "ConfigureInstallation.exe failed with exit code $LASTEXITCODE" }
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File build\Set-Version.ps1 $env:PRODUCT_VERSION $env:PRODUCT_BUILD
+          if ($LASTEXITCODE -ne 0) { throw "Set-Version.ps1 failed with exit code $LASTEXITCODE" }
 
       - name: Build hMailServer
         run: |
@@ -551,11 +633,19 @@ jobs:
 
       - name: Install Inno Setup
         run: |
-          # The image carries Inno Setup 6 instead of the 5.6.1 hMailServer64.iss is written
-          # for. -AllowDowngrade is what makes choco step back from it - the two versions
-          # install side by side, in their own "Inno Setup 5" and "Inno Setup 6" folders.
+          # The image carries a newer Inno Setup 6 than the one the installer is pinned to.
+          # -AllowDowngrade is what makes choco step back from it; Inno Setup's own installer
+          # marks its files ignoreversion, so the older ones do replace the newer ones.
           . build\Install-ChocoPackage.ps1
           Install-ChocoPackage -Package 'innosetup' -Version $env:INNOSETUP_VERSION -AllowDowngrade
+
+          # A downgrade that silently left the newer files behind would compile the script
+          # with a compiler that no longer supports the Vista MinVersion it sets.
+          $installed = (Get-ItemProperty 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue |
+              Where-Object { $_.DisplayName -like 'Inno Setup*' }).DisplayVersion
+          if ($installed -ne $env:INNOSETUP_VERSION) {
+              throw "Inno Setup $env:INNOSETUP_VERSION was requested, but the installed version is '$installed'."
+          }
 
       - name: Locate the Visual C++ redistributable
         id: redist
@@ -613,7 +703,7 @@ jobs:
           VCREDIST_PATH: ${{ steps.redist.outputs.path }}
           UCRT_PATH: ${{ steps.ucrt.outputs.path }}
         run: |
-          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 5\ISCC.exe"
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $iscc)) { throw "ISCC.exe was not found at $iscc." }
 
           & $iscc "/DHMAILSERVERLIBS=$env:hMailServerLibs" "/DVCREDIST_PATH=$env:VCREDIST_PATH" "/DUCRT_PATH=$env:UCRT_PATH" hmailserver\installation\hMailServer64.iss

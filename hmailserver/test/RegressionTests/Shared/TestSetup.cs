@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+﻿// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
 // http://www.hmailserver.com
 
 using System;
@@ -211,6 +211,9 @@ namespace RegressionTests.Shared
 
          if (antiVirus.ClamAVHost != "localhost")
             antiVirus.ClamAVHost = "localhost";
+
+         if (antiVirus.NotifySender)
+            antiVirus.NotifySender = false;
 
          CustomAsserts.AssertNoReportedError();
 
@@ -626,6 +629,19 @@ namespace RegressionTests.Shared
          s = s.Replace("-", "");
 
          return s;
+      }
+
+      // Files that the server itself opens cannot live in the temp directory of the account
+      // running the tests, since the service account has no access to another user's profile.
+      // The public directory is reachable by both.
+      public static string GetSharedTempDirectory()
+      {
+         var publicDirectory = Environment.GetEnvironmentVariable("PUBLIC");
+         var directory = Path.Combine(publicDirectory, "hMailServer.RegressionTests");
+
+         Directory.CreateDirectory(directory);
+
+         return directory;
       }
 
 

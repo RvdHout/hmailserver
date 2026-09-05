@@ -269,16 +269,37 @@ namespace HM
    void
    MessageData::SetReplyThreadingHeaders(const MessageData &source)
    {
-      // RFC 3834, an automated response must include both the In-Reply-To and References headers mapping back to the original message's Message-ID, 
-      // provided that the incoming message had one.
+      SetReplyThreadingHeaders(source.GetFieldValue("Message-ID"), source.GetFieldValue("References"));
+   }
 
-      const String originalMessageID = source.GetFieldValue("Message-ID");
+   // Control characters in a header value could be used to inject additional headers
+   // into the message we generate, so they are removed.
+   String
+   MessageData::RemoveControlCharacters_(const String &value)
+   {
+      String result;
+
+      for (auto character : value)
+      {
+         if (character >= 32 && character != 127)
+            result += character;
+      }
+
+      return result;
+   }
+
+   void
+   MessageData::SetReplyThreadingHeaders(const String &sourceMessageID, const String &sourceReferences)
+   {
+      const String originalMessageID = RemoveControlCharacters_(sourceMessageID);
+
       if (originalMessageID.IsEmpty())
          return;
 
       SetFieldValue("In-Reply-To", originalMessageID);
 
-      String references = source.GetFieldValue("References");
+      String references = RemoveControlCharacters_(sourceReferences);
+
       if (!references.ContainsNoCase(originalMessageID))
       {
          if (!references.IsEmpty())

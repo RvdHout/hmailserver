@@ -24,7 +24,8 @@ Environment set up
 
    * An installed version of hMailServer 5.7 (configured with a database)
    * Visual Studio 2026 Community edition with the v142 (VS2019) build tools
-   * InnoSetup 5.5.4a (non-unicode version)
+   * InnoSetup 6.2.2 (https://github.com/jrsoftware/issrc/releases/tag/is-6_2_2) - the last
+     release whose installers run on Windows Vista, which hMailServer still supports
    * Perl 5 (https://strawberryperl.com/) - required by the OpenSSL and PostgreSQL library builds
    * CMake (https://cmake.org/download/) - unless Visual Studio's "C++ CMake tools for Windows" component is installed
    
@@ -150,6 +151,28 @@ Pass `-Toolset <name>` to override the default `msvc-14.2`, or `-Jobs <n>` to ch
 number of parallel compilations (defaults to the number of logical processors). Only Boost 1.x is
 supported.
 
+Fetching 7-Zip
+--------------
+The backup and restore feature launches the 7-Zip command line tool to compress and read
+backup archives. It is a prebuilt binary rather than something hMailServer compiles, so the
+`libraries\build-7zip.ps1` script downloads the "7-Zip Extra" package into
+%hMailServerLibs%\7zip-&lt;Version&gt; (e.g. `7zip-26.03`) and keeps the x64 `7za.exe` and its
+LGPL license text.
+
+Prerequisites:
+- The environment variable hMailServerLibs (see above).
+- Windows 10 or 11 - the bundled tar.exe is used to unpack the download.
+
+Run, from the repository root:
+
+   <pre>
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version 26.03
+   </pre>
+
+The download is checked against a SHA-256 pinned in the script, so only versions listed
+there are accepted. To move to a newer 7-Zip, record its hash in `$ArchiveHashes` and update
+the `7zip-&lt;Version&gt;` folder name in `post-build.bat` and `hMailServer64.iss`.
+
 Building hMailServer
 --------------------
 
@@ -160,7 +183,7 @@ Visual Studio must be started with _Run as Administrator_.
    This will build the hMailServer server-part (hMailServer.exe)
 3. Compile the solution hmailserver\source\Tools\hMailServer Tools.sln.
    This will build hMailServer related tools, such as hMailServer Administrator and hMailServer DB Setup.
-4. Compile hmailserver\installation\hMailServer.iss (using InnoSetup)
+4. Compile hmailserver\installation\hMailServer64.iss (using InnoSetup)
    This will build the hMailServer installation program.
 
    The installer ships two runtimes beside hMailServer.exe: the Visual C++ runtime, taken
