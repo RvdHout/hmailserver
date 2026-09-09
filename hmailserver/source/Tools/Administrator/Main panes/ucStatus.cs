@@ -141,7 +141,7 @@ namespace hMailServer.Administrator
                 AddWarning("W001", Strings.Localize("High"), Strings.Localize("You haven't specified the public host name for this computer in the SMTP settings."));
 
             if (settings.DenyMailFromNull)
-                AddWarning("W002", Strings.Localize("High"), Strings.Localize("You have configured hMailServer not to allow email with empty sender address. Many email server will not accept email from your server with this configuration."));
+                AddWarning("W002", Strings.Localize("High"), Strings.Localize("You have configured hMailServer not to allow email with an empty sender address. Many email servers will not accept email from your server with this configuration."));
 
             int autobanRanges = 0;
 
@@ -178,7 +178,7 @@ namespace hMailServer.Administrator
            if (autobanRanges > 0)
            {
               string warning =
-                  Strings.Localize("There is a total of %s auto-ban IP ranges.");
+                  Strings.Localize("There are a total of %s auto-ban IP ranges.");
 
               warning = warning.Replace("%s", autobanRanges.ToString());
 
@@ -280,8 +280,8 @@ namespace hMailServer.Administrator
                   timerLiveLog.Enabled = false;
                   DisplayLiveLogButtonCaption();
 
-                  MessageBox.Show("The live log was automatically disabled due to too high throughput." + Environment.NewLine + 
-                                  "To retrieve logging information, please read the log files.", 
+                  MessageBox.Show(Strings.Localize("The live log was automatically disabled because the throughput was too high.") + Environment.NewLine +
+                                  Strings.Localize("To retrieve logging information, please read the log files."), 
                                   EnumStrings.hMailServerAdministrator, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                   return;
                }

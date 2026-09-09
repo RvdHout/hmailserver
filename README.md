@@ -161,7 +161,6 @@ LGPL license text.
 
 Prerequisites:
 - The environment variable hMailServerLibs (see above).
-- Windows 10 or 11 - the bundled tar.exe is used to unpack the download.
 
 Run, from the repository root:
 
@@ -169,9 +168,13 @@ Run, from the repository root:
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File libraries\build-7zip.ps1 -Version 26.03
    </pre>
 
-The download is checked against a SHA-256 pinned in the script, so only versions listed
-there are accepted. To move to a newer 7-Zip, record its hash in `$ArchiveHashes` and update
-the `7zip-&lt;Version&gt;` folder name in `post-build.bat` and `hMailServer64.iss`.
+The package is a .7z, so the script also downloads `7zr.exe` from the same release and uses
+it to unpack the archive.
+
+Both downloads are checked against SHA-256 values pinned in the script, so only versions
+listed there are accepted. To move to a newer 7-Zip, record its hashes in `$ArchiveHashes`
+and `$BootstrapHashes` and update the `7zip-&lt;Version&gt;` folder name in `post-build.bat` and
+`hMailServer64.iss`.
 
 Building hMailServer
 --------------------
@@ -186,20 +189,28 @@ Visual Studio must be started with _Run as Administrator_.
 4. Compile hmailserver\installation\hMailServer64.iss (using InnoSetup)
    This will build the hMailServer installation program.
 
-   The installer ships two runtimes beside hMailServer.exe: the Visual C++ runtime, taken
-   from the toolset that compiled it, and the Universal CRT, for the Windows versions older
-   than 10 that have none of their own. Point the environment at both first:
+   The installer ships two runtimes beside hMailServer.exe. The Visual C++ runtime comes in
+   two versions, picked by Windows version at install time: the newest installed for Windows
+   10 and later, and the 14.29 one of the v142 toolset that compiled hMailServer.exe for
+   everything below, since the newer runtimes do not load there. Point the environment at
+   both first:
 
    ```
    . build\Get-VCRedistPath.ps1
-   . build\Get-UCRTRedistPath.ps1
-   $env:VCRedistPath = Get-VCRedistPath
-   $env:UCRTRedistPath = Get-UCRTRedistPath
+   $env:VCRedistPathModern = Get-VCRedistPath -Newest
+   $env:VCRedistPathLegacy = Get-VCRedistPath
    ```
 
-   Get-UCRTRedistPath.ps1 will only use Windows SDK versions whose Universal CRT is known to
-   still load on the oldest Windows the installer supports. Read the comment in it before
-   adding another.
+   The Universal CRT, for the Windows versions older than 10 that have none of their own, is
+   checked in under hmailserver\installation\Microsoft.UCRT.WindowsSDK14393 and needs no
+   setup. Do not replace it with a newer Windows SDK redistributable. 10.0.14393 is the
+   newest Universal CRT Microsoft supports on Windows Vista through 8.1, and above that the
+   Vista loader cannot resolve the forwarders they use - hMailServer.exe then fails to start
+   with an access violation. build\Test-DownlevelForwarders.ps1 checks for that.
+
+   The files come from the Windows 10 SDK version 1607 (10.0.14393), which installs them to
+   Windows Kits\10\Redist\ucrt\DLLs\x64. Download it from
+   https://learn.microsoft.com/en-us/windows/apps/windows-sdk/downloads-archive
 
 Running in Debug
 ----------------

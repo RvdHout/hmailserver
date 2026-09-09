@@ -87,7 +87,7 @@ When this option is enabled, hMailServer adds an Authentication-Results header t
 <div class="indented">Turn on this option if you want hMailServer to check the host name that clients has specified in the HELO command. According to the SMTP specification, the host given in the HELO command should match the IP of the client.  Enabling this may stop spam, but is also a violation of the SMTP RFC - if you have configured your server to delete spam messages. If you have configured your server to deliver spam messages but modifying the Subject header, it is not a violation of the SMTP RFC. Technically, hMailServer checks the A record for the given host to see if it matches the IP address of the connecting client.</div>
 </div>
 
-### Check that sender has DNS-MX records
+### Check that the sender has DNS-MX records
 
 <div class="indented">If you enable this option, hMailServer will check that the senders domain has valid MX records in the DNS. If not, the spam score of this test will be added to the total spam score for the message. Please note that there is no requirement that domains should have MX records. It's perfectly valid for a domain not to have MX records and still send email messages. While most domain owners set up MX records, far from all do it. This means that you should expect quite many false positives using this spam test.</div>
 
@@ -104,7 +104,7 @@ When this option is enabled, hMailServer adds an Authentication-Results header t
 
 <div class="indented">This test is run after the message has been transmitted, since the From header and any DKIM signatures are part of the message.</div>
 
-<h3>Honor policy published by sender domain</h3>
+<h3>Honor the policy published by the sender domain</h3>
 <div class="indented">If you enable this option, hMailServer applies the policy the sender domain publishes in its DMARC record when the check fails, regardless of the spam score. A policy of <em>reject</em> makes hMailServer reject the message, and a policy of <em>quarantine</em> makes hMailServer mark the message as spam. A policy of <em>none</em> only adds the spam score. The <em>pct</em> tag of the DMARC record is respected, so a domain owner can roll a policy out gradually.</div>
 
 <div class="indented">If this option is disabled, a failed DMARC check only adds the spam score.</div>

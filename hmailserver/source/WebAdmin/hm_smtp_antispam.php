@@ -179,7 +179,7 @@ function TestSpamAssassinConnection()
                PrintPropertyEditRow("usespfscore", "Score", $usespfscore, 4, "number", true);
                PrintCheckboxRow("checkhostinhelo", "Check host in the HELO command", $checkhostinhelo);
                PrintPropertyEditRow("checkhostinheloscore", "Score", $checkhostinheloscore, 4, "number", true);
-               PrintCheckboxRow("usemxchecks", "Check that sender has DNS-MX records", $usemxchecks);
+               PrintCheckboxRow("usemxchecks", "Check that the sender has DNS-MX records", $usemxchecks);
                PrintPropertyEditRow("usemxchecksscore", "Score", $usemxchecksscore, 4, "number", true);
                PrintCheckboxRow("checkptr", "Check rDNS/PTR", $checkptr);
                PrintPropertyEditRow("checkptrscore", "Score", $checkptrscore, 4, "number", true);
@@ -187,7 +187,7 @@ function TestSpamAssassinConnection()
                PrintPropertyEditRow("DKIMVerificationFailureScore", "Score", $DKIMVerificationFailureScore, 4, "number", true);
                PrintCheckboxRow("DMARCEnabled", "Use DMARC", $DMARCEnabled);
                PrintPropertyEditRow("DMARCFailureScore", "Score", $DMARCFailureScore, 4, "number", true);
-               PrintCheckboxRow("DMARCHonorPolicy", "Honor policy published by sender domain", $DMARCHonorPolicy, false, true);
+               PrintCheckboxRow("DMARCHonorPolicy", "Honor the policy published by the sender domain", $DMARCHonorPolicy, false, true);
             ?>
          </table>
      </div>
