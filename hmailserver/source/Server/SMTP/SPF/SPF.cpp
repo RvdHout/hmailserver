@@ -1,10 +1,15 @@
-// Copyright (c) 2010 Martin Knafve / hMailServer.com.  
+// Copyright (c) 2010 Martin Knafve / hMailServer.com.
 // http://www.hmailserver.com
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #include "SPF.h"
-#include "rmspf.h"
+
+#include "SPFAddress.h"
+#include "SPFDnsResolver.h"
+#include "SPFEvaluator.h"
+
+#include "../../Common/Application/Configuration.h"
 
 #ifdef _DEBUG
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
@@ -15,8 +20,7 @@ namespace HM
 {
    SPF::SPF(void)
    {
-      // Initialize. This is only done once.
-      SPFInit(NULL,0, SPF_Multithread);
+
    }
 
    SPF::~SPF(void)
@@ -24,130 +28,53 @@ namespace HM
 
    }
 
+   String
+   SPF::GetCheckedDomain(const String &senderEmail, const String &heloHost)
+   {
+      String domain = StringParser::ExtractDomain(senderEmail);
+
+      if (domain.IsEmpty())
+         return heloHost;
+
+      return domain;
+   }
+
    SPF::Result
    SPF::Test(const String &sSenderIP, const String &sSenderEmail, const String &sHeloHost, String &sExplanation)
    {
-      USES_CONVERSION;
+      sExplanation = "";
 
-      int family;
-      if (sSenderIP.Find(_T(":")) > 0)
-         family=AF_INET6;
-      else
-         family=AF_INET;
+      SPFAddress clientAddress;
 
-      // Convert the IP address from a dotted string
-      // to a binary form. We use the SPF library to
-      // do this.
-
-      char BinaryIP[100];
-      if (SPFStringToAddr(T2A(sSenderIP),family,BinaryIP)==NULL)
-         return Neutral;
-
-      const char* explain;
-      int result=SPFQuery(family,BinaryIP,T2A(sSenderEmail),NULL,T2A(sHeloHost),NULL,&explain);
-
-      if (explain != NULL)
+      if (!SPFAddress::TryParse(AnsiString(sSenderIP), clientAddress))
       {
-         sExplanation = explain;
-         SPFFree(explain);
+         // Section 4.1 makes the client address an input, so without one there is no check
+         // to make. A "none" rather than an error of either kind: the domain has not been
+         // asked anything. A scoped link-local address is the way to get here.
+         return SPFResult::None;
       }
 
-      if (result == SPF_Fail)
-      {
-         // FAIL
-         return Fail;
-      }
-      else if (result == SPF_Pass)
-      {
-         return Pass;
-      }
+      auto lookup = std::make_shared<SPFDnsResolver>();
 
-      return Neutral;
+      SPFEvaluator evaluator(lookup);
+
+      // The r and t macros of section 7.2, which only the text an exp modifier
+      // points at may use. The host name is the one the Authentication-Results
+      // header identifies this server by.
+      evaluator.SetReceivingHost(AnsiString(Configuration::Instance()->GetHostName()));
+      evaluator.SetTimestamp((__int64) ::time(0));
+
+      AnsiString explanation;
+
+      SPFResult result = evaluator.Check(clientAddress,
+                                         AnsiString(GetCheckedDomain(sSenderEmail, sHeloHost)),
+                                         AnsiString(sSenderEmail),
+                                         AnsiString(sHeloHost),
+                                         explanation);
+
+      sExplanation = String(explanation);
+
+      return result;
    }
-
-   String
-   SPF::ReceivedSPFHeader(const String &sHostname, const String &sSenderIP, const String &sSenderEmail, const String &sHeloHost, String &sResult)
-   {
-      USES_CONVERSION;
-      String sDomain = StringParser::ExtractDomain(sSenderEmail);
-
-      int family;
-      if (sSenderIP.Find(_T(":")) > 0)
-         family = AF_INET6;
-      else
-         family = AF_INET;
-
-      // Convert the IP address from a dotted string
-      // to a binary form. We use the SPF library to
-      // do this.
-
-      char BinaryIP[100];
-      if (SPFStringToAddr(T2A(sSenderIP), family, BinaryIP) == NULL)
-         return sResult;
-
-      int result = SPFQuery(family, BinaryIP, T2A(sSenderEmail), NULL, T2A(sHeloHost), NULL, NULL);
-
-      String sSPFResultString = SPFResultString(result);
-      String sResultMessage;
-
-      // http://www.open-spf.org/SPF_Received_Header/
-      switch (result)
-      {
-      case SPF_Pass: // 0
-         sResultMessage.Format(_T("%s (%s: domain of %s designates %s as permitted sender)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
-         break;
-      case SPF_SoftFail: // 1
-         sResultMessage.Format(_T("%s (%s: domain of transitioning %s does not designate %s as permitted sender)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
-         break;
-      case SPF_Fail: // 2
-         sResultMessage.Format(_T("%s (%s: domain of %s does not designate %s as permitted sender)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sSenderIP.c_str());
-         break;
-      case SPF_Neutral: // 3
-         sResultMessage.Format(_T("%s (%s: %s is neither permitted nor denied by domain of %s)"), sSPFResultString.ToLower(), sHostname.c_str(), sSenderIP.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
-         break;
-      case SPF_None: // 4
-         sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str());
-         break;
-      case SPF_None | SPF_BadDomain: // 20
-         sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts because of malformed domain %s)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sDomain.c_str());
-         break;
-      case SPF_None | SPF_NoDomain: // 36
-         sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts because the domain %s does not exist)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sDomain.c_str());
-         break;
-      case SPF_None | SPF_Literal: // 52
-         sResultMessage.Format(_T("%s (%s: domain of %s does not designate permitted sender hosts because the domain %s is an address literal)"), sSPFResultString.ToLower(), sHostname.c_str(), !sSenderEmail.IsEmpty() ? sSenderEmail.c_str() : sHeloHost.c_str(), sDomain.c_str());
-         break;
-      case SPF_TempError: // 5
-         sResultMessage.Format(_T("%s (%s: temporary error in processing during lookup of %s: DNS Timeout)"), sSPFResultString.ToLower(), sHostname.c_str(), sDomain.c_str());
-         break;
-      case SPF_PermError: // 6
-         sResultMessage.Format(_T("%s (%s: permanent error in processing during lookup of %s)"), sSPFResultString.ToLower(), sHostname.c_str(), sDomain.c_str());
-         break;
-      default:
-         return sResult;
-      }
-
-      sResult.Format(_T("Received-SPF: %s\r\n"), sResultMessage.c_str());
-
-      return sResult;
-   }
-
-   void SPFTester::Test()
-   {
-      String sExplanation;
-
-      if (SPF::Instance()->Test("185.216.75.37", "example@hmailserver.com", "mail.hmailserver.com", sExplanation) != SPF::Pass)
-      {
-         // Should be allowed. 
-         throw;
-      }
-
-      if (SPF::Instance()->Test("1.2.3.4", "example@hmailserver.com", "mail.hmailserver.com", sExplanation) != SPF::Fail)
-      {
-         // Should not be allowed.
-         throw;
-      }
-   }
-
-
 }
+
