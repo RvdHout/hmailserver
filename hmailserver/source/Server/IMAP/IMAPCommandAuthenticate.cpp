@@ -162,18 +162,18 @@ namespace HM
          ScriptServer::Instance()->FireEvent(ScriptServer::EventOnClientLogon, sEventCaller, pContainer);
       }
 
-		if (!pAccount)
-		{
-			return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password.");
-		}
+      if (!pAccount)
+      {
+         return IMAPResult(IMAPResult::ResultNo, "Invalid user name or password.");
+      }
 
-		// Load mail boxes
-		pConnection->Login(pAccount);
+      // Load mail boxes
+      pConnection->Login(pAccount);
 
-		String sResponse = pArgument->Tag() + " OK LOGIN completed\r\n";
+      String sResponse = pArgument->Tag() + " OK LOGIN completed\r\n";
 
-		pConnection->SendAsciiData(sResponse);
+      pConnection->SendAsciiData(sResponse);
 
-		return IMAPResult();
-	}
+      return IMAPResult();
+   }
 }
