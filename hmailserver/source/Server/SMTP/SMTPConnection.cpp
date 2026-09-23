@@ -257,6 +257,8 @@ namespace HM
 
          String sLogData = sClientData;
 
+         String delimiter = "\\t", passwordmask = "***";
+
          String sRegex = "^(?>AUTH PLAIN )((?:[A-Z\\d+/]{4})*(?:[A-Z\\d+/]{3}=|[A-Z\\d+/]{2}==)?)$";
          boost::wregex expression(sRegex, boost::wregex::icase);
          boost::wsmatch matches;
@@ -270,15 +272,19 @@ namespace HM
                String sBase64Encoded = matches[1];
                StringParser::Base64Decode(sBase64Encoded, sAuthentication);
 
-               // Extract the username from the decoded string.
-               int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-               if (iSecondTab > 0)
+               if (StringParser::IsBase64NullDelimited(sBase64Encoded))
+                  delimiter = "\\0";
+
+               std::vector<String> plain_args = StringParser::SplitString(sAuthentication, "\t");
+
+               if (plain_args.size() == 3 && plain_args[1].GetLength() > 0)
                {
-                  String username = sAuthentication.Mid(1, iSecondTab - 1);
-                  //sLogData = "AUTH PLAIN " + username + " ***";
-                  String usernameBase64Encoded;
-                  StringParser::Base64Encode(username, usernameBase64Encoded);
-                  sLogData = "AUTH PLAIN " + usernameBase64Encoded + " ***";
+                  String authzid = plain_args[0];
+                  String authcid = plain_args[1];
+                  String authplain = authzid.append(delimiter).append(authcid).append(delimiter).append(passwordmask);
+                  String sCommandBase64Encoded;
+                  StringParser::Base64Encode(authplain, sCommandBase64Encoded);
+                  sLogData = "AUTH PLAIN " + sCommandBase64Encoded;
                }
                else
                {
@@ -292,17 +298,21 @@ namespace HM
             String sAuthentication;
             StringParser::Base64Decode(sClientData, sAuthentication);
 
-            // Extract the username from the decoded string.
-            int iSecondTab = sAuthentication.Find(_T("\t"), 1);
-            if (iSecondTab > 0)
+            if (StringParser::IsBase64NullDelimited(sClientData))
+               delimiter = "\\0";
+
+            std::vector<String> plain_args = StringParser::SplitString(sAuthentication, "\t");
+
+            if (plain_args.size() == 3 && plain_args[1].GetLength() > 0)
             {
-               String username = sAuthentication.Mid(1, iSecondTab - 1);
-               //sLogData = username + " ***";
-               String usernameBase64Encoded;
-               StringParser::Base64Encode(username, usernameBase64Encoded);
-               sLogData = usernameBase64Encoded + " ***";
+               String authzid = plain_args[0];
+               String authcid = plain_args[1];
+               String authplain = authzid.append(delimiter).append(authcid).append(delimiter).append(passwordmask);
+               String sCommandBase64Encoded;
+               StringParser::Base64Encode(authplain, sCommandBase64Encoded);
+               sLogData = sCommandBase64Encoded;
             }
-            else 
+            else
             {
                sLogData = "***";
             }
@@ -310,8 +320,34 @@ namespace HM
          else if (current_state_ == SMTPUPASSWORD)
          {
             sLogData = "***";
-         }         
-         
+         }        
+
+         // AUTH PLAIN is disabled and client send credentials anyway, this should not happen under normal circumstances 
+         // Or client (re)send credentials when not expected/accepted
+         sRegex = "^((?:[A-Z\\d+/]{4})*(?:[A-Z\\d+/]{3}=|[A-Z\\d+/]{2}==)?)$";
+         boost::wregex expr(sRegex, boost::wregex::icase);
+         if (current_state_ == HEADER && boost::regex_match(sClientData, expr))
+         {
+            // Both user name and password in line.
+            String sAuthentication;
+            StringParser::Base64Decode(sClientData, sAuthentication);
+
+            if (StringParser::IsBase64NullDelimited(sClientData))
+               delimiter = "\\0";
+
+            std::vector<String> plain_args = StringParser::SplitString(sAuthentication, "\t");
+
+            if (plain_args.size() == 3 && plain_args[1].GetLength() > 0)
+            {
+               String authzid = plain_args[0];
+               String authcid = plain_args[1];
+               String authplain = authzid.append(delimiter).append(authcid).append(delimiter).append(passwordmask);
+               String sCommandBase64Encoded;
+               StringParser::Base64Encode(authplain, sCommandBase64Encoded);
+               sLogData = sCommandBase64Encoded;
+            }
+         }
+
          // Append
          sLogData = "RECEIVED: " + sLogData;
 
