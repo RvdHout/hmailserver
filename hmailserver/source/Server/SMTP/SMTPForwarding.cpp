@@ -13,6 +13,8 @@
 
 #include "../Common/Persistence/PersistentMessage.h"
 
+#include "SRS/SenderRewriteScheme.h"
+
 
 #include "RecipientParser.h"
 
@@ -93,9 +95,11 @@ namespace HM
       // Create a copy of the message
       std::shared_ptr<Message> pNewMessage = PersistentMessage::CopyToQueue(pRecipientAccount, pOriginalMessage);
 
-      String sEnvelopeFrom = pOriginalMessage->GetFromAddress();
-      if (IniFileSettings::Instance()->GetRewriteEnvelopeFromWhenForwarding() && !sEnvelopeFrom.IsEmpty())
-         pNewMessage->SetFromAddress(pRecipientAccount->GetAddress());
+      const String forwardingAccount = pRecipientAccount->GetAddress();
+
+      SenderRewriteScheme::ApplyToForwardedMessage(pNewMessage, forwardingAccount,
+                                                   StringParser::ExtractDomain(forwardingAccount),
+                                                   pRecipientAccount->GetForwardAddress());
 
       pNewMessage->SetState(Message::Delivering);
 
@@ -103,8 +107,6 @@ namespace HM
       std::shared_ptr<MessageData> pNewMsgData = std::shared_ptr<MessageData>(new MessageData());
       const String newFileName = PersistentMessage::GetFileName(pNewMessage);
       pNewMsgData->LoadFromMessage(newFileName, pNewMessage);
-      if (!sEnvelopeFrom.IsEmpty())
-         pNewMsgData->SetFieldValue("X-Forwarded-For", sEnvelopeFrom);
       pNewMsgData->IncreaseRuleLoopCount();
       pNewMsgData->Write(newFileName);
 
