@@ -109,34 +109,26 @@ namespace HM
 
       unsigned char *results = new unsigned char[digestLength];
 
+      EVP_MD_CTX *context = EVP_MD_CTX_new();
+      const EVP_MD *md = EVP_md_null();
+
       switch (hash_type_)
       {
       case SHA1:
-         {
-            SHA_CTX context;
-            SHA1_Init(&context);
-            SHA1_Update(&context, input, inputLength);
-            SHA1_Final(results, &context);
-            break;
-         }
+         md = EVP_sha1();
+         break;
       case MD5:
-         {
-            MD5_CTX context;
-            MD5_Init(&context);
-            MD5_Update(&context, input, inputLength);
-            MD5_Final(results, &context);
-            break;
-         }
+         md = EVP_md5();
+         break;
       case SHA256:
-         {
-            SHA256_CTX context;
-            SHA256_Init(&context);
-            SHA256_Update(&context, input, inputLength);
-            SHA256_Final(results, &context);
-            break;
-         }
-
+         md = EVP_sha256();
+         break;
       }
+
+      EVP_DigestInit_ex(context, md, NULL);
+      EVP_DigestUpdate(context, input, inputLength);
+      EVP_DigestFinal_ex(context, results, NULL);
+      EVP_MD_CTX_free(context);
 
 
       HM::AnsiString retVal;
